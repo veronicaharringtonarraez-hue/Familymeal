@@ -348,25 +348,32 @@ function defaultPlan(){ return {
   'Dom-desayuno':'d_pan_perico','Dom-m1':'s_mini_arepa','Dom-almuerzo':'l_bistec','Dom-m2':'s_churchill','Dom-cena':'c_sancocho',
 };}
 
+function ensureDataFields(){
+  if(!DATA || typeof DATA!=='object') DATA = freshData();
+  if(!DATA.inventory) DATA.inventory = SEED.inventory.map(x=>({...x}));
+  if(!DATA.qq) DATA.qq = defaultQQ();
+  if(!DATA.plan) DATA.plan = defaultPlan();
+  if(!DATA.weights) DATA.weights={}; if(!DATA.body) DATA.body={};
+  if(!DATA.budgets) DATA.budgets={};
+  if(!DATA.budgetMonth || !DATA.budgets[DATA.budgetMonth]){
+    const m = monthKey(new Date());
+    if(!DATA.budgets[m]) DATA.budgets[m]=defaultBudget();
+    DATA.budgetMonth = m;
+  }
+}
 function load(){
   try{
     const raw = localStorage.getItem(STORE_KEY);
     if(!raw){ DATA = freshData(); save(); return; }
     DATA = JSON.parse(raw);
-    // garantizar campos
-    if(!DATA.inventory) DATA.inventory = SEED.inventory.map(x=>({...x}));
-    if(!DATA.qq) DATA.qq = defaultQQ();
-    if(!DATA.plan) DATA.plan = defaultPlan();
-    if(!DATA.weights) DATA.weights={}; if(!DATA.body) DATA.body={};
-    if(!DATA.budgets) DATA.budgets={};
-    if(!DATA.budgetMonth || !DATA.budgets[DATA.budgetMonth]){
-      const m = monthKey(new Date());
-      if(!DATA.budgets[m]) DATA.budgets[m]=defaultBudget();
-      DATA.budgetMonth = m;
-    }
+    ensureDataFields();
   }catch(e){ console.error(e); DATA = freshData(); }
 }
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){ console.error(e); toast('No se pudo guardar'); } }
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }
+  catch(e){ console.error(e); toast('No se pudo guardar'); }
+  cloudPush();   // si la sincronización está activa, sube los cambios
+}
 function commit(msg){ save(); render(); if(msg) toast(msg); }
 
 /* ---------- helpers de comidas ---------- */
@@ -405,10 +412,12 @@ function sidebar(){
       <button class="x menu-btn" data-act="toggle-side" aria-label="Menú">☰</button>
     </div>
     <nav class="nav">${items}</nav>
+    ${cloudBadge()}
     <div class="side-card">
       <div class="lbl">Tus datos</div>
-      <div style="font-size:12px;color:#4E5869;margin-top:6px;line-height:1.4;">Todo se guarda solo en este dispositivo. Usa el respaldo para pasar tus datos al celular u otra compu.</div>
+      <div style="font-size:12px;color:#4E5869;margin-top:6px;line-height:1.4;">${CLOUD.status==='synced'?'Sincronizado en la nube: tú y tu esposo ven los mismos datos.':'Se guarda en este dispositivo. Activa la nube o usa el respaldo para compartir.'}</div>
       <div class="side-actions">
+        <button class="side-btn" data-act="cloud-open" style="border-color:#BFD6F0;color:#2E6FB0;">☁️ Sincronización familiar</button>
         <button class="side-btn" data-act="export">⬇️ Exportar respaldo</button>
         <button class="side-btn" data-act="import">⬆️ Importar respaldo</button>
         <button class="side-btn" data-act="reset" style="color:#A32C54;border-color:#F0C9D7;">↺ Restablecer todo</button>
@@ -417,6 +426,13 @@ function sidebar(){
   </aside>`;
 }
 
+function cloudBadge(){
+  const map={ local:['#8B94A6','Solo este dispositivo','#F1F4FA'], connecting:['#2E6FB0','Conectando…','#E3EEF5'],
+    synced:['#0F7A63','☁️ Sincronizado','#E1EFE9'], offline:['#A32C54','Sin conexión a la nube','#F4DCE6'] };
+  const s=map[CLOUD.status]||map.local;
+  return `<div style="margin-top:14px;display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:11px;background:${s[2]};font-size:12px;font-weight:700;color:${s[0]};">
+    <span class="dot" style="background:${s[0]}"></span>${s[1]}</div>`;
+}
 function pageHead(kicker,title,desc,right){
   return `<div class="page-head"><div>
     ${kicker?`<div class="page-kicker">${esc(kicker)}</div>`:''}
@@ -681,7 +697,33 @@ function modals(){
   if(UI.invForm) html += modalInvForm();
   if(UI.picker) html += modalPicker();
   if(UI.editing) html += modalProfile();
+  if(UI.cloudForm) html += modalCloud();
   return html;
+}
+function modalCloud(){
+  const connected = CLOUD.status==='synced' || (CLOUD.url && CLOUD.anonKey && CLOUD.family);
+  const f=UI.cloudForm;
+  const share = (CLOUD.url&&CLOUD.anonKey&&CLOUD.family) ? cloudShareLink() : '';
+  return `<div class="overlay" data-act="close-modal"><div class="modal" data-stop>
+    <div class="modal-head"><h2 class="card-title">☁️ Sincronización familiar</h2><button class="x" data-act="close-modal">✕</button></div>
+    <div class="muted" style="font-size:13px;line-height:1.5;margin-bottom:14px;">
+      Conecta la app a tu base de datos gratuita de <b>Supabase</b> para que tú y tu esposo vean los mismos datos en todos los dispositivos.
+      Pega aquí los dos valores que te da Supabase (Project URL y la llave <b>anon public</b>).</div>
+    <div class="field" style="margin-bottom:10px;"><label>Project URL</label>
+      <input class="input" id="cf-url" value="${esc(f.url||'')}" placeholder="https://xxxx.supabase.co"></div>
+    <div class="field" style="margin-bottom:14px;"><label>Llave anon public</label>
+      <input class="input" id="cf-key" value="${esc(f.anonKey||'')}" placeholder="eyJhbGciOi..."></div>
+    ${connected&&share?`<div class="card" style="background:#E1EFE9;border-color:#BFE0D4;padding:12px;margin-bottom:14px;">
+      <div style="font-weight:800;color:#0C5A48;font-size:13px;margin-bottom:6px;">✓ Conectado · espacio familiar listo</div>
+      <div class="muted" style="font-size:12px;margin-bottom:8px;">Envía este enlace a tu esposo. Al abrirlo en su celular/compu, queda conectado al mismo espacio.</div>
+      <input class="input" id="cf-share" readonly value="${esc(share)}" style="font-size:11px;background:#fff;">
+      <button class="btn sm" data-act="cloud-copy" style="margin-top:8px;width:100%">📋 Copiar enlace para compartir</button>
+    </div>`:''}
+    <div class="row" style="justify-content:space-between;">
+      ${connected?`<button class="btn danger" data-act="cloud-disconnect">Desconectar</button>`:'<span></span>'}
+      <button class="btn" data-act="cloud-connect">${connected?'Reconectar':'Conectar'}</button>
+    </div>
+  </div></div>`;
 }
 function modalInvForm(){
   const f=UI.invForm; const isEdit=!!f.id;
@@ -747,6 +789,12 @@ document.addEventListener('click', (e)=>{
     case 'export': exportData(); break;
     case 'import': document.getElementById('importFile').click(); break;
     case 'reset': doReset(); break;
+    // nube
+    case 'cloud-open': UI.cloudForm={url:CLOUD.url,anonKey:CLOUD.anonKey}; render(); break;
+    case 'cloud-connect': cloudConnect(document.getElementById('cf-url').value, document.getElementById('cf-key').value); break;
+    case 'cloud-disconnect': cloudDisconnect(); break;
+    case 'cloud-copy':{ const el=document.getElementById('cf-share'); if(el){ el.select();
+      (navigator.clipboard?navigator.clipboard.writeText(el.value):Promise.reject()).then(()=>toast('Enlace copiado ✔')).catch(()=>{ try{document.execCommand('copy');toast('Enlace copiado ✔');}catch(_){toast('Copia el enlace manualmente');} }); } break; }
     // inventario
     case 'inv-cat': UI.invCat=t.dataset.cat; render(); break;
     case 'inv-filter': UI.invFilter=t.dataset.filter; render(); break;
@@ -765,7 +813,7 @@ document.addEventListener('click', (e)=>{
     case 'close-modal':
       // si el clic es el fondo (overlay) solo cierra al tocar directamente el fondo, no el contenido
       if(t.classList.contains('overlay') && e.target!==t) break;
-      UI.invForm=null; UI.picker=null; UI.editing=null; render(); break;
+      UI.invForm=null; UI.picker=null; UI.editing=null; UI.cloudForm=null; render(); break;
     // quincenal
     case 'qq':{ const key=t.dataset.key, delta=parseFloat(t.dataset.delta);
       const cur=DATA.qq[key]||0; DATA.qq[key]=Math.max(0,Math.round((cur+delta)*100)/100); commit(); break; }
@@ -852,9 +900,97 @@ function doReset(){
   }
 }
 
+/* ============================================================
+   SINCRONIZACIÓN EN LA NUBE (Supabase) — opcional
+   ============================================================ */
+const CLOUD = { url:'', anonKey:'', family:'', client:null, status:'local' };
+const MY_ID = uid('cli'); // identifica a este dispositivo para no "rebotar" sus propios cambios
+
+function setCloudStatus(s){ if(CLOUD.status!==s){ CLOUD.status=s; render(); } }
+const b64enc = (o)=> btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const b64dec = (s)=> JSON.parse(decodeURIComponent(escape(atob(s))));
+
+function cloudLoadConfig(){
+  // Enlace de invitación: #cfg=...  (lo abre quien recibe el link)
+  if(location.hash.indexOf('#cfg=')===0){
+    try{ const cfg=b64dec(location.hash.slice(5));
+      if(cfg.url&&cfg.anonKey&&cfg.family) localStorage.setItem('familymeal_cloud', JSON.stringify(cfg));
+    }catch(e){ console.error(e); }
+    try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  }
+  try{ const c=JSON.parse(localStorage.getItem('familymeal_cloud')||'null');
+    if(c){ CLOUD.url=c.url||''; CLOUD.anonKey=c.anonKey||''; CLOUD.family=c.family||''; } }catch(e){}
+}
+function cloudSaveConfig(){ localStorage.setItem('familymeal_cloud', JSON.stringify({url:CLOUD.url,anonKey:CLOUD.anonKey,family:CLOUD.family})); }
+function cloudShareLink(){ return location.origin+location.pathname+'#cfg='+b64enc({url:CLOUD.url,anonKey:CLOUD.anonKey,family:CLOUD.family}); }
+
+async function cloudInit(){
+  cloudLoadConfig();
+  if(!CLOUD.url || !CLOUD.anonKey || !CLOUD.family){ setCloudStatus('local'); return; }
+  try{
+    setCloudStatus('connecting');
+    const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+    CLOUD.client = createClient(CLOUD.url, CLOUD.anonKey);
+    await cloudPull();
+    cloudSubscribe();
+    setCloudStatus('synced');
+  }catch(e){ console.error(e); setCloudStatus('offline'); }
+}
+async function cloudPull(){
+  if(!CLOUD.client) return;
+  const { data, error } = await CLOUD.client.from('spaces').select('data').eq('family',CLOUD.family).maybeSingle();
+  if(error){ console.error(error); setCloudStatus('offline'); return; }
+  if(data && data.data){ cloudAdopt(data.data); }   // la nube es la copia maestra al conectar
+  else { await cloudPush(true); }                    // primera vez: sube lo que hay localmente
+  setCloudStatus('synced');
+}
+function cloudAdopt(remote){
+  try{ DATA = remote; ensureDataFields(); localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); render(); }
+  catch(e){ console.error(e); }
+}
+function cloudPush(immediate){
+  if(!CLOUD.client) return;
+  clearTimeout(cloudPush._t);
+  const run = async ()=>{
+    try{
+      const now = new Date().toISOString();
+      const payload = {...DATA, _client:MY_ID, _updatedAt:now};
+      const { error } = await CLOUD.client.from('spaces').upsert({ family:CLOUD.family, data:payload, updated_at:now });
+      if(error) throw error;
+      setCloudStatus('synced');
+    }catch(e){ console.error(e); setCloudStatus('offline'); }
+  };
+  if(immediate) return run();
+  cloudPush._t = setTimeout(run, 600);
+}
+function cloudSubscribe(){
+  if(!CLOUD.client) return;
+  CLOUD.client.channel('sp_'+CLOUD.family)
+    .on('postgres_changes', { event:'*', schema:'public', table:'spaces', filter:'family=eq.'+CLOUD.family },
+      (payload)=>{ const nd = payload.new && payload.new.data; if(!nd) return;
+        if(nd._client===MY_ID) return;            // ignorar mis propios cambios
+        cloudAdopt(nd); toast('Actualizado por la familia ☁️'); })
+    .subscribe();
+}
+async function cloudConnect(url, anonKey){
+  CLOUD.url=(url||'').trim().replace(/\/+$/,''); CLOUD.anonKey=(anonKey||'').trim();
+  if(!CLOUD.url || !CLOUD.anonKey){ toast('Faltan los datos de Supabase'); return; }
+  if(!CLOUD.family) CLOUD.family = uid('fam')+uid('').slice(0,6); // espacio familiar único e impredecible
+  cloudSaveConfig();
+  UI.cloudForm={url:CLOUD.url,anonKey:CLOUD.anonKey};  // mantener abierto para mostrar el enlace
+  await cloudInit();
+  if(CLOUD.status==='synced') toast('¡Sincronización activada! ☁️');
+}
+function cloudDisconnect(){
+  localStorage.removeItem('familymeal_cloud');
+  CLOUD.url=''; CLOUD.anonKey=''; CLOUD.family=''; CLOUD.client=null;
+  UI.cloudForm=null; setCloudStatus('local'); toast('Sincronización desactivada (sigue guardando en este dispositivo)');
+}
+
 /* ---------- arranque ---------- */
 load();
 render();
+cloudInit();
 </script>
 </body>
 </html>
