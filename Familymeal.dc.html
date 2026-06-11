@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Hanken Grotesk',system-ui,sans-serif;background:#EDF1F7;color:#14274E;-webkit-font-smoothing:antialiased;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:#C7CEDB;border-radius:20px;border:3px solid transparent;background-clip:content-box;}
+  ::-webkit-scrollbar-thumb:hover{background:#AEB6C6;background-clip:content-box;}
+</style>
+</helmet>
+<div style="display:flex;min-height:100vh;background:#EDF1F7;">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside style="width:256px;flex-shrink:0;background:#FFFFFF;border-right:1px solid #DEE4EE;display:flex;flex-direction:column;padding:26px 18px;position:sticky;top:0;height:100vh;">
+    <div style="display:flex;align-items:center;gap:11px;padding:0 8px 4px;">
+      <div style="width:40px;height:40px;border-radius:13px;background:#14274E;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 14px -6px rgba(20,39,78,.5);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3c-3.2 0-5 2.3-5 5.6 0 4.2 2.6 9.3 5 12.4 2.4-3.1 5-8.2 5-12.4C17 5.3 15.2 3 12 3Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;letter-spacing:-.5px;line-height:1;">Familymeal</div>
+        <div style="font-size:11px;color:#8B94A6;font-weight:600;letter-spacing:.3px;margin-top:3px;">Cocina · Casa · Salud</div>
+      </div>
+    </div>
+
+    <nav style="display:flex;flex-direction:column;gap:3px;margin-top:26px;">
+      <div onClick="{{ goInicio }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:{{ nav.inicio.color }};background:{{ nav.inicio.bg }};transition:background .15s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 5l8 6.5M6 10v9h4v-5h4v5h4v-9" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Inicio
+      </div>
+      <div onClick="{{ goInventario }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:{{ nav.inventario.color }};background:{{ nav.inventario.bg }};transition:background .15s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3.7 7.7 12 12m0 0 8.3-4.3M12 12v9" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        Inventario
+      </div>
+      <div onClick="{{ goQuincenal }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:{{ nav.quincenal.color }};background:{{ nav.quincenal.bg }};transition:background .15s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 4h8a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8"/><path d="M9 3.5h6v3H9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9.2 12.5 1.5 1.5 3-3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Compra quincenal
+      </div>
+      <div onClick="{{ goFrescura }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:{{ nav.frescura.color }};background:{{ nav.frescura.bg }};transition:background .15s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21c4.5-2.5 7-6 7-10.5A7 7 0 0 0 5 10.5C5 15 7.5 18.5 12 21Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 21c0-4 0-7 2.5-10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Frescura y consumo
+      </div>
+      <div onClick="{{ goComidas }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:{{ nav.comidas.color }};background:{{ nav.comidas.bg }};transition:background .15s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M7 3v7c0 1.1.9 2 2 2s2-.9 2-2V3M9 12v9M16 3c-1.5 0-2.5 1.8-2.5 4.5S14.5 12 16 12m0 0v9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Comidas de la semana
+      </div>
+      <div onClick="{{ goPorciones }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:{{ nav.porciones.color }};background:{{ nav.porciones.bg }};transition:background .15s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 3.5v8.5l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Porciones saludables
+      </div>
+      <div onClick="{{ goPerfiles }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:{{ nav.perfiles.color }};background:{{ nav.perfiles.bg }};transition:background .15s;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19c.5-3 2.8-4.6 5.5-4.6s5 1.6 5.5 4.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 5.4A3 3 0 0 1 16 11M17.5 14.6c2 .5 3.4 1.9 3.8 4.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Perfiles familiares
+      </div>
+    </nav>
+
+    <div style="margin-top:auto;background:#F1F4FA;border:1px solid #DEE4EE;border-radius:16px;padding:15px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.6px;color:#8B94A6;text-transform:uppercase;">Próximo mercado</div>
+      <div style="display:flex;align-items:baseline;gap:7px;margin-top:6px;">
+        <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#14274E;line-height:1;">14</div>
+        <div style="font-size:13px;font-weight:600;color:#4E5869;">de junio · quincenal</div>
+      </div>
+      <div style="font-size:12px;color:#8B94A6;margin-top:8px;line-height:1.4;">Mini-mercado el día 7 si falta fruta o verdura fresca.</div>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main style="flex:1;min-width:0;padding:34px 40px 60px;max-width:1280px;">
+
+    <!-- ========== INICIO ========== -->
+    <sc-if value="{{ isInicio }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+        <div>
+          <div style="font-size:14px;font-weight:600;color:#8B94A6;">{{ todayLong }}</div>
+          <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:38px;letter-spacing:-1px;margin:4px 0 0;line-height:1;">Hola, Vero <span style="display:inline-block;border-bottom:5px solid #7FB0E6;line-height:.7;">👋</span></h1>
+          <div style="font-size:15px;color:#4E5869;margin-top:10px;">Una familia de 6 · 2 adultos y 4 niños · cocina casera</div>
+        </div>
+        <div style="display:flex;gap:-10px;">
+          <sc-for list="{{ familyAvatars }}" as="a" hint-placeholder-count="6">
+            <div style="width:42px;height:42px;border-radius:50%;background:{{ a.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;border:3px solid #EDF1F7;margin-left:-8px;font-family:'Bricolage Grotesque';">{{ a.initial }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:{{ statGrid }};gap:16px;margin-bottom:22px;">
+        <div style="background:#14274E;border-radius:20px;padding:20px;color:#fff;">
+          <div style="font-size:12.5px;font-weight:600;opacity:.85;">Por comprar</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:40px;line-height:1;margin-top:8px;">{{ shopCount }}</div>
+          <div style="font-size:12.5px;opacity:.85;margin-top:6px;">artículos agotados o por acabarse</div>
+        </div>
+        <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #DEE4EE;">
+          <div style="font-size:12.5px;font-weight:600;color:#8B94A6;">Prioridad alta</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:40px;line-height:1;margin-top:8px;color:#A32C54;">{{ priorityCount }}</div>
+          <div style="font-size:12.5px;color:#8B94A6;margin-top:6px;">comprar esta semana</div>
+        </div>
+        <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #DEE4EE;">
+          <div style="font-size:12.5px;font-weight:600;color:#8B94A6;">Comidas planificadas</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:40px;line-height:1;margin-top:8px;color:#C28A2A;">{{ plannedCount }}<span style="font-size:18px;color:#B4BCCB;">/35</span></div>
+          <div style="font-size:12.5px;color:#8B94A6;margin-top:6px;">esta semana</div>
+        </div>
+        <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #DEE4EE;">
+          <div style="font-size:12.5px;font-weight:600;color:#8B94A6;">Agua de la familia</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:40px;line-height:1;margin-top:8px;color:#2D86C2;">13.4<span style="font-size:18px;color:#B4BCCB;">L</span></div>
+          <div style="font-size:12.5px;color:#8B94A6;margin-top:6px;">meta diaria combinada</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:{{ inicioGrid }};gap:16px;">
+        <div style="background:#fff;border-radius:20px;padding:24px;border:1px solid #DEE4EE;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;margin:0;">Hoy en la mesa</h3>
+            <button onClick="{{ goComidas }}" style="border:none;background:#E2ECF6;color:#0C5A48;font-weight:700;font-size:13px;padding:8px 14px;border-radius:10px;cursor:pointer;font-family:inherit;">Ver semana →</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ todayMeals }}" as="m" hint-placeholder-count="5">
+              <div style="display:flex;align-items:center;gap:14px;padding:11px 13px;border-radius:14px;background:#F4F7FC;">
+                <div style="width:44px;height:44px;border-radius:50%;flex-shrink:0;background:{{ m.dot }};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-family:'Bricolage Grotesque';font-size:16px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35);">{{ m.initial }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:11px;font-weight:700;color:#8B94A6;text-transform:uppercase;letter-spacing:.4px;">{{ m.slot }}</div>
+                  <div style="font-weight:700;font-size:15px;margin-top:1px;">{{ m.name }}</div>
+                </div>
+                <div style="font-size:12.5px;color:#8B94A6;font-weight:500;">{{ m.sides }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#fff;border-radius:20px;padding:24px;border:1px solid #DEE4EE;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+            <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;margin:0;">Prioridad esta semana</h3>
+            <button onClick="{{ goInventario }}" style="border:none;background:#F4DCE6;color:#98264C;font-weight:700;font-size:13px;padding:8px 14px;border-radius:10px;cursor:pointer;font-family:inherit;">Inventario →</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ priorityPreview }}" as="p" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:11px;">
+                <div style="width:9px;height:9px;border-radius:50%;background:{{ p.color }};flex-shrink:0;"></div>
+                <div style="flex:1;font-size:14px;font-weight:600;">{{ p.name }}</div>
+                <div style="font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:7px;background:{{ p.statusBg }};color:{{ p.statusColor }};">{{ p.statusLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ========== INVENTARIO ========== -->
+    <sc-if value="{{ isInventario }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+        <div>
+          <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Inventario de la casa</h1>
+          <div style="font-size:15px;color:#4E5869;margin-top:8px;max-width:560px;">Toca el estado de cada producto para cambiarlo, o el lápiz para editarlo. Lo que se acaba pasa solo a la lista de compra.</div>
+        </div>
+        <button onClick="{{ onAddItem }}" style="border:none;background:#14274E;color:#fff;font-weight:700;font-size:14px;padding:12px 18px;border-radius:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;flex-shrink:0;box-shadow:0 6px 16px -8px rgba(20,39,78,.6);">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+          Agregar producto
+        </button>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 14px;">
+        <sc-for list="{{ catChips }}" as="c" hint-placeholder-count="8">
+          <div onClick="{{ c.onClick }}" style="padding:8px 15px;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer;background:{{ c.bg }};color:{{ c.color }};border:1px solid {{ c.border }};transition:all .12s;">{{ c.label }}</div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;">
+        <sc-for list="{{ statusChips }}" as="s" hint-placeholder-count="5">
+          <div onClick="{{ s.onClick }}" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;background:{{ s.bg }};color:{{ s.color }};">
+            <span style="width:8px;height:8px;border-radius:50%;background:{{ s.dot }};"></span>{{ s.label }}
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:{{ invGrid }};gap:20px;align-items:start;">
+        <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;">
+          <sc-for list="{{ invItems }}" as="it" hint-placeholder-count="9">
+            <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid #E7ECF4;">
+              <div style="width:40px;height:40px;border-radius:12px;flex-shrink:0;background:{{ it.catBg }};display:flex;align-items:center;justify-content:center;">
+                <span style="width:14px;height:14px;border-radius:5px;background:{{ it.catColor }};"></span>
+              </div>
+              <div style="flex:1;min-width:0;overflow:hidden;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-weight:700;font-size:15px;white-space:nowrap;">{{ it.name }}</span>
+                  <sc-if value="{{ it.priority }}"><span style="font-size:10px;font-weight:800;letter-spacing:.4px;color:#A32C54;background:#F6DEE8;padding:2px 7px;border-radius:6px;flex-shrink:0;">PRIORIDAD</span></sc-if>
+                </div>
+                <div style="font-size:12.5px;color:#8B94A6;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ it.cat }} · {{ it.qty }}</div>
+              </div>
+              <div style="font-size:13px;font-weight:600;color:#4E5869;flex-shrink:0;white-space:nowrap;text-align:right;">{{ it.price }}</div>
+              <div onClick="{{ it.onCycle }}" style="cursor:pointer;font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:9px;background:{{ it.statusBg }};color:{{ it.statusColor }};width:118px;flex-shrink:0;text-align:center;white-space:nowrap;user-select:none;">{{ it.statusLabel }}</div>
+              <div onClick="{{ it.onEdit }}" style="width:32px;height:32px;border-radius:9px;background:#EDF1F7;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;" title="Editar">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="#4E5869" stroke-width="2" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ invEmpty }}"><div style="padding:40px;text-align:center;color:#8B94A6;font-weight:600;">No hay productos con este filtro.</div></sc-if>
+        </div>
+
+        <div style="background:#14274E;border-radius:20px;padding:22px;position:sticky;top:20px;color:#fff;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 5h2l2 11h9l2-7H7" stroke="#7FB0E6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.4" fill="#7FB0E6"/><circle cx="17" cy="20" r="1.4" fill="#7FB0E6"/></svg>
+            <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin:0;">Lista de compra</h3>
+          </div>
+          <div style="font-size:12.5px;color:#A9A293;margin-top:6px;">{{ shopCount }} artículos · mercado el 14 de junio</div>
+          <div style="height:1px;background:#3A362D;margin:16px 0;"></div>
+          <div style="display:flex;flex-direction:column;gap:11px;max-height:430px;overflow:auto;">
+            <sc-for list="{{ shopList }}" as="s" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:11px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:{{ s.dot }};flex-shrink:0;"></span>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:600;font-size:13.5px;">{{ s.name }}</div>
+                  <div style="font-size:11px;color:#8E8779;">{{ s.cat }}</div>
+                </div>
+                <sc-if value="{{ s.priority }}"><span style="font-size:14px;color:#C28A2A;">★</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ========== COMPRA QUINCENAL ========== -->
+    <sc-if value="{{ isQuincenal }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Compra quincenal</h1>
+          <div style="font-size:15px;color:#4E5869;margin-top:8px;">Ajusta los kg, litros o porciones de cada alimento hasta cubrir el total de cada categoría.</div>
+        </div>
+        <div style="background:#14274E;color:#fff;border-radius:14px;padding:13px 18px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:#7FB0E6;text-transform:uppercase;">Estado del plan</div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:18px;margin-top:3px;">{{ qSummary }}</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:{{ profileGrid }};gap:18px;margin-top:24px;">
+        <sc-for list="{{ quincenalCats }}" as="c" hint-placeholder-count="9">
+          <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;">
+            <div style="padding:20px 22px 18px;border-bottom:1px solid #E7ECF4;">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                <div>
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;line-height:1.1;">{{ c.name }}</div>
+                  <div style="font-size:12.5px;color:#8B94A6;font-weight:600;margin-top:4px;">Objetivo {{ c.targetStr }}</div>
+                </div>
+                <div style="text-align:right;flex-shrink:0;">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;line-height:1;color:{{ c.color }};">{{ c.totalStr }}</div>
+                  <div style="font-size:11px;color:#8B94A6;font-weight:600;">{{ c.unit }} en el carrito</div>
+                </div>
+              </div>
+              <div style="position:relative;height:12px;background:#E6EBF3;border-radius:30px;margin-top:14px;overflow:hidden;">
+                <div style="position:absolute;top:0;bottom:0;left:{{ c.bandStart }}%;width:{{ c.bandWidth }}%;background:repeating-linear-gradient(45deg,#D2E8DF,#D2E8DF 5px,#C2DDD0 5px,#C2DDD0 10px);"></div>
+                <div style="position:absolute;top:0;bottom:0;left:0;width:{{ c.fillPct }}%;background:{{ c.fillColor }};border-radius:30px;opacity:.92;"></div>
+              </div>
+              <div style="margin-top:10px;display:inline-block;font-size:12px;font-weight:700;padding:4px 11px;border-radius:8px;background:{{ c.statusBg }};color:{{ c.statusColor }};">{{ c.statusLabel }}</div>
+            </div>
+            <div style="padding:8px 12px 12px;max-height:300px;overflow-y:auto;">
+              <sc-for list="{{ c.items }}" as="it" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:11px;">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ it.name }}</div>
+                    <sc-if value="{{ it.isUnit }}"><div style="font-size:11px;color:#8B94A6;">{{ it.kgEq }}</div></sc-if>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                    <div onClick="{{ it.onMinus }}" style="width:28px;height:28px;border-radius:9px;background:#EDF1F7;color:#4E5869;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:17px;user-select:none;">−</div>
+                    <div style="min-width:62px;text-align:center;font-weight:700;font-size:13.5px;font-family:'Bricolage Grotesque';">{{ it.qtyLabel }}</div>
+                    <div onClick="{{ it.onPlus }}" style="width:28px;height:28px;border-radius:9px;background:#E2ECF6;color:#0C5A48;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:17px;user-select:none;">+</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ========== FRESCURA Y CONSUMO ========== -->
+    <sc-if value="{{ isFrescura }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Frescura y orden de consumo</h1>
+      <div style="font-size:15px;color:#4E5869;margin-top:8px;max-width:680px;">Lo que se daña primero, se come primero. Esta es la regla de oro después de cada mercado — y qué reponer en los mini-mercados de la semana.</div>
+
+      <!-- regla de oro: 3 ventanas -->
+      <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;margin:30px 0 14px;">La regla de oro de la quincena</h3>
+      <div style="display:grid;grid-template-columns:{{ plateGrid }};gap:16px;">
+        <sc-for list="{{ goldenWindows }}" as="g" hint-placeholder-count="3">
+          <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;">
+            <div style="background:{{ g.color }};padding:16px 20px;color:#fff;">
+              <div style="font-size:12px;font-weight:700;letter-spacing:.6px;opacity:.85;text-transform:uppercase;">{{ g.tag }}</div>
+              <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:23px;line-height:1;margin-top:4px;">{{ g.day }}</div>
+            </div>
+            <div style="padding:16px 18px;display:flex;flex-direction:column;gap:11px;">
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="6">
+                <div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;font-weight:600;color:#293247;line-height:1.35;">
+                  <span style="width:7px;height:7px;border-radius:50%;background:{{ g.color }};flex-shrink:0;margin-top:6px;"></span><span>{{ it }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- mini-mercado -->
+      <div style="margin-top:18px;background:#14274E;border-radius:20px;padding:24px 26px;color:#fff;display:grid;grid-template-columns:{{ miniGrid }};gap:24px;align-items:center;">
+        <div>
+          <div style="display:flex;align-items:center;gap:9px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 5h2l2 11h9l2-7H7" stroke="#7FB0E6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.4" fill="#7FB0E6"/><circle cx="17" cy="20" r="1.4" fill="#7FB0E6"/></svg>
+            <div style="font-size:12px;font-weight:700;letter-spacing:.6px;color:#9FB3D4;text-transform:uppercase;">Mini-mercado semanal</div>
+          </div>
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:25px;line-height:1.1;margin-top:8px;">Día 7 · solo lo fresco</div>
+          <div style="font-size:13.5px;color:#B9C6DD;margin-top:8px;line-height:1.5;">Estos alimentos no aguantan toda la quincena. Cómpralos a media semana para tenerlos frescos sin desperdicio.</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <sc-for list="{{ miniMarket }}" as="m" hint-placeholder-count="8">
+            <span style="font-size:13px;font-weight:600;background:rgba(127,176,230,.16);color:#CFE0F5;padding:7px 13px;border-radius:10px;white-space:nowrap;">{{ m }}</span>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- escala de durabilidad -->
+      <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;margin:34px 0 14px;">Escala de durabilidad</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <sc-for list="{{ shelfTiers }}" as="t" hint-placeholder-count="8">
+          <div style="background:#fff;border-radius:16px;border:1px solid #DEE4EE;padding:16px 18px;display:grid;grid-template-columns:{{ tierGrid }};gap:18px;align-items:center;border-left:5px solid {{ t.color }};">
+            <div>
+              <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:16px;color:{{ t.color }};">{{ t.label }}</div>
+              <div style="font-size:11.5px;color:#8B94A6;font-weight:600;margin-top:2px;">{{ t.sub }}</div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;">
+              <sc-for list="{{ t.items }}" as="f" hint-placeholder-count="5">
+                <span style="font-size:12.5px;font-weight:600;background:{{ t.chipBg }};color:{{ t.chipColor }};padding:4px 11px;border-radius:8px;white-space:nowrap;">{{ f }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- top riesgo de desperdicio -->
+      <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;margin:34px 0 14px;">Mayor riesgo de desperdicio en tu casa</h3>
+      <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:10px 8px;">
+        <sc-for list="{{ wasteRanking }}" as="w" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:15px;padding:12px 16px;border-bottom:1px solid {{ w.border }};">
+            <div style="width:30px;height:30px;border-radius:9px;background:{{ w.medalBg }};color:{{ w.medalColor }};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;font-family:'Bricolage Grotesque';flex-shrink:0;">{{ w.rank }}</div>
+            <div style="flex:1;font-weight:700;font-size:15px;">{{ w.name }}</div>
+            <div style="font-size:12.5px;color:#8B94A6;font-weight:500;">{{ w.note }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ========== COMIDAS SEMANALES ========== -->
+    <sc-if value="{{ isComidas }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+        <div>
+          <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Comidas de la semana</h1>
+          <div style="font-size:15px;color:#4E5869;margin-top:8px;">Toca cualquier espacio para elegir un plato del recetario familiar.</div>
+        </div>
+        <div style="display:flex;gap:14px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#4E5869;"><span style="width:10px;height:10px;border-radius:50%;background:#C28A2A;"></span>Pollo</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#4E5869;"><span style="width:10px;height:10px;border-radius:50%;background:#A32C54;"></span>Res</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#4E5869;"><span style="width:10px;height:10px;border-radius:50%;background:#A65A86;"></span>Cerdo</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#4E5869;"><span style="width:10px;height:10px;border-radius:50%;background:#0F7A63;"></span>Otros</div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:74px repeat(5,1fr);gap:10px;padding:0 4px;">
+          <div></div>
+          <div style="font-size:11.5px;font-weight:800;letter-spacing:.5px;color:#8B94A6;text-transform:uppercase;text-align:center;">Desayuno</div>
+          <div style="font-size:11.5px;font-weight:800;letter-spacing:.5px;color:#8B94A6;text-transform:uppercase;text-align:center;">Merienda AM</div>
+          <div style="font-size:11.5px;font-weight:800;letter-spacing:.5px;color:#8B94A6;text-transform:uppercase;text-align:center;">Almuerzo</div>
+          <div style="font-size:11.5px;font-weight:800;letter-spacing:.5px;color:#8B94A6;text-transform:uppercase;text-align:center;">Merienda PM</div>
+          <div style="font-size:11.5px;font-weight:800;letter-spacing:.5px;color:#8B94A6;text-transform:uppercase;text-align:center;">Cena</div>
+        </div>
+        <sc-for list="{{ weekRows }}" as="row" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:74px repeat(5,1fr);gap:10px;align-items:stretch;">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:{{ row.dayBg }};border-radius:14px;color:{{ row.dayColor }};">
+              <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:17px;line-height:1;">{{ row.day }}</div>
+            </div>
+            <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
+              <div onClick="{{ cell.onPick }}" style="background:#fff;border:1px solid #DEE4EE;border-radius:14px;padding:11px;min-height:78px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;transition:border-color .12s;">
+                <sc-if value="{{ cell.hasMeal }}">
+                  <div style="display:flex;align-items:flex-start;gap:9px;">
+                    <span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;background:{{ cell.dot }};box-shadow:inset 0 0 0 2px rgba(255,255,255,.4);"></span>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-weight:700;font-size:13px;line-height:1.2;">{{ cell.name }}</div>
+                      <div style="font-size:11px;color:#8B94A6;margin-top:2px;line-height:1.2;">{{ cell.sides }}</div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ cell.empty }}">
+                  <div style="display:flex;align-items:center;justify-content:center;gap:6px;color:#AEB6C6;font-weight:700;font-size:13px;height:100%;">
+                    <span style="font-size:17px;">+</span> Elegir
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ========== PORCIONES ========== -->
+    <sc-if value="{{ isPorciones }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Porciones saludables</h1>
+      <div style="font-size:15px;color:#4E5869;margin-top:8px;">La regla del plato para cada comida, y las cantidades diarias de cada miembro.</div>
+
+      <!-- regla del plato -->
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:22px;">
+        <div style="font-size:13.5px;font-weight:700;color:#4E5869;">Según tu objetivo:</div>
+        <div style="display:inline-flex;background:#E4E9F2;border-radius:13px;padding:4px;gap:3px;">
+          <sc-for list="{{ goalTabs }}" as="g" hint-placeholder-count="3">
+            <div onClick="{{ g.onClick }}" style="padding:9px 17px;border-radius:10px;font-weight:700;font-size:13.5px;cursor:pointer;background:{{ g.bg }};color:{{ g.color }};box-shadow:{{ g.shadow }};transition:all .12s;">{{ g.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="font-size:13px;color:#8B94A6;margin-top:9px;">{{ goalDesc }}</div>
+
+      <div style="display:grid;grid-template-columns:{{ plateGrid }};gap:16px;margin-top:18px;">
+        <sc-for list="{{ plates }}" as="pl" hint-placeholder-count="3">
+          <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:22px;text-align:center;">
+            <div style="display:inline-block;background:{{ pl.badge }};color:#fff;font-weight:800;font-size:12px;letter-spacing:1px;padding:5px 14px;border-radius:8px;">{{ pl.meal }}</div>
+            <div style="width:170px;height:170px;border-radius:50%;margin:18px auto 0;background:{{ pl.conic }};box-shadow:0 0 0 7px #fff,0 0 0 9px #DEE4EE,0 10px 24px -10px rgba(0,0,0,.25);"></div>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-top:20px;text-align:left;">
+              <sc-for list="{{ pl.rows }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;"><span style="width:11px;height:11px;border-radius:3px;background:{{ r.color }};"></span>{{ r.label }} <b style="margin-left:auto;font-family:'Bricolage Grotesque';">{{ r.pct }}</b></div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- selector de persona + tarjetas -->
+      <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;margin:36px 0 14px;">Cantidades diarias por persona</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:20px;">
+        <sc-for list="{{ personTabs }}" as="p" hint-placeholder-count="6">
+          <div onClick="{{ p.onClick }}" style="display:flex;align-items:center;gap:9px;padding:7px 14px 7px 7px;border-radius:30px;cursor:pointer;background:{{ p.bg }};border:1.5px solid {{ p.border }};transition:all .12s;">
+            <span style="width:30px;height:30px;border-radius:50%;background:{{ p.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;font-family:'Bricolage Grotesque';">{{ p.initial }}</span>
+            <span style="font-weight:700;font-size:14px;color:{{ p.textColor }};">{{ p.name }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:26px;">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;">
+          <div style="width:52px;height:52px;border-radius:50%;background:{{ sel.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;font-family:'Bricolage Grotesque';">{{ sel.initial }}</div>
+          <div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;line-height:1;">{{ sel.name }}</div>
+            <div style="font-size:13.5px;color:#8B94A6;font-weight:600;margin-top:3px;">{{ sel.role }} · {{ sel.kcal }} kcal al día</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:{{ measureGrid }};gap:13px;">
+          <sc-for list="{{ measures }}" as="m" hint-placeholder-count="8">
+            <div style="background:#F4F7FC;border-radius:15px;padding:16px;border-top:3px solid {{ m.color }};">
+              <div style="font-size:12px;font-weight:700;color:#8B94A6;text-transform:uppercase;letter-spacing:.4px;">{{ m.label }}</div>
+              <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:24px;margin-top:7px;color:{{ m.color }};line-height:1;">{{ m.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ sel.hasProteinSplit }}">
+          <div style="margin-top:14px;background:#FBF4E9;border:1px solid #F0E3CD;border-radius:14px;padding:14px 16px;display:flex;align-items:flex-start;gap:11px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;margin-top:1px;"><path d="M7 3v7c0 1.1.9 2 2 2s2-.9 2-2V3M9 12v9M16 3c-1.5 0-2.5 1.8-2.5 4.5S14.5 12 16 12m0 0v9" stroke="#C28A2A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div>
+              <div style="font-size:12px;font-weight:800;color:#87671B;text-transform:uppercase;letter-spacing:.4px;">Cómo repartir la proteína</div>
+              <div style="font-size:13.5px;color:#4E5869;font-weight:600;margin-top:4px;line-height:1.5;">{{ sel.proteinSplit }}</div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- tabla familiar -->
+      <h3 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;margin:36px 0 14px;">Toda la familia de un vistazo</h3>
+      <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:760px;">
+            <thead>
+              <tr style="background:#F4F7FC;">
+                <th style="text-align:left;padding:14px 18px;font-weight:800;color:#4E5869;font-size:12px;text-transform:uppercase;letter-spacing:.4px;">Persona</th>
+                <th style="padding:14px 10px;font-weight:800;color:#4E5869;font-size:12px;">Calorías</th>
+                <th style="padding:14px 10px;font-weight:800;color:#C28A2A;font-size:12px;">Proteína</th>
+                <th style="padding:14px 10px;font-weight:800;color:#A32C54;font-size:12px;">Carbos</th>
+                <th style="padding:14px 10px;font-weight:800;color:#7C6A48;font-size:12px;">Fibra</th>
+                <th style="padding:14px 10px;font-weight:800;color:#0F7A63;font-size:12px;">Fruta</th>
+                <th style="padding:14px 10px;font-weight:800;color:#0F7A63;font-size:12px;">Verdura</th>
+                <th style="padding:14px 10px;font-weight:800;color:#2E6FB0;font-size:12px;">Lácteos</th>
+                <th style="padding:14px 14px;font-weight:800;color:#2D86C2;font-size:12px;">Agua</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="6">
+                <tr style="border-top:1px solid #E7ECF4;">
+                  <td style="padding:13px 18px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <span style="width:28px;height:28px;border-radius:50%;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;font-family:'Bricolage Grotesque';">{{ r.initial }}</span>
+                      <div><div style="font-weight:700;">{{ r.name }}</div><div style="font-size:11px;color:#8B94A6;">{{ r.role }}</div></div>
+                    </div>
+                  </td>
+                  <td style="padding:13px 10px;text-align:center;font-weight:700;">{{ r.kcal }}</td>
+                  <td style="padding:13px 10px;text-align:center;font-weight:600;">{{ r.protein }}</td>
+                  <td style="padding:13px 10px;text-align:center;font-weight:600;">{{ r.carbs }}</td>
+                  <td style="padding:13px 10px;text-align:center;font-weight:600;">{{ r.fiber }}</td>
+                  <td style="padding:13px 10px;text-align:center;font-weight:600;">{{ r.fruit }}</td>
+                  <td style="padding:13px 10px;text-align:center;font-weight:600;">{{ r.veg }}</td>
+                  <td style="padding:13px 10px;text-align:center;font-weight:600;">{{ r.dairy }}</td>
+                  <td style="padding:13px 14px;text-align:center;font-weight:700;color:#2D86C2;">{{ r.water }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ========== PERFILES ========== -->
+    <sc-if value="{{ isPerfiles }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <h1 style="font-family:'Bricolage Grotesque';font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Perfiles familiares</h1>
+      <div style="font-size:15px;color:#4E5869;margin-top:8px;">Peso frente al rango saludable, porciones diarias, gustos y necesidades de cada uno.</div>
+
+      <div style="display:grid;grid-template-columns:{{ profileGrid }};gap:18px;margin-top:24px;">
+        <sc-for list="{{ profiles }}" as="p" hint-placeholder-count="6">
+          <div style="background:#fff;border-radius:22px;border:1px solid #DEE4EE;overflow:hidden;">
+            <div style="height:8px;background:{{ p.color }};"></div>
+            <div style="padding:22px 24px 24px;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:54px;height:54px;border-radius:50%;background:{{ p.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;font-family:'Bricolage Grotesque';flex-shrink:0;">{{ p.initial }}</div>
+                <div style="flex:1;">
+                  <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;line-height:1;">{{ p.name }}</div>
+                  <div style="font-size:13px;color:#8B94A6;font-weight:600;margin-top:4px;">{{ p.role }} · {{ p.weightStr }}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex-shrink:0;">
+                  <div style="font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:9px;background:{{ p.statusBg }};color:{{ p.statusColor }};white-space:nowrap;">{{ p.statusLabel }}</div>
+                  <div onClick="{{ p.onEdit }}" style="font-size:12px;font-weight:700;color:#2E6FB0;cursor:pointer;display:flex;align-items:center;gap:5px;user-select:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="#2E6FB0" stroke-width="2" stroke-linejoin="round"/></svg>Editar datos</div>
+                </div>
+              </div>
+
+              <!-- barra de peso -->
+              <div style="margin-top:18px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#8B94A6;font-weight:600;margin-bottom:5px;">
+                  <span>Rango saludable {{ p.rangeStr }}</span><span>{{ p.weightStr }}</span>
+                </div>
+                <div style="position:relative;height:11px;background:#E6EBF3;border-radius:30px;">
+                  <div style="position:absolute;top:0;bottom:0;left:{{ p.bandStart }}%;width:{{ p.bandWidth }}%;background:#D2E8DF;border-radius:30px;"></div>
+                  <div style="position:absolute;top:50%;left:{{ p.markerPct }}%;width:16px;height:16px;border-radius:50%;background:{{ p.color }};border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(0,0,0,.2);"></div>
+                </div>
+              </div>
+
+              <!-- porciones mini -->
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:20px;">
+                <div style="text-align:center;background:#F4F7FC;border-radius:12px;padding:10px 4px;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;color:#C28A2A;">{{ p.protein }}</div><div style="font-size:10px;color:#8B94A6;font-weight:600;margin-top:3px;">Proteína</div></div>
+                <div style="text-align:center;background:#F4F7FC;border-radius:12px;padding:10px 4px;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;color:#0F7A63;">{{ p.fruit }}</div><div style="font-size:10px;color:#8B94A6;font-weight:600;margin-top:3px;">Fruta</div></div>
+                <div style="text-align:center;background:#F4F7FC;border-radius:12px;padding:10px 4px;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;color:#0F7A63;">{{ p.veg }}</div><div style="font-size:10px;color:#8B94A6;font-weight:600;margin-top:3px;">Verdura</div></div>
+                <div style="text-align:center;background:#F4F7FC;border-radius:12px;padding:10px 4px;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;color:#2E6FB0;">{{ p.dairy }}</div><div style="font-size:10px;color:#8B94A6;font-weight:600;margin-top:3px;">Lácteos</div></div>
+                <div style="text-align:center;background:#F4F7FC;border-radius:12px;padding:10px 4px;"><div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:15px;color:#2D86C2;">{{ p.water }}</div><div style="font-size:10px;color:#8B94A6;font-weight:600;margin-top:3px;">Agua</div></div>
+              </div>
+
+              <!-- composición corporal -->
+              <sc-if value="{{ p.hasBody }}">
+                <div style="margin-top:18px;">
+                  <div style="font-size:11px;font-weight:700;color:#586273;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Composición corporal</div>
+                  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                    <sc-for list="{{ p.bodyItems }}" as="b" hint-placeholder-count="6">
+                      <div style="background:#F4F7FC;border:1px solid #E7ECF4;border-radius:11px;padding:9px 11px;">
+                        <div style="font-size:10px;color:#8B94A6;font-weight:600;line-height:1.2;">{{ b.label }}</div>
+                        <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:14px;margin-top:3px;color:#14274E;">{{ b.val }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ p.hasTipo }}"><div style="margin-top:9px;font-size:12.5px;color:#4E5869;"><b style="color:#14274E;">Tipo de cuerpo:</b> {{ p.tipoCuerpo }}</div></sc-if>
+                </div>
+              </sc-if>
+
+              <!-- gustos -->
+              <div style="margin-top:18px;display:flex;flex-direction:column;gap:9px;">
+                <sc-if value="{{ p.hasLikes }}">
+                  <div>
+                    <div style="font-size:11px;font-weight:700;color:#0F7A63;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Le gusta</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                      <sc-for list="{{ p.likes }}" as="lk" hint-placeholder-count="4"><span style="font-size:12px;font-weight:600;background:#E2ECF6;color:#0C5A48;padding:4px 10px;border-radius:8px;white-space:nowrap;">{{ lk }}</span></sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ p.hasDislikes }}">
+                  <div>
+                    <div style="font-size:11px;font-weight:700;color:#A32C54;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">No le gusta</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                      <sc-for list="{{ p.dislikes }}" as="dl" hint-placeholder-count="2"><span style="font-size:12px;font-weight:600;background:#F6DEE8;color:#98264C;padding:4px 10px;border-radius:8px;white-space:nowrap;">{{ dl }}</span></sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ p.hasNeeds }}">
+                  <div style="background:#FBF4E4;border:1px solid #F0E3C4;border-radius:12px;padding:11px 13px;">
+                    <div style="font-size:11px;font-weight:700;color:#87671B;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">A cuidar</div>
+                    <div style="font-size:12.5px;color:#7A5B18;font-weight:500;line-height:1.5;">{{ p.needsText }}</div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+  </main>
+
+  <!-- ===================== PICKER MODAL ===================== -->
+  <sc-if value="{{ pickerOpen }}">
+    <div onClick="{{ closePicker }}" style="position:fixed;inset:0;background:rgba(33,30,24,.5);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:50;padding:30px;">
+      <div onClick="{{ stop }}" style="background:#F1F4FA;border-radius:24px;width:100%;max-width:720px;max-height:84vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.4);">
+        <div style="padding:22px 26px;background:#fff;border-bottom:1px solid #DEE4EE;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:12px;font-weight:700;color:#8B94A6;text-transform:uppercase;letter-spacing:.5px;">{{ pickerDay }}</div>
+            <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:22px;line-height:1.1;margin-top:2px;">{{ pickerTitle }}</div>
+          </div>
+          <div onClick="{{ closePicker }}" style="width:36px;height:36px;border-radius:11px;background:#F1F4FA;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#4E5869;">✕</div>
+        </div>
+        <div style="padding:18px 26px;overflow-y:auto;">
+          <sc-if value="{{ pickerHasCurrent }}">
+            <div onClick="{{ clearCell }}" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:13px;border:1.5px dashed #B4BCCB;color:#7C6A48;font-weight:700;font-size:13.5px;cursor:pointer;margin-bottom:14px;background:#fff;">Quitar «{{ pickerCurrentName }}» de este espacio</div>
+          </sc-if>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;">
+            <sc-for list="{{ pickerMeals }}" as="m" hint-placeholder-count="8">
+              <div onClick="{{ m.onChoose }}" style="display:flex;align-items:center;gap:12px;padding:13px;border-radius:14px;background:{{ m.cardBg }};border:1.5px solid {{ m.cardBorder }};cursor:pointer;transition:all .12s;">
+                <span style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:{{ m.dot }};box-shadow:inset 0 0 0 3px rgba(255,255,255,.4);"></span>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;font-size:14px;line-height:1.2;">{{ m.name }}</div>
+                  <div style="font-size:11.5px;color:#8B94A6;margin-top:2px;line-height:1.2;">{{ m.sides }}</div>
+                </div>
+                <sc-if value="{{ m.selected }}"><span style="color:#0F7A63;font-size:17px;font-weight:800;">✓</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== AGREGAR / EDITAR PRODUCTO ===================== -->
+  <sc-if value="{{ invFormOpen }}">
+    <div onClick="{{ closeForm }}" style="position:fixed;inset:0;background:rgba(20,39,78,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:50;padding:30px;">
+      <div onClick="{{ stop }}" style="background:#F1F4FA;border-radius:24px;width:100%;max-width:520px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);">
+        <div style="padding:20px 26px;background:#fff;border-bottom:1px solid #DEE4EE;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;line-height:1.1;">{{ invFormTitle }}</div>
+          <div onClick="{{ closeForm }}" style="width:36px;height:36px;border-radius:11px;background:#F1F4FA;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#4E5869;">✕</div>
+        </div>
+        <div style="padding:22px 26px;display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;color:#586273;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Nombre del producto</label>
+            <input type="text" value="{{ invForm.name }}" onInput="{{ setFormName }}" placeholder="Ej: Tomate" style="width:100%;border:1.5px solid #DEE4EE;border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600;color:#14274E;background:#fff;outline:none;font-family:inherit;" style-focus="border-color:#2E6FB0;">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#586273;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Categoría</label>
+              <select value="{{ invForm.cat }}" onChange="{{ setFormCat }}" style="width:100%;border:1.5px solid #DEE4EE;border-radius:12px;padding:12px 12px;font-size:14px;font-weight:600;color:#14274E;background:#fff;outline:none;font-family:inherit;">
+                <sc-for list="{{ invFormCats }}" as="c" hint-placeholder-count="10"><option value="{{ c }}">{{ c }}</option></sc-for>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#586273;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Cantidad</label>
+              <input type="text" value="{{ invForm.qty }}" onInput="{{ setFormQty }}" placeholder="Ej: 2 kg" style="width:100%;border:1.5px solid #DEE4EE;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;color:#14274E;background:#fff;outline:none;font-family:inherit;" style-focus="border-color:#2E6FB0;">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#586273;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Precio</label>
+              <input type="text" value="{{ invForm.price }}" onInput="{{ setFormPrice }}" placeholder="₡ / kg · u · L" style="width:100%;border:1.5px solid #DEE4EE;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;color:#14274E;background:#fff;outline:none;font-family:inherit;" style-focus="border-color:#2E6FB0;">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;color:#586273;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Estado</label>
+              <select value="{{ invForm.status }}" onChange="{{ setFormStatus }}" style="width:100%;border:1.5px solid #DEE4EE;border-radius:12px;padding:12px 12px;font-size:14px;font-weight:600;color:#14274E;background:#fff;outline:none;font-family:inherit;text-transform:capitalize;">
+                <sc-for list="{{ invStatusOpts }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+          </div>
+          <div onClick="{{ toggleFormPriority }}" style="display:flex;align-items:center;gap:11px;cursor:pointer;user-select:none;">
+            <div style="width:42px;height:24px;border-radius:30px;background:{{ invFormPrioBg }};position:relative;transition:background .15s;flex-shrink:0;">
+              <div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ invFormPrioX }};transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.25);"></div>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:#293247;">Marcar como prioridad de compra ★</div>
+          </div>
+        </div>
+        <div style="padding:16px 26px;background:#fff;border-top:1px solid #DEE4EE;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <sc-if value="{{ invFormIsEdit }}">
+            <div onClick="{{ deleteItem }}" style="padding:11px 16px;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer;color:#98264C;background:#F4DCE6;user-select:none;">Eliminar</div>
+          </sc-if>
+          <div style="display:flex;gap:10px;margin-left:auto;">
+            <div onClick="{{ closeForm }}" style="padding:11px 18px;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer;color:#4E5869;background:#EDF1F7;user-select:none;">Cancelar</div>
+            <div onClick="{{ saveForm }}" style="padding:11px 22px;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer;color:#fff;background:#14274E;user-select:none;">Guardar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== EDITOR DE COMPOSICIÓN CORPORAL ===================== -->
+  <sc-if value="{{ editOpen }}">
+    <div onClick="{{ closeEdit }}" style="position:fixed;inset:0;background:rgba(20,39,78,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:50;padding:30px;">
+      <div onClick="{{ stop }}" style="background:#F1F4FA;border-radius:24px;width:100%;max-width:680px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);">
+        <div style="padding:20px 26px;background:#fff;border-bottom:1px solid #DEE4EE;display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;align-items:center;gap:13px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:{{ editColor }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;font-family:'Bricolage Grotesque';">{{ editInitial }}</div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:#8B94A6;text-transform:uppercase;letter-spacing:.5px;">Editar datos</div>
+              <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;line-height:1.1;">{{ editName }}</div>
+            </div>
+          </div>
+          <div onClick="{{ closeEdit }}" style="width:36px;height:36px;border-radius:11px;background:#F1F4FA;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#4E5869;">✕</div>
+        </div>
+        <div style="padding:20px 26px 8px;overflow-y:auto;">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <sc-for list="{{ editFields }}" as="f" hint-placeholder-count="14">
+              <div>
+                <label style="font-size:11px;font-weight:600;color:#586273;display:block;margin-bottom:5px;">{{ f.label }}</label>
+                <div style="position:relative;">
+                  <input type="number" step="0.1" value="{{ f.value }}" onInput="{{ f.onInput }}" placeholder="—" style="width:100%;border:1.5px solid #DEE4EE;border-radius:11px;padding:10px 30px 10px 12px;font-size:14px;font-weight:700;font-family:'Bricolage Grotesque';color:#14274E;background:#fff;outline:none;" style-focus="border-color:#2E6FB0;">
+                  <span style="position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:11px;color:#8B94A6;font-weight:600;pointer-events:none;">{{ f.unit }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <div style="grid-column:span 3;">
+              <label style="font-size:11px;font-weight:600;color:#586273;display:block;margin-bottom:5px;">Tipo de cuerpo</label>
+              <select value="{{ editTipoValue }}" onChange="{{ editTipoOnChange }}" style="width:100%;border:1.5px solid #DEE4EE;border-radius:11px;padding:11px 12px;font-size:14px;font-weight:600;color:#14274E;background:#fff;outline:none;">
+                <sc-for list="{{ editTipoOptions }}" as="o" hint-placeholder-count="8"><option value="{{ o }}">{{ o }}</option></sc-for>
+              </select>
+            </div>
+          </div>
+          <div style="font-size:12px;color:#8B94A6;margin-top:14px;line-height:1.5;">Introduce las lecturas de tu báscula inteligente. Solo llena las que quieras seguir — el resto se queda vacío.</div>
+        </div>
+        <div style="padding:16px 26px;background:#fff;border-top:1px solid #DEE4EE;display:flex;justify-content:flex-end;gap:10px;">
+          <div onClick="{{ resetEdit }}" style="padding:11px 18px;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer;color:#98264C;background:#F4DCE6;user-select:none;">Vaciar</div>
+          <div onClick="{{ closeEdit }}" style="padding:11px 22px;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer;color:#fff;background:#14274E;user-select:none;">Listo</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    view: 'inicio',
+    invCat: 'Todos',
+    invFilter: 'todos',
+    statuses: {},
+    plan: null,
+    picker: null,
+    person: 'vero',
+    qq: null,
+    items: null,
+    invForm: null,
+    goal: 'perder',
+    weights: {},
+    body: {},
+    editing: null,
+  };
+
+  // ---------- proporciones del plato por objetivo ----------
+  plateGoals = {
+    mantener: { desc:'Mantenimiento · plato equilibrado para conservar peso y energía.', plates:[
+      {meal:'DESAYUNO', v:40, c:40, p:20, vLabel:'Frutas'},
+      {meal:'ALMUERZO', v:40, c:40, p:20, vLabel:'Frutas o vegetales'},
+      {meal:'CENA', v:50, c:20, p:30, vLabel:'Vegetales'},
+    ]},
+    perder: { desc:'Perder grasa · déficit moderado: más vegetales y proteína, menos carbohidratos.', plates:[
+      {meal:'DESAYUNO', v:40, c:30, p:30, vLabel:'Frutas o vegetales'},
+      {meal:'ALMUERZO', v:50, c:25, p:25, vLabel:'Frutas o vegetales'},
+      {meal:'CENA', v:60, c:15, p:25, vLabel:'Vegetales'},
+    ]},
+    ganar: { desc:'Ganar músculo · superávit moderado: más carbohidratos y proteína para construir músculo.', plates:[
+      {meal:'DESAYUNO', v:30, c:40, p:30, vLabel:'Frutas o vegetales'},
+      {meal:'ALMUERZO', v:30, c:40, p:30, vLabel:'Frutas o vegetales'},
+      {meal:'CENA', v:40, c:20, p:40, vLabel:'Vegetales'},
+    ]},
+  };
+  goalLabels = { mantener:'Mantener', perder:'Perder grasa', ganar:'Ganar músculo' };
+
+  // ---------- composición corporal ----------
+  bodyFields = [
+    {key:'grasa',label:'Grasa corporal',unit:'%'},
+    {key:'musculo',label:'Músculo',unit:'%'},
+    {key:'agua',label:'Humedad / agua',unit:'%'},
+    {key:'osea',label:'Masa ósea',unit:'kg'},
+    {key:'bmr',label:'BMR',unit:'kcal'},
+    {key:'tasaProteina',label:'Tasa de proteína',unit:'%'},
+    {key:'edadCorporal',label:'Edad corporal',unit:'años'},
+    {key:'visceral',label:'Grasa visceral',unit:'niv'},
+    {key:'subcutanea',label:'Grasa subcutánea',unit:'%'},
+    {key:'sinGrasa',label:'Peso sin grasa',unit:'kg'},
+    {key:'pesoMuscular',label:'Peso muscular',unit:'kg'},
+    {key:'proteinaG',label:'Proteína',unit:'g'},
+    {key:'obesidad',label:'Grado de obesidad',unit:'%'},
+  ];
+  tipoCuerpoOpts = ['—','Oculto (delgado-graso)','Delgado','Delgado musculoso','Estándar','Estándar musculoso','Robusto','Robusto musculoso'];
+
+  // ---------- frescura / orden de consumo ----------
+  goldenWindows = [
+    { day:'Día 1–3', tag:'Consumir ya', color:'#A32C54', items:['Ensaladas verdes','Fresas','Melón','Mango maduro','Lechuga','Culantro y cebollino','Sandía','Yogur abierto'] },
+    { day:'Día 4–7', tag:'Media semana', color:'#C28A2A', items:['Pepino','Tomate maduro','Banano','Chile dulce','Jamón y mortadela abiertos','Quesos abiertos','Papaya','Piña'] },
+    { day:'Día 8–15', tag:'Final de quincena', color:'#0F7A63', items:['Papa','Zanahoria','Camote','Ayote','Mandarina y manzana','Lentejas','Frijoles','Carnes congeladas','Harinas'] },
+  ];
+  miniMarket = ['Fresas','Lechuga','Culantro','Cebollino','Melón','Sandía','Mango maduro','Tomate','Pepino','Banano'];
+  shelfTiersRaw = [
+    { label:'1–3 días', sub:'Consumir ya', color:'#A32C54', items:['Fresas maduras','Melón abierto','Sandía abierta','Mango muy maduro','Lechuga','Culantro coyote','Culantro castilla','Cebollino','Ensalada verde','Pico de gallo','Yogur abierto'] },
+    { label:'3–7 días', sub:'Pronto', color:'#C2783A', items:['Mango medio maduro','Banano maduro','Papaya abierta','Piña abierta','Pepino','Tomate maduro','Chile dulce','Jamón de pavo abierto','Mortadela abierta','Queso rallado','Pollo descongelado'] },
+    { label:'1–2 semanas', sub:'Sin prisa', color:'#BE9E2E', items:['Mandarina','Manzana','Pera','Zanahoria','Brócoli','Ayote abierto','Queso semiduro','Queso San Carlos','Queso sumidero','Cheddar','Huevos sancochados'] },
+    { label:'2–4 semanas', sub:'Tubérculos y frescos resistentes', color:'#4F7A6A', items:['Papa','Camote','Yuca fresca','Plátano verde','Huevos frescos','Chorizo refrigerado'] },
+    { label:'1–3 meses', sub:'Congelados', color:'#0F7A63', items:['Pollo','Costilla de cerdo','Posta de cerdo','Carne para sopa','Bistec','Carne molida'] },
+    { label:'3–6 meses', sub:'Legumbres, harinas y cereales', color:'#2E6FB0', items:['Frijoles negros','Frijoles rojos','Lentejas','Harina de maíz','Harina de trigo','Avena'] },
+    { label:'6–12 meses', sub:'Despensa seca', color:'#2D86C2', items:['Arroz','Pasta','Palomitas de maíz','Tang','Salsa de soya','Salsa Alfredo','Azúcar','Sal'] },
+    { label:'1 año o más', sub:'Conservas', color:'#5E5A9E', items:['Leche condensada cerrada','Coco rallado seco','Condimentos secos','Sazonadores','Sobres de sopa'] },
+  ];
+  wasteRankingRaw = [
+    { rank:'1', name:'Lechuga', note:'Se daña en 1–3 días' },
+    { rank:'2', name:'Fresas parcialmente maduras', note:'Maduran y se pasan rápido' },
+    { rank:'3', name:'Melón', note:'Abierto: 1–2 días' },
+    { rank:'4', name:'Papaya', note:'Se ablanda muy rápido' },
+    { rank:'5', name:'Piña', note:'Fermenta al abrirse' },
+    { rank:'6', name:'Yuca olvidada', note:'Se oxida y amarga' },
+  ];
+
+  // ---------- palettes ----------
+  tipoColor = { pollo:'#C28A2A', res:'#A32C54', cerdo:'#A65A86', pescado:'#2E6FB0', legumbre:'#7C6A48', veggie:'#0F7A63', fruta:'#0F7A63', mixto:'#5E5A9E', queso:'#BE9E2E', huevo:'#C9A94A', lacteo:'#2E6FB0', dulce:'#9C7C45' };
+  catColor = { Frutas:'#A32C54', Verduras:'#0F7A63', Cereales:'#9C7C45', 'Proteína':'#9C3A52', 'Lácteos':'#2E6FB0', Grasas:'#BE9E2E', 'Azúcar y dulces':'#C2783A', 'Condimentos':'#7C6A48', 'Salsas':'#A6415C', Despensa:'#6E6B50', Limpieza:'#2D86C2', 'Higiene':'#5E5A9E', 'Bebé':'#A65A86' };
+
+  // ---------- family ----------
+  family = [
+    { id:'vero', name:'Verónica', role:'Mamá · 29 años', age:29, weight:64, hMin:41, hMax:55, color:'#A32C54',
+      portions:{ kcal:1700, protein:'120–130 g', carbs:'150–170 g', fat:'50–60 g', fiber:'25 g', fruit:'2 tazas', veg:'3 tazas', dairy:'2–3 tazas', water:'2.7 L' },
+      likes:['Yoyo (huevo+plátano+queso)','Huevo','Carne','Pollo','Cerdo','Chuleta ahumada','Costillas','Queso','Frijoles','Lentejas','Arroz','Arepas','Yuca','Camote','Sancocho','Sopas','Sándwich completo','Wrap','Hamburguesa','Pepito','Mango','Melón','Mandarina','Papaya en jugo'], dislikes:[],
+      needs:['Quiere aumentar masa muscular: priorizar proteína','Necesita más fibra y legumbres','Le cuesta tomar agua — meta 2.7 L/día','Come menos bajo estrés o estudiando','Prefiere comida casera'] },
+    { id:'papa', name:'Maykol', role:'Papá · 32 años', age:32, weight:174, hMin:56, hMax:76, color:'#14274E',
+      portions:{ kcal:2400, protein:'140–170 g', proteinSplit:'Desayuno 35–40 g · Merienda 20 g · Almuerzo 40–45 g · Merienda 20 g · Cena 35–45 g', carbs:'300 g', fat:'80 g', fiber:'38 g', fruit:'2 tazas', veg:'3 tazas', dairy:'3 tazas', water:'3.7 L' },
+      likes:['Carne','Pollo','Cerdo','Sopas','Sancocho','Sándwich completo','Pepito','Hamburguesa','Arroz','Comida tradicional casera'], dislikes:['Huevo como desayuno principal'],
+      needs:['Cocina muy bien — suele preparar los almuerzos','Pierde el apetito cuando está enfermo','Peso por encima del rango: enfoque gradual y sostenible','Priorizar proteína magra, verduras y más agua'] },
+    { id:'taylor', name:'Taylor', role:'10 años', age:10, weight:49, hMin:25, hMax:45, color:'#C28A2A',
+      portions:{ kcal:2000, protein:'40 g', carbs:'260 g', fat:'65 g', fiber:'26 g', fruit:'2 tazas', veg:'2.5 tazas', dairy:'3 tazas', water:'2.1 L' },
+      likes:['Pasta con carne molida','Lentejas con arroz','Arroz con leche','Avena cocida','Arepa con queso','Arroz cantonés','Pollo agridulce','Sopas','Crema de ayote','Pollo guisado','Pizza','Lasaña','Mango','Mandarina','Fresas','Melón','Papa','Zanahoria','Maíz','Atún/sardina en salsa'],
+      dislikes:['Lechuga','Tomate crudo','Pepino','Brócoli','Piña (le pica)','Atún simple'],
+      needs:['Come más carbohidratos que proteína — equilibrar el plato','Peso sobre el rango: priorizar verduras','Acepta pescado solo cocido en salsa','Comida ideal: arroz cantonés + pollo agridulce'] },
+    { id:'emmeth', name:'Emmeth', role:'7 años', age:7, weight:23, hMin:20, hMax:32, color:'#0F7A63',
+      portions:{ kcal:1700, protein:'34 g', carbs:'220 g', fat:'55 g', fiber:'25 g', fruit:'1.5 tazas', veg:'2 tazas', dairy:'2.5 tazas', water:'1.9 L' },
+      likes:['Carne','Bistec','Pollo','Muslo de pollo','Chuleta','Cerdo','Jamón','Mortadela','Queso','Arroz blanco','Papa','Pasta','Pizza'],
+      dislikes:['Cebolla visible','Culantro visible','Chile dulce visible','Cremas','Arroz con leche','Arroz con pollo','Comidas mezcladas','Sopas completas'],
+      needs:['Elige por apariencia, textura y presentación — no por sabor','Prefiere la proteína servida sola','En sopas come solo carne, pollo y papa; deja el caldo','Cuando está enfermo solo toma jugos'] },
+    { id:'cris', name:'Christopher', role:'4 años', age:4, weight:15, hMin:14, hMax:22, color:'#BE9E2E',
+      portions:{ kcal:1400, protein:'19 g', carbs:'175 g', fat:'45 g', fiber:'25 g', fruit:'1–1.5 tazas', veg:'1.5 tazas', dairy:'2.5 tazas', water:'1.7 L' },
+      likes:['Jamón de pavo','Jamón con huevo','Carne guisada','Pollo','Lentejas con arroz (con ayuda)','Brócoli','Fresas','Mango','Leche con chocolate'],
+      dislikes:['Arroz','Arepas','Carbohidratos (los deja)','Porciones grandes'],
+      needs:['Se distrae mucho — come mejor con supervisión y ayuda','Termina primero la proteína y deja los carbohidratos','Come solo con finger foods: empanadas, snacks, cereal','Le encanta el chocolate — moderar'] },
+    { id:'rachel', name:'Rachel', role:'1 año', age:1, weight:8.6, hMin:8, hMax:12, color:'#A65A86',
+      portions:{ kcal:900, protein:'13 g', carbs:'130 g', fat:'30 g', fiber:'19 g', fruit:'1 taza', veg:'¾ taza', dairy:'2 tazas', water:'1.3 L' },
+      likes:['Mango','Aguacate','Tomate','Frijoles','Jamón','Mortadela','Huevo','Queso','Arepas','Comidas familiares'], dislikes:[],
+      needs:['La más adaptable — come muy parecido a los adultos','Con algunas carnes mastica y escupe fibras (normal a su edad)','Texturas adecuadas y cortes seguros','Menos sal y condimentos'] },
+  ];
+
+  // ---------- meal catalog ----------
+  desayunos = [
+    {id:'d_perico',name:'Arepa con perico',tipo:'huevo',sides:'Aguacate · Papaya'},
+    {id:'d_reina',name:'Arepa reina pepiada',tipo:'pollo',sides:'Aguacate · Fruta'},
+    {id:'d_rellenas',name:'Arepas rellenas',tipo:'queso',sides:'Jamón · Pollo · Fruta'},
+    {id:'d_cachapas',name:'Cachapas',tipo:'queso',sides:'Queso de mano · Fruta'},
+    {id:'d_empanadas',name:'Empanadas venezolanas',tipo:'res',sides:'Salsa de ajo · Fruta'},
+    {id:'d_mandocas',name:'Mandocas',tipo:'queso',sides:'Yogur · Fruta'},
+    {id:'d_pan_perico',name:'Pan con perico',tipo:'huevo',sides:'Melón · Sandía'},
+    {id:'d_tostadas',name:'Tostadas con aguacate',tipo:'huevo',sides:'Queso crema · Fruta'},
+    {id:'d_canilla',name:'Pan canilla con queso',tipo:'queso',sides:'Fruta · Yogur'},
+    {id:'d_tortilla',name:'Tortilla venezolana',tipo:'huevo',sides:'Arepa pequeña · Fruta'},
+    {id:'d_domino',name:'Arepa dominó',tipo:'legumbre',sides:'Caraotas · Queso · Aguacate'},
+    {id:'d_sifrina',name:'Arepa sifrina',tipo:'pollo',sides:'Aguacate · Queso amarillo'},
+    {id:'d_pelua',name:'Arepa pelúa',tipo:'res',sides:'Carne mechada · Queso'},
+    {id:'d_avena',name:'Avena venezolana',tipo:'lacteo',sides:'Pan · Queso · Fruta'},
+    {id:'d_panquecas',name:'Panquecas',tipo:'dulce',sides:'Fruta · Miel · Yogur'},
+  ];
+  meriendas = [
+    {id:'s_yogurt',name:'Yogurt de fresa',tipo:'lacteo',sides:'Banano · Granola'},
+    {id:'s_cereal',name:'Cereal con leche',tipo:'lacteo',sides:'Banano o fresas'},
+    {id:'s_fruta',name:'Fruta fresca',tipo:'fruta',sides:'Mango · Melón · Uvas'},
+    {id:'s_queque',name:'Queque seco',tipo:'dulce',sides:'Leche o yogur'},
+    {id:'s_avena',name:'Avena cocida',tipo:'lacteo',sides:'Banano · Canela'},
+    {id:'s_arroz_leche',name:'Arroz con leche',tipo:'dulce',sides:'Canela · Manzana'},
+    {id:'s_gelatina',name:'Gelatina con fruta',tipo:'dulce',sides:'Fresa · Kiwi · Uvas'},
+    {id:'s_brownies',name:'Brownies caseros',tipo:'dulce',sides:'Leche o yogur'},
+    {id:'s_churchill',name:'Churchill casero',tipo:'dulce',sides:'Helado · Frutas'},
+    {id:'s_batido',name:'Batido de frutas',tipo:'fruta',sides:'Banano + fresa'},
+    {id:'s_queso_uvas',name:'Queso en cubitos con uvas',tipo:'queso',sides:'Con proteína'},
+    {id:'s_huevo',name:'Huevo sancochado',tipo:'huevo',sides:'Con proteína'},
+    {id:'s_mini_arepa',name:'Mini arepa con queso',tipo:'queso',sides:'Con proteína'},
+    {id:'s_sandwich',name:'Sándwich de jamón y queso',tipo:'queso',sides:'Pequeño · proteína'},
+  ];
+  almuerzos = [
+    {id:'l_pollo_horno',name:'Pollo al horno',tipo:'pollo',sides:'Yuca · Arroz · Ensalada'},
+    {id:'l_pollo_guisado',name:'Pollo guisado',tipo:'pollo',sides:'Papas · Arroz · Maduro'},
+    {id:'l_arroz_pollo',name:'Arroz con pollo',tipo:'pollo',sides:'Patacones · Ensalada'},
+    {id:'l_fajitas_pollo',name:'Fajitas de pollo',tipo:'pollo',sides:'Arroz · Maduro · Ensalada'},
+    {id:'l_pasta_carne',name:'Pasta con carne',tipo:'res',sides:'Pan de ajo · Ensalada'},
+    {id:'l_albondigas',name:'Albóndigas con pasta',tipo:'res',sides:'Maduro · Ensalada'},
+    {id:'l_carne_salsa',name:'Carne en salsa',tipo:'res',sides:'Papas · Maduro · Ensalada'},
+    {id:'l_carne_mechada',name:'Carne mechada',tipo:'res',sides:'Maduro · Ensalada'},
+    {id:'l_bistec',name:'Bistec con vegetales',tipo:'res',sides:'Arroz · Maduro · Ensalada'},
+    {id:'l_chuleta',name:'Chuleta de cerdo encebollada',tipo:'cerdo',sides:'Arroz · Ensalada'},
+    {id:'l_trocitos',name:'Trocitos de cerdo',tipo:'cerdo',sides:'Arroz · Papas · Maduro'},
+    {id:'l_cerdo_papas',name:'Cerdo con papas',tipo:'cerdo',sides:'Maduro · Ensalada'},
+    {id:'l_costillas',name:'Costillas BBQ',tipo:'cerdo',sides:'Maduro · Ensalada'},
+    {id:'l_pabellon',name:'Pabellón',tipo:'res',sides:'Arroz · Tajadas · Ensalada'},
+    {id:'l_pescado',name:'Pescado empanizado',tipo:'pescado',sides:'Arroz · Patacones · Ensalada'},
+    {id:'l_lentejas',name:'Sopa de lentejas',tipo:'legumbre',sides:'Arroz · Maduro · Ensalada'},
+    {id:'l_arroz_arreglado',name:'Arroz arreglado',tipo:'pollo',sides:'Maduro · Ensalada'},
+    {id:'l_pollo_blanca',name:'Pollo en salsa blanca',tipo:'pollo',sides:'Champiñones · Vegetales'},
+    {id:'l_pollo_emp',name:'Pollo empanizado',tipo:'pollo',sides:'Ensalada · Pan de ajo'},
+    {id:'l_wraps',name:'Wraps',tipo:'mixto',sides:'Papas'},
+    {id:'l_club',name:'Club House',tipo:'mixto',sides:'Papas fritas · Ensalada'},
+    {id:'l_pepito',name:'Pepito de pollo',tipo:'pollo',sides:'Papas'},
+    {id:'l_sandwich_pollo',name:'Sándwich de pollo',tipo:'pollo',sides:'Papas fritas'},
+    {id:'l_choripan',name:'Choripán',tipo:'cerdo',sides:'Papas'},
+    {id:'l_hamburguesa',name:'Hamburguesa',tipo:'res',sides:'Papas'},
+    {id:'l_fajitas_mix',name:'Fajitas mixtas',tipo:'mixto',sides:'Papas · Ensalada'},
+    {id:'l_lasana',name:'Lasaña',tipo:'res',sides:'Pan de ajo · Ensalada'},
+  ];
+  cenas = [
+    {id:'c_arepas',name:'Arepas de cena',tipo:'queso',sides:'Aguacate · Ensalada'},
+    {id:'c_pabellon',name:'Pabellón criollo',tipo:'res',sides:'Arroz · Tajadas'},
+    {id:'c_cachapas',name:'Cachapas con queso',tipo:'queso',sides:'Cerdo · Ensalada'},
+    {id:'c_asado',name:'Asado negro',tipo:'res',sides:'Arroz · Ensalada'},
+    {id:'c_pollo_guisado',name:'Pollo guisado',tipo:'pollo',sides:'Arroz · Ensalada · Maduro'},
+    {id:'c_carne_mechada',name:'Carne mechada',tipo:'res',sides:'Arepa · Ensalada'},
+    {id:'c_pasticho',name:'Pasticho',tipo:'res',sides:'Ensalada'},
+    {id:'c_sopa_res',name:'Sopa de res',tipo:'res',sides:'Yuca · Papa · Zanahoria'},
+    {id:'c_sancocho',name:'Sancocho de pollo',tipo:'pollo',sides:'Yuca · Elote · Plátano'},
+    {id:'c_hallacas',name:'Hallacas (temporada)',tipo:'mixto',sides:'Ensalada de gallina'},
+    {id:'c_empanadas',name:'Empanadas de cena',tipo:'res',sides:'Ensalada'},
+    {id:'c_tostones',name:'Tostones con carne mechada',tipo:'res',sides:'Ensalada de repollo'},
+    {id:'c_arroz_chino',name:'Arroz chino venezolano',tipo:'mixto',sides:'Vegetales salteados'},
+    {id:'c_arepa_pizza',name:'Arepa pizza',tipo:'queso',sides:'Ensalada'},
+    {id:'c_parrilla',name:'Parrilla familiar',tipo:'mixto',sides:'Yuca · Ensalada · Maduro'},
+  ];
+
+  // ---------- inventory ----------
+  inventory = [
+    {id:'p1',name:'Sandía',cat:'Frutas',qty:'½ u',price:'—',status:'por acabarse'},
+    {id:'p2',name:'Melón',cat:'Frutas',qty:'1 u',price:'—',status:'por acabarse'},
+    {id:'p3',name:'Guayaba',cat:'Frutas',qty:'3 u',price:'—',status:'lleno'},
+    {id:'p4',name:'Mango',cat:'Frutas',qty:'1.5 kg',price:'₡1.900 /kg',status:'lleno'},
+    {id:'p5',name:'Durazno',cat:'Frutas',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p6',name:'Fresas',cat:'Frutas',qty:'800 g',price:'₡2.400 /kg',status:'agotado'},
+    {id:'p7',name:'Mandarina',cat:'Frutas',qty:'2 kg',price:'—',status:'lleno'},
+    {id:'p8',name:'Naranja',cat:'Frutas',qty:'2 kg',price:'—',status:'lleno'},
+    {id:'p9',name:'Piña',cat:'Frutas',qty:'1 u',price:'—',status:'por acabarse'},
+    {id:'p10',name:'Banano',cat:'Frutas',qty:'2 kg',price:'₡900 /kg',status:'por acabarse'},
+    {id:'p11',name:'Kiwi',cat:'Frutas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p12',name:'Mamón chino',cat:'Frutas',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p13',name:'Manzana',cat:'Frutas',qty:'1.5 kg',price:'—',status:'lleno'},
+    {id:'p14',name:'Melocotón',cat:'Frutas',qty:'2 latas',price:'—',status:'lleno'},
+    {id:'p15',name:'Limón',cat:'Frutas',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p16',name:'Coco',cat:'Frutas',qty:'1 u',price:'—',status:'lleno'},
+    {id:'p17',name:'Pera',cat:'Frutas',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p18',name:'Papaya',cat:'Frutas',qty:'1 u',price:'—',status:'por acabarse'},
+    {id:'p19',name:'Manzana verde',cat:'Frutas',qty:'1.5 kg',price:'—',status:'lleno'},
+    {id:'p20',name:'Uva',cat:'Frutas',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p21',name:'Maracuyá',cat:'Frutas',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p22',name:'Cas',cat:'Frutas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p23',name:'Limón mandarina',cat:'Frutas',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p24',name:'Leche de coco',cat:'Frutas',qty:'2 latas',price:'—',status:'lleno'},
+    {id:'p25',name:'Coco rallado',cat:'Frutas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p26',name:'Lechuga',cat:'Verduras',qty:'2 u',price:'—',status:'por acabarse'},
+    {id:'p27',name:'Tomate',cat:'Verduras',qty:'750 g',price:'₡1.400 /kg',status:'por acabarse'},
+    {id:'p28',name:'Pepino',cat:'Verduras',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p29',name:'Repollo',cat:'Verduras',qty:'1 u',price:'—',status:'lleno'},
+    {id:'p30',name:'Zanahoria',cat:'Verduras',qty:'1.2 kg',price:'—',status:'lleno'},
+    {id:'p31',name:'Papa',cat:'Verduras',qty:'3 kg',price:'₡950 /kg',status:'lleno'},
+    {id:'p32',name:'Remolacha',cat:'Verduras',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p33',name:'Apio crudo',cat:'Verduras',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p34',name:'Hongos',cat:'Verduras',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p35',name:'Ayote (ayuma)',cat:'Verduras',qty:'1.5 kg',price:'—',status:'lleno'},
+    {id:'p36',name:'Yuca',cat:'Verduras',qty:'2 kg',price:'—',status:'lleno'},
+    {id:'p37',name:'Plátano',cat:'Verduras',qty:'8 u',price:'—',status:'lleno'},
+    {id:'p38',name:'Cebolla morada',cat:'Verduras',qty:'1.5 kg',price:'—',status:'lleno'},
+    {id:'p39',name:'Cebolla blanca',cat:'Verduras',qty:'1.5 kg',price:'—',status:'lleno'},
+    {id:'p40',name:'Ajo',cat:'Verduras',qty:'200 g',price:'—',status:'lleno'},
+    {id:'p41',name:'Chile dulce',cat:'Verduras',qty:'800 g',price:'—',status:'lleno'},
+    {id:'p42',name:'Brócoli',cat:'Verduras',qty:'500 g',price:'—',status:'agotado'},
+    {id:'p43',name:'Aguacate',cat:'Verduras',qty:'4 u',price:'—',status:'por acabarse'},
+    {id:'p44',name:'Culantro',cat:'Verduras',qty:'3 manojos',price:'—',status:'por acabarse'},
+    {id:'p45',name:'Culantro coyote',cat:'Verduras',qty:'3 manojos',price:'—',status:'por acabarse'},
+    {id:'p46',name:'Culantro castilla',cat:'Verduras',qty:'3 manojos',price:'—',status:'por acabarse'},
+    {id:'p47',name:'Culantro orejón',cat:'Verduras',qty:'3 manojos',price:'—',status:'por acabarse'},
+    {id:'p48',name:'Cebollino',cat:'Verduras',qty:'3 manojos',price:'—',status:'por acabarse'},
+    {id:'p49',name:'Elote',cat:'Verduras',qty:'4 u',price:'—',status:'lleno'},
+    {id:'p50',name:'Maíz dulce',cat:'Verduras',qty:'4 latas',price:'—',status:'lleno'},
+    {id:'p51',name:'Arroz blanco',cat:'Cereales',qty:'4 kg',price:'₡1.100 /kg',status:'lleno'},
+    {id:'p52',name:'Arroz parbolizado',cat:'Cereales',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p53',name:'Pasta tornillos',cat:'Cereales',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p54',name:'Pasta',cat:'Cereales',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p55',name:'Lentejas',cat:'Cereales',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p56',name:'Frijoles rojos',cat:'Cereales',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p57',name:'Frijoles negros',cat:'Cereales',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p58',name:'Garbanzos',cat:'Cereales',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p59',name:'Pan Altamura',cat:'Cereales',qty:'2 u',price:'—',status:'por acabarse'},
+    {id:'p60',name:'Pan de sándwich',cat:'Cereales',qty:'1 pq',price:'—',status:'agotado'},
+    {id:'p61',name:'Pan bonete',cat:'Cereales',qty:'1 promo',price:'—',status:'lleno'},
+    {id:'p62',name:'Harina PAN',cat:'Cereales',qty:'2 kg',price:'—',status:'por acabarse'},
+    {id:'p63',name:'Harina de trigo',cat:'Cereales',qty:'2 kg',price:'—',status:'lleno'},
+    {id:'p64',name:'Harina para chapata',cat:'Cereales',qty:'2 kg',price:'—',status:'lleno'},
+    {id:'p65',name:'Avena',cat:'Cereales',qty:'1.5 kg',price:'—',status:'lleno'},
+    {id:'p66',name:'Cereal',cat:'Cereales',qty:'2 pq',price:'—',status:'lleno'},
+    {id:'p67',name:'Queque seco',cat:'Cereales',qty:'1 u',price:'—',status:'lleno'},
+    {id:'p68',name:'Galleta María',cat:'Cereales',qty:'2 pq',price:'—',status:'lleno'},
+    {id:'p69',name:'Galleta de soda',cat:'Cereales',qty:'2 pq',price:'—',status:'lleno'},
+    {id:'p70',name:'Granos de maíz',cat:'Cereales',qty:'2 pq',price:'—',status:'lleno'},
+    {id:'p71',name:'Harina para panqueque',cat:'Cereales',qty:'1 pq',price:'—',status:'lleno'},
+    {id:'p72',name:'Granola',cat:'Cereales',qty:'1 pq',price:'—',status:'lleno'},
+    {id:'p73',name:'Baguette',cat:'Cereales',qty:'2 u',price:'—',status:'lleno'},
+    {id:'p74',name:'Pollo entero',cat:'Proteína',qty:'4 kg',price:'₡2.200 /kg',status:'lleno'},
+    {id:'p75',name:'Pechuga de pollo',cat:'Proteína',qty:'4 kg',price:'₡3.400 /kg',status:'lleno'},
+    {id:'p76',name:'Muslo de pollo',cat:'Proteína',qty:'4 kg',price:'—',status:'lleno'},
+    {id:'p77',name:'Filete de pollo',cat:'Proteína',qty:'4 kg',price:'—',status:'lleno'},
+    {id:'p78',name:'Bistec',cat:'Proteína',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p79',name:'Carne para mechar',cat:'Proteína',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p80',name:'Carne molida',cat:'Proteína',qty:'2.5 kg',price:'₡4.200 /kg',status:'por acabarse'},
+    {id:'p81',name:'Costilla de res',cat:'Proteína',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p82',name:'Carne para sopa',cat:'Proteína',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p83',name:'Chuleta de cerdo',cat:'Proteína',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p84',name:'Costilla de cerdo',cat:'Proteína',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p85',name:'Costilla ahumada',cat:'Proteína',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p86',name:'Chuleta ahumada',cat:'Proteína',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p87',name:'Trocitos de cerdo',cat:'Proteína',qty:'2.5 kg',price:'—',status:'lleno'},
+    {id:'p88',name:'Tilapia',cat:'Proteína',qty:'1.5 kg',price:'—',status:'lleno'},
+    {id:'p89',name:'Atún en agua',cat:'Proteína',qty:'6 latas',price:'—',status:'lleno'},
+    {id:'p90',name:'Sardina en lata',cat:'Proteína',qty:'4 latas',price:'—',status:'lleno'},
+    {id:'p91',name:'Huevos',cat:'Proteína',qty:'30 u',price:'₡3.600 /30',status:'por acabarse',priority:true},
+    {id:'p92',name:'Salchichón',cat:'Proteína',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p93',name:'Chorizo',cat:'Proteína',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p94',name:'Jamón',cat:'Proteína',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p95',name:'Salchicha',cat:'Proteína',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p96',name:'Yogurt',cat:'Lácteos',qty:'1 L',price:'—',status:'por acabarse'},
+    {id:'p97',name:'Queso semiduro',cat:'Lácteos',qty:'1 kg',price:'₡4.800 /kg',status:'lleno'},
+    {id:'p98',name:'Queso San Carlos',cat:'Lácteos',qty:'1 kg',price:'—',status:'agotado'},
+    {id:'p99',name:'Queso crema',cat:'Lácteos',qty:'1 L',price:'—',status:'lleno'},
+    {id:'p100',name:'Natilla',cat:'Lácteos',qty:'1 L',price:'—',status:'lleno'},
+    {id:'p101',name:'Leche líquida',cat:'Lácteos',qty:'4 L',price:'₡1.150 /L',status:'por acabarse'},
+    {id:'p102',name:'Leche en polvo',cat:'Lácteos',qty:'900 g',price:'—',status:'lleno'},
+    {id:'p103',name:'Leche condensada',cat:'Lácteos',qty:'6 latas',price:'—',status:'lleno'},
+    {id:'p104',name:'Mantequilla',cat:'Lácteos',qty:'500 g',price:'—',status:'por acabarse'},
+    {id:'p105',name:'Mantequilla de ajo',cat:'Lácteos',qty:'1 frasco',price:'—',status:'por acabarse'},
+    {id:'p106',name:'Aceite',cat:'Grasas',qty:'1 L',price:'—',status:'lleno'},
+    {id:'p107',name:'Mayonesa',cat:'Grasas',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p108',name:'Nuez',cat:'Grasas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p109',name:'Almendra',cat:'Grasas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p110',name:'Maní',cat:'Grasas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p111',name:'Maní japonés',cat:'Grasas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p112',name:'Mantequilla de maní',cat:'Grasas',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p113',name:'Marañón',cat:'Grasas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p114',name:'Mantequilla líquida',cat:'Grasas',qty:'500 g',price:'—',status:'lleno'},
+    {id:'p115',name:'Tapa dulce',cat:'Azúcar y dulces',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p116',name:'Azúcar',cat:'Azúcar y dulces',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p117',name:'Nutella',cat:'Azúcar y dulces',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p118',name:'Gelatina',cat:'Azúcar y dulces',qty:'4 sobres',price:'—',status:'lleno'},
+    {id:'p119',name:'Mermelada',cat:'Azúcar y dulces',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p120',name:'Miel',cat:'Azúcar y dulces',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p121',name:'Jarabe para panqueques',cat:'Azúcar y dulces',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p122',name:'Galletas',cat:'Azúcar y dulces',qty:'4 pq',price:'—',status:'lleno'},
+    {id:'p123',name:'Doritos',cat:'Azúcar y dulces',qty:'1 pq',price:'—',status:'lleno'},
+    {id:'p124',name:'Dulce de leche',cat:'Azúcar y dulces',qty:'2 latas',price:'—',status:'lleno'},
+    {id:'p125',name:'Sal',cat:'Condimentos',qty:'1 kg',price:'—',status:'lleno'},
+    {id:'p126',name:'Pimienta negra',cat:'Condimentos',qty:'50 g',price:'—',status:'lleno'},
+    {id:'p127',name:'Orégano',cat:'Condimentos',qty:'50 g',price:'—',status:'lleno'},
+    {id:'p128',name:'Comino',cat:'Condimentos',qty:'50 g',price:'—',status:'lleno'},
+    {id:'p129',name:'Curry',cat:'Condimentos',qty:'50 g',price:'—',status:'lleno'},
+    {id:'p130',name:'Achiote',cat:'Condimentos',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p131',name:'Sobres de olla de carne',cat:'Condimentos',qty:'4 u',price:'—',status:'por acabarse'},
+    {id:'p132',name:'Condimentos en polvo',cat:'Condimentos',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p133',name:'Vinagre',cat:'Condimentos',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p134',name:'Canela',cat:'Condimentos',qty:'50 g',price:'—',status:'lleno'},
+    {id:'p135',name:'Salsa inglesa',cat:'Salsas',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p136',name:'Salsa de ajo',cat:'Salsas',qty:'1 frasco',price:'—',status:'por acabarse'},
+    {id:'p137',name:'Salsa de soya',cat:'Salsas',qty:'1 frasco',price:'—',status:'por acabarse'},
+    {id:'p138',name:'Salsa de tomate',cat:'Salsas',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p139',name:'Salsa BBQ',cat:'Salsas',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p140',name:'Mostaza',cat:'Salsas',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p141',name:'Vainilla',cat:'Salsas',qty:'1 frasco',price:'—',status:'lleno'},
+    {id:'p142',name:'Detergente para ropa',cat:'Limpieza',qty:'1 bolsa',price:'₡5.500',status:'agotado',priority:true},
+    {id:'p143',name:'Detergente para platos',cat:'Limpieza',qty:'1 botella',price:'—',status:'por acabarse',priority:true},
+    {id:'p144',name:'Desinfectante',cat:'Limpieza',qty:'1 botella',price:'—',status:'por acabarse',priority:true},
+    {id:'p145',name:'Bolsas de basura',cat:'Limpieza',qty:'1 rollo',price:'—',status:'por acabarse',priority:true},
+    {id:'p146',name:'Paños de microfibra',cat:'Limpieza',qty:'0',price:'—',status:'agotado',priority:true},
+    {id:'p147',name:'Esponjas',cat:'Limpieza',qty:'2',price:'—',status:'por acabarse',priority:true},
+    {id:'p148',name:'Gel para cucarachas',cat:'Limpieza',qty:'0',price:'—',status:'agotado',priority:true},
+    {id:'p149',name:'Trampas para cucarachas',cat:'Limpieza',qty:'0',price:'—',status:'agotado',priority:true},
+    {id:'p150',name:'Cloro',cat:'Limpieza',qty:'1 botella',price:'—',status:'lleno'},
+    {id:'p151',name:'Pasta dental',cat:'Higiene',qty:'1 tubo',price:'—',status:'por acabarse',priority:true},
+    {id:'p152',name:'Shampoo',cat:'Higiene',qty:'1 botella',price:'—',status:'por acabarse',priority:true},
+    {id:'p153',name:'Jabón de manos',cat:'Higiene',qty:'0',price:'—',status:'agotado',priority:true},
+    {id:'p154',name:'Papel higiénico',cat:'Higiene',qty:'4 rollos',price:'₡3.200 /12',status:'por acabarse',priority:true},
+    {id:'p155',name:'Desodorante',cat:'Higiene',qty:'2',price:'—',status:'lleno'},
+    {id:'p156',name:'Cepillos dentales',cat:'Higiene',qty:'4',price:'—',status:'lleno'},
+    {id:'p157',name:'Pañales',cat:'Bebé',qty:'0',price:'₡8.900 /pq',status:'agotado',priority:true},
+    {id:'p158',name:'Toallas húmedas',cat:'Bebé',qty:'1 pq',price:'—',status:'por acabarse',priority:true},
+    {id:'p159',name:'Crema para rozaduras',cat:'Bebé',qty:'0',price:'—',status:'agotado',priority:true},
+    {id:'p160',name:'Shampoo para bebé',cat:'Bebé',qty:'1 botella',price:'—',status:'lleno'},
+    {id:'p161',name:'Jabón para bebé',cat:'Bebé',qty:'1',price:'—',status:'lleno'},
+  ];
+
+  // ---------- compra quincenal ----------
+  quincenalData = [
+    {id:'prot', name:'Proteínas animales', unit:'kg', color:'#9C3A52', min:40, max:50, items:[
+      {name:'Pollo entero',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Pechuga de pollo',unit:'kg',step:0.5,kgPer:1,def:4},
+      {name:'Muslo de pollo',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Filete de pollo',unit:'kg',step:0.5,kgPer:1,def:4},
+      {name:'Bistec',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Carne para mechar',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Carne molida',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Costilla de res',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Carne para sopa',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Chuleta de cerdo',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Costilla de cerdo',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Trocitos de cerdo',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Tilapia',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Huevos',unit:'u',step:6,kgPer:0.06,def:30},
+      {name:'Jamón',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Chorizo',unit:'kg',step:0.25,kgPer:1,def:0.5},
+      {name:'Salchichón',unit:'kg',step:0.25,kgPer:1,def:0.5},
+    ]},
+    {id:'granos', name:'Granos y cereales', unit:'kg', color:'#9C7C45', min:19, max:27, items:[
+      {name:'Arroz blanco',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Arroz parbolizado',unit:'kg',step:0.5,kgPer:1,def:1},
+      {name:'Pasta tornillos',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Pasta',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Lentejas',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Frijoles rojos',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Frijoles negros',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Garbanzos',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Avena',unit:'kg',step:0.5,kgPer:1,def:1.5},
+    ]},
+    {id:'harinas', name:'Harinas y panes', unit:'kg', color:'#B89A52', min:9, max:13, items:[
+      {name:'Harina PAN',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Harina de trigo',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Harina para chapata',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Pan Altamura',unit:'u',step:1,kgPer:0.5,def:2},
+      {name:'Pan de sándwich',unit:'u',step:1,kgPer:0.6,def:1},{name:'Baguette',unit:'u',step:1,kgPer:0.25,def:2},
+      {name:'Galleta María',unit:'pq',step:1,kgPer:0.2,def:2},{name:'Cereal',unit:'pq',step:1,kgPer:0.4,def:2},
+    ]},
+    {id:'tuberc', name:'Tubérculos y plátanos', unit:'kg', color:'#7C6A48', min:14, max:19, items:[
+      {name:'Papa',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Yuca',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Auyama',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Camote',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Plátano',unit:'u',step:1,kgPer:0.2,def:12},{name:'Elote',unit:'u',step:1,kgPer:0.25,def:4},
+    ]},
+    {id:'frutas', name:'Frutas', unit:'kg', color:'#A6415C', min:26, max:35, items:[
+      {name:'Sandía',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Melón',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Mango',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Banano',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Manzana',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Mandarina',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Naranja',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Piña',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Fresas',unit:'kg',step:0.25,kgPer:1,def:0.8},{name:'Uva',unit:'kg',step:0.25,kgPer:1,def:1},
+      {name:'Papaya',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Pera',unit:'kg',step:0.5,kgPer:1,def:1},
+      {name:'Kiwi',unit:'kg',step:0.25,kgPer:1,def:0.5},{name:'Durazno',unit:'kg',step:0.5,kgPer:1,def:1},
+      {name:'Guayaba',unit:'kg',step:0.25,kgPer:1,def:0.8},{name:'Maracuyá',unit:'kg',step:0.25,kgPer:1,def:1},
+      {name:'Mamón chino',unit:'kg',step:0.25,kgPer:1,def:1},
+    ]},
+    {id:'verduras', name:'Verduras', unit:'kg', color:'#0F7A63', min:23, max:32, items:[
+      {name:'Tomate',unit:'kg',step:0.25,kgPer:1,def:2},{name:'Cebolla',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Zanahoria',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Repollo',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Remolacha',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Pepino',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Chile dulce',unit:'kg',step:0.25,kgPer:1,def:2},{name:'Brócoli',unit:'kg',step:0.25,kgPer:1,def:1.5},
+      {name:'Lechuga',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Aguacate',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Apio',unit:'kg',step:0.25,kgPer:1,def:1.5},{name:'Hongos',unit:'kg',step:0.25,kgPer:1,def:1},
+      {name:'Vainica',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Coliflor',unit:'kg',step:0.5,kgPer:1,def:1},
+      {name:'Espinaca',unit:'kg',step:0.25,kgPer:1,def:1},
+    ]},
+    {id:'quesos', name:'Quesos', unit:'kg', color:'#BE9E2E', min:4, max:5, items:[
+      {name:'Queso semiduro',unit:'kg',step:0.25,kgPer:1,def:1.5},{name:'Queso San Carlos',unit:'kg',step:0.25,kgPer:1,def:1},
+      {name:'Queso de mano',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Queso crema',unit:'kg',step:0.25,kgPer:1,def:1},
+    ]},
+    {id:'leche', name:'Leche y yogurt', unit:'L', color:'#2E6FB0', min:24, max:33, items:[
+      {name:'Leche',unit:'L',step:1,kgPer:1,def:20},{name:'Yogurt',unit:'L',step:0.5,kgPer:1,def:6},
+      {name:'Natilla',unit:'L',step:0.5,kgPer:1,def:2},
+    ]},
+    {id:'grasas', name:'Grasas saludables', unit:'kg/L', color:'#4F7A6A', min:5, max:8, items:[
+      {name:'Aceite',unit:'L',step:0.5,kgPer:1,def:1},{name:'Mantequilla',unit:'kg',step:0.25,kgPer:1,def:0.5},
+      {name:'Mantequilla de maní',unit:'kg',step:0.25,kgPer:1,def:0.5},{name:'Maní',unit:'kg',step:0.25,kgPer:1,def:0.5},
+      {name:'Almendra',unit:'kg',step:0.25,kgPer:1,def:0.5},{name:'Nuez',unit:'kg',step:0.25,kgPer:1,def:0.5},
+      {name:'Marañón',unit:'kg',step:0.25,kgPer:1,def:0.5},{name:'Mayonesa',unit:'kg',step:0.25,kgPer:1,def:0.5},
+      {name:'Mantequilla líquida',unit:'L',step:0.25,kgPer:1,def:0.5},{name:'Aguacate',unit:'kg',step:0.5,kgPer:1,def:1.5},
+    ]},
+  ];
+  defaultQQ() { const o={}; this.quincenalData.forEach(c=>c.items.forEach((it,i)=>{o[`${c.id}-${i}`]=it.def;})); return o; }
+  setBump(key, delta) {
+    const qq = this.state.qq || this.defaultQQ();
+    const cur = qq[key]||0;
+    const nv = Math.max(0, Math.round((cur+delta)*100)/100);
+    this.setState({ qq: {...qq, [key]:nv} });
+  }
+  fmtNum(n) { return (Math.round(n*100)/100).toString(); }
+
+  cats = ['Todos','Frutas','Verduras','Cereales','Proteína','Lácteos','Grasas','Azúcar y dulces','Condimentos','Salsas','Limpieza','Higiene','Bebé'];
+  days = [
+    {k:'Lun',full:'Lunes'},{k:'Mar',full:'Martes'},{k:'Mié',full:'Miércoles'},
+    {k:'Jue',full:'Jueves'},{k:'Vie',full:'Viernes'},{k:'Sáb',full:'Sábado'},{k:'Dom',full:'Domingo'}
+  ];
+  slots = [
+    {k:'desayuno',l:'Desayuno',t:'desayuno'},{k:'m1',l:'Merienda AM',t:'merienda'},
+    {k:'almuerzo',l:'Almuerzo',t:'almuerzo'},{k:'m2',l:'Merienda PM',t:'merienda'},
+    {k:'cena',l:'Cena',t:'cena'}
+  ];
+  today = 'Mié';
+
+  defaultPlan() {
+    return {
+      'Lun-desayuno':'d_perico','Lun-m1':'s_fruta','Lun-almuerzo':'l_pollo_horno','Lun-m2':'s_yogurt','Lun-cena':'c_arepas',
+      'Mar-desayuno':'d_panquecas','Mar-m1':'s_yogurt','Mar-almuerzo':'l_pasta_carne','Mar-m2':'s_queque','Mar-cena':'c_pollo_guisado',
+      'Mié-desayuno':'d_cachapas','Mié-m1':'s_batido','Mié-almuerzo':'l_pabellon','Mié-m2':'s_gelatina','Mié-cena':'c_sopa_res',
+      'Jue-desayuno':'d_reina','Jue-m1':'s_queso_uvas','Jue-almuerzo':'l_pollo_guisado','Jue-m2':'s_avena','Jue-cena':'c_pabellon',
+      'Vie-desayuno':'d_tostadas','Vie-m1':'s_fruta','Vie-almuerzo':'l_pescado','Vie-m2':'s_brownies','Vie-cena':'c_cachapas',
+      'Sáb-desayuno':'d_empanadas','Sáb-m1':'s_cereal','Sáb-almuerzo':'l_costillas','Sáb-m2':'s_arroz_leche','Sáb-cena':'c_parrilla',
+      'Dom-desayuno':'d_pan_perico','Dom-m1':'s_mini_arepa','Dom-almuerzo':'l_bistec','Dom-m2':'s_churchill','Dom-cena':'c_sancocho',
+    };
+  }
+  allMeals() { return [...this.desayunos,...this.meriendas,...this.almuerzos,...this.cenas]; }
+  mealById(id) { return this.allMeals().find(m => m.id === id); }
+  catalogFor(t) { return t==='desayuno'?this.desayunos : t==='merienda'?this.meriendas : t==='almuerzo'?this.almuerzos : this.cenas; }
+
+  itemsList() { return this.state.items || this.inventory; }
+  effStatus(it) { return it.status; }
+  cycle(id) {
+    const order = ['lleno','por acabarse','agotado'];
+    this.setState({ items: this.itemsList().map(it => it.id===id ? {...it, status: order[(order.indexOf(it.status)+1)%3]} : it) });
+  }
+  openAdd() { this.setState({ invForm:{ id:null, name:'', cat: this.state.invCat==='Todos'?'Frutas':this.state.invCat, qty:'', price:'—', status:'lleno', priority:false } }); }
+  openEdit(it) { this.setState({ invForm:{ id:it.id, name:it.name, cat:it.cat, qty:it.qty, price:it.price||'—', status:it.status, priority:!!it.priority } }); }
+  setForm(k,v) { this.setState({ invForm:{...this.state.invForm, [k]:v} }); }
+  saveForm() {
+    const f = this.state.invForm;
+    if (!f || !f.name.trim()) { this.setState({invForm:null}); return; }
+    const list = this.itemsList();
+    const clean = { ...f, name:f.name.trim(), qty:(f.qty||'—').trim()||'—', price:(f.price||'—').trim()||'—' };
+    if (f.id) this.setState({ items: list.map(it=> it.id===f.id ? clean : it), invForm:null });
+    else this.setState({ items: [{...clean, id:'u'+Date.now()}, ...list], invForm:null });
+  }
+  deleteItem() {
+    const f = this.state.invForm;
+    if (!f || !f.id) { this.setState({invForm:null}); return; }
+    this.setState({ items: this.itemsList().filter(it=>it.id!==f.id), invForm:null });
+  }
+  statusStyle(s) {
+    if (s==='lleno') return {bg:'#E1EFE9',color:'#0C5A48',dot:'#0F7A63',label:'Lleno'};
+    if (s==='por acabarse') return {bg:'#F6ECD6',color:'#87671B',dot:'#C28A2A',label:'Por acabarse'};
+    return {bg:'#F4DCE6',color:'#98264C',dot:'#A32C54',label:'Agotado'};
+  }
+
+  componentDidMount() {
+    if (!this.state.items) this.setState({ items: this.inventory.map(x=>({...x})) });
+    this._r = () => this.setState({ ww: window.innerWidth });
+    window.addEventListener('resize', this._r);
+    this._r();
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._r); }
+
+  renderVals() {
+    const v = this.state.view;
+    const ww = this.state.ww || 1280;
+    const statGrid = ww>980 ? 'repeat(4,1fr)' : 'repeat(2,1fr)';
+    const inicioGrid = ww>1040 ? '1.4fr 1fr' : '1fr';
+    const invGrid = ww>1120 ? 'minmax(0,1fr) 300px' : '1fr';
+    const profileGrid = ww>1000 ? 'repeat(2,1fr)' : '1fr';
+    const measureGrid = ww>860 ? 'repeat(4,1fr)' : 'repeat(2,1fr)';
+    const plateGrid = ww>880 ? 'repeat(3,1fr)' : '1fr';
+    const miniGrid = ww>820 ? '1fr 1.3fr' : '1fr';
+    const tierGrid = ww>720 ? '150px 1fr' : '1fr';
+    const plan = this.state.plan || this.defaultPlan();
+    const navOf = (k)=>({ bg: v===k?'#E2ECF6':'transparent', color: v===k?'#14274E':'#586273' });
+
+    // ---- shopping list (agotado / por acabarse / priority) ----
+    const shop = this.itemsList().filter(it => { const s=this.effStatus(it); return s!=='lleno' || it.priority; });
+    const shopList = shop.map(it => { const ss=this.statusStyle(this.effStatus(it)); return { name:it.name, cat:it.cat, dot:ss.dot, priority:!!it.priority }; })
+      .sort((a,b)=>(b.priority?1:0)-(a.priority?1:0));
+    const priorityItems = this.itemsList().filter(it=>it.priority);
+
+    // ---- inventory list ----
+    const fc = this.state.invCat, ff = this.state.invFilter;
+    const invFiltered = this.itemsList().filter(it=>{
+      if (fc!=='Todos' && it.cat!==fc) return false;
+      const s=this.effStatus(it);
+      if (ff==='lleno' && s!=='lleno') return false;
+      if (ff==='por acabarse' && s!=='por acabarse') return false;
+      if (ff==='agotado' && s!=='agotado') return false;
+      if (ff==='prioridad' && !it.priority) return false;
+      return true;
+    });
+    const invItems = invFiltered.map(it=>{ const ss=this.statusStyle(this.effStatus(it)); return {
+      name:it.name, cat:it.cat, qty:it.qty, price:it.price, priority:!!it.priority,
+      catColor:this.catColor[it.cat], catBg:this.catColor[it.cat]+'22',
+      statusBg:ss.bg, statusColor:ss.color, statusLabel:ss.label, onCycle:()=>this.cycle(it.id),
+      onEdit:()=>this.openEdit(it)
+    };});
+    const invCount = invFiltered.length;
+
+    const catChips = this.cats.map(c=>({ label:c, onClick:()=>this.setState({invCat:c}),
+      bg: fc===c?'#14274E':'#fff', color: fc===c?'#fff':'#586273', border: fc===c?'#14274E':'#DEE4EE' }));
+    const statusDefs = [
+      {k:'todos',l:'Todos',dot:'#AEB6C6'},{k:'lleno',l:'Lleno',dot:'#0F7A63'},
+      {k:'por acabarse',l:'Por acabarse',dot:'#C28A2A'},{k:'agotado',l:'Agotado',dot:'#A32C54'},
+      {k:'prioridad',l:'★ Prioridad',dot:'#A32C54'}
+    ];
+    const statusChips = statusDefs.map(s=>({ label:s.l, dot:s.dot, onClick:()=>this.setState({invFilter:s.k}),
+      bg: ff===s.k?'#14274E':'#fff', color: ff===s.k?'#fff':'#586273' }));
+
+    // ---- week assembler ----
+    const weekRows = this.days.map(d=>({
+      day:d.k, dayBg: d.k===this.today?'#0F7A63':'#E4E9F2', dayColor: d.k===this.today?'#fff':'#4E5869',
+      cells: this.slots.map(s=>{
+        const key = `${d.k}-${s.k}`; const meal = this.mealById(plan[key]);
+        return meal ? { hasMeal:true, empty:false, name:meal.name, sides:meal.sides, dot:this.tipoColor[meal.tipo],
+                        slotLabel:s.l, onPick:()=>this.setState({picker:{day:d.k,slot:s.k}}) }
+                    : { hasMeal:false, empty:true, name:'', sides:'', dot:'#ccc', slotLabel:s.l,
+                        onPick:()=>this.setState({picker:{day:d.k,slot:s.k}}) };
+      })
+    }));
+
+    // ---- picker ----
+    const pk = this.state.picker;
+    let pickerMeals=[], pickerTitle='', pickerDay='', pickerHasCurrent=false, pickerCurrentName='', curId=null;
+    if (pk) {
+      const slot = this.slots.find(s=>s.k===pk.slot);
+      const dayObj = this.days.find(d=>d.k===pk.day);
+      pickerTitle = slot.l; pickerDay = dayObj.full;
+      curId = plan[`${pk.day}-${pk.slot}`];
+      const cur = this.mealById(curId);
+      pickerHasCurrent = !!cur; pickerCurrentName = cur?cur.name:'';
+      pickerMeals = this.catalogFor(slot.t).map(m=>({ name:m.name, sides:m.sides, dot:this.tipoColor[m.tipo],
+        selected: m.id===curId, cardBg: m.id===curId?'#E2ECF6':'#fff', cardBorder: m.id===curId?'#0F7A63':'#DEE4EE',
+        onChoose:()=>this.setState({ plan:{...plan, [`${pk.day}-${pk.slot}`]:m.id}, picker:null }) }));
+    }
+
+    // ---- porciones ----
+    const sel = this.family.find(f=>f.id===this.state.person) || this.family[0];
+    const initial = (n)=>n[0];
+
+    // goal-based plate proportions
+    const goalKey = this.state.goal || 'perder';
+    const goalDef = this.plateGoals[goalKey];
+    const badges = ['#C28A2A','#0F7A63','#A32C54'];
+    const plates = goalDef.plates.map((p,i)=>({
+      meal:p.meal, badge:badges[i],
+      conic:`conic-gradient(#0F7A63 0 ${p.v}%,#A32C54 ${p.v}% ${p.v+p.c}%,#C28A2A ${p.v+p.c}% 100%)`,
+      rows:[
+        {color:'#0F7A63', label:p.vLabel, pct:p.v+'%'},
+        {color:'#A32C54', label:'Carbohidratos', pct:p.c+'%'},
+        {color:'#C28A2A', label:'Proteína', pct:p.p+'%'},
+      ]
+    }));
+    const goalTabs = ['mantener','perder','ganar'].map(k=>{ const on=k===goalKey; return {
+      label:this.goalLabels[k], onClick:()=>this.setState({goal:k}),
+      bg: on?'#14274E':'transparent', color: on?'#fff':'#586273', shadow: on?'0 2px 6px -2px rgba(20,39,78,.5)':'none' };});
+    const goalDesc = goalDef.desc;
+    const measures = [
+      {label:'Calorías', value: sel.portions.kcal+' kcal', color:'#14274E'},
+      {label:'Proteína', value: sel.portions.protein, color:'#C28A2A'},
+      {label:'Carbohidratos', value: sel.portions.carbs, color:'#A32C54'},
+      {label:'Grasas', value: sel.portions.fat, color:'#BE9E2E'},
+      {label:'Fibra', value: sel.portions.fiber, color:'#7C6A48'},
+      {label:'Frutas', value: sel.portions.fruit, color:'#0F7A63'},
+      {label:'Verduras', value: sel.portions.veg, color:'#0F7A63'},
+      {label:'Lácteos', value: sel.portions.dairy, color:'#2E6FB0'},
+    ];
+    const personTabs = this.family.map(f=>{ const on=f.id===this.state.person; return {
+      name:f.name.split(' ')[0], initial:initial(f.name), color:f.color, onClick:()=>this.setState({person:f.id}),
+      bg: on?f.color+'1A':'#fff', border: on?f.color:'#DEE4EE', textColor: on?'#14274E':'#586273' };});
+    const tableRows = this.family.map(f=>({ name:f.name.split(' ')[0], role:f.role.replace('· ',''), initial:initial(f.name), color:f.color,
+      kcal:f.portions.kcal, protein:f.portions.protein, carbs:f.portions.carbs, fiber:f.portions.fiber,
+      fruit:f.portions.fruit, veg:f.portions.veg, dairy:f.portions.dairy, water:f.portions.water }));
+
+    // ---- profiles ----
+    const effW = (f)=> (this.state.weights[f.id] != null && this.state.weights[f.id] !== '') ? Number(this.state.weights[f.id]) : f.weight;
+    const fmtW = (x)=> (Math.round(x*10)/10).toString();
+    const profiles = this.family.map(f=>{
+      const w = effW(f);
+      const lo = f.hMin*0.85, hi = f.hMax*1.15;
+      const clamp=(x)=>Math.max(3,Math.min(97,x));
+      const markerPct = clamp((w-lo)/(hi-lo)*100);
+      const bandStart = clamp((f.hMin-lo)/(hi-lo)*100);
+      const bandWidth = Math.min(97-bandStart, (f.hMax-f.hMin)/(hi-lo)*100);
+      let st;
+      if (w < f.hMin) st={label:'Bajo rango',bg:'#F6ECD6',color:'#87671B'};
+      else if (w > f.hMax) st={label:'Sobre rango',bg:'#F4DCE6',color:'#98264C'};
+      else st={label:'En rango',bg:'#E1EFE9',color:'#0C5A48'};
+      const bd = this.state.body[f.id] || {};
+      const bodyItems2 = this.bodyFields.filter(bf=> bd[bf.key]!=null && bd[bf.key]!=='').map(bf=>{
+        const u = bf.unit==='%'?'%':bf.unit==='kg'?' kg':bf.unit==='g'?' g':bf.unit==='kcal'?' kcal':bf.unit==='años'?' años':bf.unit==='niv'?'':'';
+        return { label:bf.label, val: bd[bf.key]+u };
+      });
+      const tipoCuerpo = bd.tipoCuerpo && bd.tipoCuerpo!=='—' ? bd.tipoCuerpo : '';
+      return { id:f.id, name:f.name, role:f.role, initial:initial(f.name), color:f.color,
+        weightStr:fmtW(w)+' kg', rangeStr:f.hMin+'–'+f.hMax+' kg',
+        statusLabel:st.label, statusBg:st.bg, statusColor:st.color,
+        markerPct, bandStart, bandWidth,
+        protein:f.portions.protein.replace(' g','g').split('–')[0], fruit:f.portions.fruit.split(' ')[0],
+        veg:f.portions.veg.split(' ')[0], dairy:f.portions.dairy.split('–')[0].split(' ')[0], water:f.portions.water,
+        likes:f.likes, dislikes:f.dislikes, hasLikes:f.likes.length>0, hasDislikes:f.dislikes.length>0,
+        hasNeeds:f.needs.length>0, needsText:f.needs.join(' · '),
+        bodyItems:bodyItems2, hasBody:bodyItems2.length>0, tipoCuerpo, hasTipo:!!tipoCuerpo,
+        onEdit:()=>this.setState({editing:f.id}) };
+    });
+
+    // ---- editor de composición ----
+    const ef = this.state.editing ? this.family.find(x=>x.id===this.state.editing) : null;
+    let editFields=[], editName='', editColor='#14274E', editInitial='', editTipoValue='—';
+    if (ef) {
+      const bd = this.state.body[ef.id] || {};
+      const setBody = (key,val)=>{ const nb={...(this.state.body[ef.id]||{})}; nb[key]=val; this.setState({body:{...this.state.body,[ef.id]:nb}}); };
+      editName = ef.name; editColor = ef.color; editInitial = initial(ef.name);
+      editTipoValue = bd.tipoCuerpo || '—';
+      // peso editable primero
+      editFields.push({ label:'Peso', unit:'kg',
+        value: this.state.weights[ef.id] != null ? this.state.weights[ef.id] : ef.weight,
+        onInput:(e)=>this.setState({weights:{...this.state.weights,[ef.id]: e.target.value}}) });
+      this.bodyFields.forEach(bf=>{
+        editFields.push({ label:bf.label, unit:bf.unit, value: bd[bf.key]!=null?bd[bf.key]:'',
+          onInput:(e)=>setBody(bf.key, e.target.value) });
+      });
+    }
+
+    // ---- inicio ----
+    const familyAvatars = this.family.map(f=>({ initial:initial(f.name), color:f.color }));
+    const todayMeals = this.slots.map(s=>{ const meal=this.mealById(plan[`${this.today}-${s.k}`]);
+      return { slot:s.l, name:meal?meal.name:'Sin asignar', sides:meal?meal.sides:'', dot:meal?this.tipoColor[meal.tipo]:'#AEB6C6', initial:meal?meal.name[0]:'?' };});
+    const priorityPreview = priorityItems.slice(0,6).map(it=>{ const ss=this.statusStyle(this.effStatus(it));
+      return { name:it.name, color:this.catColor[it.cat], statusBg:ss.bg, statusColor:ss.color, statusLabel:ss.label };});
+    const plannedCount = Object.values(plan).filter(Boolean).length;
+
+    const todayLong = 'Miércoles 11 de junio';
+
+    // ---- compra quincenal ----
+    const qq = this.state.qq || this.defaultQQ();
+    let qOnTarget = 0;
+    const quincenalCats = this.quincenalData.map(c=>{
+      let total = 0;
+      const items = c.items.map((it,i)=>{
+        const key = `${c.id}-${i}`;
+        const qty = qq[key] != null ? qq[key] : it.def;
+        total += qty * it.kgPer;
+        return {
+          name: it.name,
+          qtyLabel: this.fmtNum(qty) + ' ' + it.unit,
+          isUnit: it.unit==='u' || it.unit==='pq',
+          kgEq: (it.unit==='u'||it.unit==='pq') ? ('≈ '+this.fmtNum(qty*it.kgPer)+' '+(c.unit==='L'?'L':'kg')) : '',
+          onMinus: ()=>this.setBump(key, -it.step),
+          onPlus: ()=>this.setBump(key, it.step),
+        };
+      });
+      const scale = c.max*1.18;
+      const clamp=(x)=>Math.max(0,Math.min(100,x));
+      const fillPct = clamp(total/scale*100);
+      const bandStart = clamp(c.min/scale*100);
+      const bandWidth = clamp(c.max/scale*100) - bandStart;
+      let st;
+      if (total < c.min) st={label:'Faltan '+this.fmtNum(c.min-total)+' '+c.unit, bg:'#F6ECD6', color:'#87671B', fill:'#C28A2A'};
+      else if (total > c.max) st={label:this.fmtNum(total-c.max)+' '+c.unit+' por encima', bg:'#E3EEF5', color:'#2E6E8E', fill:'#2E6FB0'};
+      else { st={label:'✓ En el objetivo', bg:'#E1EFE9', color:'#0C5A48', fill:'#0F7A63'}; qOnTarget++; }
+      return {
+        name:c.name, color:c.color, unit:c.unit,
+        targetStr: c.min+'–'+c.max+' '+c.unit,
+        totalStr: this.fmtNum(Math.round(total*10)/10),
+        statusLabel:st.label, statusBg:st.bg, statusColor:st.color, fillColor:st.fill,
+        fillPct, bandStart, bandWidth, items,
+      };
+    });
+    const qSummary = qOnTarget+' de '+this.quincenalData.length+' categorías en el objetivo';
+
+    // ---- frescura ----
+    const shelfTiers = this.shelfTiersRaw.map(t=>({ label:t.label, sub:t.sub, color:t.color, items:t.items,
+      chipBg:t.color+'14', chipColor:'#33405A' }));
+    const medals = [
+      {bg:'#FBF1D8',color:'#9A7A1B'},{bg:'#EAEDF3',color:'#5B6B82'},{bg:'#F3E4D5',color:'#9C6B3A'}
+    ];
+    const wasteRanking = this.wasteRankingRaw.map((w,i)=>{ const m = i<3?medals[i]:{bg:'#F1F4FA',color:'#8B94A6'};
+      return { rank:w.rank, name:w.name, note:w.note, medalBg:m.bg, medalColor:m.color,
+        border: i===this.wasteRankingRaw.length-1?'transparent':'#EEF1F6' }; });
+
+    return {
+      nav:{ inicio:navOf('inicio'), inventario:navOf('inventario'), quincenal:navOf('quincenal'), frescura:navOf('frescura'), comidas:navOf('comidas'), porciones:navOf('porciones'), perfiles:navOf('perfiles') },
+      goInicio:()=>this.setState({view:'inicio'}), goInventario:()=>this.setState({view:'inventario'}),
+      goQuincenal:()=>this.setState({view:'quincenal'}), goFrescura:()=>this.setState({view:'frescura'}),
+      goComidas:()=>this.setState({view:'comidas'}), goPorciones:()=>this.setState({view:'porciones'}),
+      goPerfiles:()=>this.setState({view:'perfiles'}),
+      isInicio:v==='inicio', isInventario:v==='inventario', isQuincenal:v==='quincenal', isFrescura:v==='frescura', isComidas:v==='comidas', isPorciones:v==='porciones', isPerfiles:v==='perfiles',
+      quincenalCats, qSummary,
+      goldenWindows: this.goldenWindows, miniMarket: this.miniMarket, shelfTiers, wasteRanking,
+      miniGrid, tierGrid,
+      // inicio
+      todayLong, familyAvatars, todayMeals, priorityPreview,
+      shopCount: shop.length, priorityCount: priorityItems.length, plannedCount,
+      // inventory
+      catChips, statusChips, invItems, invEmpty: invItems.length===0, shopList, invCount,
+      onAddItem:()=>this.openAdd(),
+      invFormOpen: !!this.state.invForm,
+      invForm: this.state.invForm || {},
+      invFormTitle: (this.state.invForm && this.state.invForm.id) ? 'Editar producto' : 'Agregar producto',
+      invFormPrioBg: (this.state.invForm && this.state.invForm.priority) ? '#14274E' : '#C7CEDB',
+      invFormPrioX: (this.state.invForm && this.state.invForm.priority) ? '21px' : '3px',
+      invFormIsEdit: !!(this.state.invForm && this.state.invForm.id),
+      invFormCats: this.cats.filter(c=>c!=='Todos'),
+      invStatusOpts: ['lleno','por acabarse','agotado'],
+      setFormName:(e)=>this.setForm('name', e.target.value),
+      setFormCat:(e)=>this.setForm('cat', e.target.value),
+      setFormQty:(e)=>this.setForm('qty', e.target.value),
+      setFormPrice:(e)=>this.setForm('price', e.target.value),
+      setFormStatus:(e)=>this.setForm('status', e.target.value),
+      toggleFormPriority:()=>this.setForm('priority', !this.state.invForm.priority),
+      saveForm:()=>this.saveForm(), deleteItem:()=>this.deleteItem(),
+      closeForm:()=>this.setState({invForm:null}),
+      // comidas
+      weekRows,
+      pickerOpen: !!pk, closePicker:()=>this.setState({picker:null}), stop:(e)=>e.stopPropagation(),
+      pickerMeals, pickerTitle, pickerDay, pickerHasCurrent, pickerCurrentName,
+      clearCell:()=>{ if(!pk) return; const np={...plan}; np[`${pk.day}-${pk.slot}`]=null; this.setState({plan:np, picker:null}); },
+      // porciones
+      sel:{ name:sel.name, role:sel.role, initial:initial(sel.name), color:sel.color, kcal:sel.portions.kcal,
+        hasProteinSplit: !!sel.portions.proteinSplit, proteinSplit: sel.portions.proteinSplit || '' },
+      measures, personTabs, tableRows,
+      goalTabs, goalDesc, plates,
+      // perfiles
+      profiles,
+      editOpen: !!ef, editName, editColor, editInitial, editFields,
+      editTipoValue, editTipoOptions: this.tipoCuerpoOpts,
+      editTipoOnChange:(e)=>{ const nb={...(this.state.body[ef.id]||{})}; nb.tipoCuerpo=e.target.value; this.setState({body:{...this.state.body,[ef.id]:nb}}); },
+      closeEdit:()=>this.setState({editing:null}),
+      resetEdit:()=>{ const nw={...this.state.weights}; delete nw[ef.id]; const nbAll={...this.state.body}; delete nbAll[ef.id]; this.setState({weights:nw, body:nbAll}); },
+      // responsive grids
+      statGrid, inicioGrid, invGrid, profileGrid, measureGrid, plateGrid,
+    };
+  }
+}
+</script>
+</body>
+</html>
