@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Familymeal · Cocina · Casa · Salud</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'Hanken Grotesk',system-ui,sans-serif;background:#EDF1F7;color:#14274E;-webkit-font-smoothing:antialiased;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:#C7CEDB;border-radius:20px;border:3px solid transparent;background-clip:content-box;}
+  ::-webkit-scrollbar-thumb:hover{background:#AEB6C6;background-clip:content-box;}
+  button{font-family:inherit;}
+  input,select,textarea{font-family:inherit;}
+  .bg{font-family:'Bricolage Grotesque','Hanken Grotesk',system-ui,sans-serif;}
+  /* barra de guardado */
+  #saveBar{position:fixed;top:14px;right:16px;z-index:80;display:flex;gap:8px;align-items:center;}
+  #saveState{font-size:12px;font-weight:700;background:#fff;border:1px solid #DEE4EE;color:#0C5A48;padding:7px 12px;border-radius:20px;box-shadow:0 4px 12px -6px rgba(20,39,78,.3);white-space:nowrap;}
+  .hbtn{background:#14274E;color:#fff;border:none;font-weight:700;font-size:12.5px;padding:8px 12px;border-radius:10px;cursor:pointer;box-shadow:0 4px 12px -6px rgba(20,39,78,.5);}
+  .hbtn.ghost{background:#fff;color:#14274E;border:1px solid #DEE4EE;}
+  @media(max-width:760px){ #saveBar #saveState{display:none;} }
+</style>
+</head>
+<body>
+
+<div id="saveBar">
+  <span id="saveState">Guardado ✓</span>
+  <button class="hbtn ghost" onclick="exportar()">⬇ Copia</button>
+  <button class="hbtn ghost" onclick="document.getElementById('fileIn').click()">⬆ Cargar</button>
+  <input type="file" id="fileIn" accept="application/json" style="display:none" onchange="importar(event)">
+</div>
+
+<div id="root"></div>
+<div id="modal"></div>
+
+<script src="./data.js"></script>
+<script>
+/* ============================================================
+   FAMILY MEAL — App funcional (vanilla JS, sin dependencias)
+   Guarda todo en localStorage + respaldo JSON.
+   ============================================================ */
+const D = window.FM_DATA;
+const CLAVE = 'familymeal_v2';
+
+/* ---------- utilidades ---------- */
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => 'u'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3);
+const num = v => { const n=parseFloat(String(v).replace(/[^\d.-]/g,'')); return isNaN(n)?0:n; };
+const pad = n => String(n).padStart(2,'0');
+const MES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function hoyMes(){ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; }
+function dinero(n){ const s=(state.ajustes&&state.ajustes.moneda)||'₡'; return s+' '+Math.round(num(n)).toLocaleString('es'); }
+function nombreMes(ym){ const [a,m]=ym.split('-'); return `${MES[parseInt(m)-1]} ${a}`; }
+
+/* ---------- estado ---------- */
+let state, vista='inicio';
+let ui = { invCat:'Todos', invFilter:'todos', person:'vero', goal:'perder', picker:null, ww:window.innerWidth,
+           presMes:hoyMes(), presQ:1 };
+
+function estadoBase(){
+  const qq={}; D.quincenalData.forEach(c=>c.items.forEach((it,i)=>{ qq[`${c.id}-${i}`]=it.def; }));
+  return {
+    ajustes: {...D.ajustes},
+    items: D.inventory.map(x=>({...x})),
+    qq,
+    plan: {...D.defaultPlan},
+    family: D.family.map(f=>({...f, body:{...(f.body||{})}, portions:{...f.portions}, likes:[...f.likes], dislikes:[...f.dislikes], needs:[...f.needs]})),
+    presupuesto: {},   // { "2026-06-Q1": {ingresos:[], gastos:[]} }
+  };
+}
+function cargar(){
+  try{
+    const raw=localStorage.getItem(CLAVE);
+    if(!raw) return estadoBase();
+    const d=JSON.parse(raw); const base=estadoBase();
+    return {
+      ajustes:Object.assign(base.ajustes, d.ajustes||{}),
+      items: Array.isArray(d.items)?d.items:base.items,
+      qq: Object.assign(base.qq, d.qq||{}),
+      plan: Object.assign(base.plan, d.plan||{}),
+      family: Array.isArray(d.family)&&d.family.length?d.family:base.family,
+      presupuesto: d.presupuesto||{},
+    };
+  }catch(e){ console.warn('Error al cargar, empezando con datos base', e); return estadoBase(); }
+}
+let saveT=null;
+function guardar(){
+  try{
+    localStorage.setItem(CLAVE, JSON.stringify(state));
+    const el=$('#saveState'); if(el){ el.textContent='Guardando…'; clearTimeout(saveT); saveT=setTimeout(()=>{el.textContent='Guardado ✓';},350); }
+  }catch(e){ alert('No se pudo guardar: '+e.message); }
+}
+state = cargar();
+
+/* ---------- helpers de datos ---------- */
+const allMeals = () => [...D.desayunos,...D.meriendas,...D.almuerzos,...D.cenas];
+const mealById = id => allMeals().find(m=>m.id===id);
+const catalogFor = t => t==='desayuno'?D.desayunos : t==='merienda'?D.meriendas : t==='almuerzo'?D.almuerzos : D.cenas;
+function statusStyle(s){
+  if(s==='lleno') return {bg:'#E1EFE9',color:'#0C5A48',dot:'#0F7A63',label:'Lleno'};
+  if(s==='por acabarse') return {bg:'#F6ECD6',color:'#87671B',dot:'#C28A2A',label:'Por acabarse'};
+  return {bg:'#F4DCE6',color:'#98264C',dot:'#A32C54',label:'Agotado'};
+}
+function shopItems(){ return state.items.filter(it=> it.status!=='lleno' || it.priority); }
+
+/* ---------- presupuesto helpers ---------- */
+function presKey(){ return `${ui.presMes}-Q${ui.presQ}`; }
+function presDe(k){ if(!state.presupuesto[k]) state.presupuesto[k]={ingresos:[],gastos:[]}; return state.presupuesto[k]; }
+const totIng = k => presDe(k).ingresos.reduce((s,i)=>s+num(i.monto),0);
+const totGas = k => presDe(k).gastos.reduce((s,g)=>s+num(g.monto),0);
+
+/* ============================================================
+   NAVEGACIÓN
+   ============================================================ */
+const TABS = [
+  ['inicio','Inicio','M4 11.5 12 5l8 6.5M6 10v9h4v-5h4v5h4v-9'],
+  ['inventario','Inventario','M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z'],
+  ['quincenal','Compra quincenal','M8 4h8a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z'],
+  ['presupuesto','Presupuesto','M3 6h18M3 12h18M3 18h18'],
+  ['frescura','Frescura y consumo','M12 21c4.5-2.5 7-6 7-10.5A7 7 0 0 0 5 10.5C5 15 7.5 18.5 12 21Z'],
+  ['comidas','Comidas de la semana','M7 3v7c0 1.1.9 2 2 2s2-.9 2-2V3M9 12v9M16 3c-1.5 0-2.5 1.8-2.5 4.5S14.5 12 16 12m0 0v9'],
+  ['porciones','Porciones saludables','M12 3.5v8.5l6 6'],
+  ['perfiles','Perfiles familiares','M9 8a3 3 0 1 0 0-.001M3.5 19c.5-3 2.8-4.6 5.5-4.6s5 1.6 5.5 4.6'],
+];
+function ir(v){ vista=v; cerrarModal(); render(); window.scrollTo(0,0); }
+
+/* ============================================================
+   RENDER PRINCIPAL
+   ============================================================ */
+function gridCols(){
+  const ww=ui.ww;
+  return {
+    stat: ww>980?'repeat(4,1fr)':'repeat(2,1fr)',
+    inicio: ww>1040?'1.4fr 1fr':'1fr',
+    inv: ww>1120?'minmax(0,1fr) 300px':'1fr',
+    profile: ww>1000?'repeat(2,1fr)':'1fr',
+    measure: ww>860?'repeat(4,1fr)':'repeat(2,1fr)',
+    plate: ww>880?'repeat(3,1fr)':'1fr',
+    mini: ww>820?'1fr 1.3fr':'1fr',
+    tier: ww>720?'150px 1fr':'1fr',
+  };
+}
+function render(){
+  const sidebar = renderSidebar();
+  let main='';
+  if(vista==='inicio') main=vInicio();
+  else if(vista==='inventario') main=vInventario();
+  else if(vista==='quincenal') main=vQuincenal();
+  else if(vista==='presupuesto') main=vPresupuesto();
+  else if(vista==='frescura') main=vFrescura();
+  else if(vista==='comidas') main=vComidas();
+  else if(vista==='porciones') main=vPorciones();
+  else if(vista==='perfiles') main=vPerfiles();
+  $('#root').innerHTML = `<div style="display:flex;min-height:100vh;background:#EDF1F7;">${sidebar}
+    <main style="flex:1;min-width:0;padding:34px 40px 60px;max-width:1280px;">${main}</main></div>`;
+}
+
+function renderSidebar(){
+  const navItem = ([k,label,path])=>{
+    const on = vista===k;
+    return `<div onclick="ir('${k}')" style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;cursor:pointer;font-weight:600;font-size:14.5px;color:${on?'#14274E':'#586273'};background:${on?'#E2ECF6':'transparent'};transition:background .15s;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="${path}" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/></svg>${label}</div>`;
+  };
+  return `<aside style="width:256px;flex-shrink:0;background:#FFFFFF;border-right:1px solid #DEE4EE;display:flex;flex-direction:column;padding:26px 18px;position:sticky;top:0;height:100vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;gap:11px;padding:0 8px 4px;">
+      <div style="width:40px;height:40px;border-radius:13px;background:#14274E;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 14px -6px rgba(20,39,78,.5);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3c-3.2 0-5 2.3-5 5.6 0 4.2 2.6 9.3 5 12.4 2.4-3.1 5-8.2 5-12.4C17 5.3 15.2 3 12 3Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div><div class="bg" style="font-weight:800;font-size:19px;letter-spacing:-.5px;line-height:1;">Familymeal</div>
+        <div style="font-size:11px;color:#8B94A6;font-weight:600;letter-spacing:.3px;margin-top:3px;">Cocina · Casa · Salud</div></div>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:3px;margin-top:26px;">${TABS.map(navItem).join('')}</nav>
+    <div style="margin-top:auto;background:#F1F4FA;border:1px solid #DEE4EE;border-radius:16px;padding:15px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.6px;color:#8B94A6;text-transform:uppercase;">Compra quincenal</div>
+      <div style="font-size:13px;font-weight:600;color:#4E5869;margin-top:6px;line-height:1.4;">Lo que se acaba pasa solo a la lista de compra. Recuerda descargar tu copia de respaldo. 💚</div>
+    </div>
+  </aside>`;
+}
+
+/* ============================================================
+   INICIO
+   ============================================================ */
+function vInicio(){
+  const g=gridCols();
+  const d=new Date();
+  const todayLong = `${['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][d.getDay()]}, ${d.getDate()} de ${MES[d.getMonth()]}`;
+  const avatars = state.family.map(f=>`<div style="width:42px;height:42px;border-radius:50%;background:${f.color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;border:3px solid #EDF1F7;margin-left:-8px;" class="bg">${esc(f.name[0])}</div>`).join('');
+  const shop = shopItems();
+  const priority = state.items.filter(it=>it.priority);
+  const planned = D.days.length * D.slots.length; const plannedNow = Object.values(state.plan).filter(Boolean).length;
+  const waterTotal = state.family.reduce((s,f)=>s+num(f.portions.water),0).toFixed(1);
+  // hoy en la mesa
+  const todayK = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()];
+  const todayMeals = D.slots.map(s=>{ const m=mealById(state.plan[`${todayK}-${s.k}`]); return m?{slot:s.l,name:m.name,sides:m.sides,dot:D.tipoColor[m.tipo],initial:m.name[0]}:null; }).filter(Boolean);
+  const prioPrev = shop.slice(0,7).map(it=>{ const ss=statusStyle(it.status); return {name:it.name,color:ss.dot,statusBg:ss.bg,statusColor:ss.color,statusLabel:it.priority?'★ '+ss.label:ss.label}; });
+
+  return `<section>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#8B94A6;text-transform:capitalize;">${esc(todayLong)}</div>
+        <h1 class="bg" style="font-weight:800;font-size:38px;letter-spacing:-1px;margin:4px 0 0;line-height:1;">Hola, ${esc(state.ajustes.titular||'familia')} <span style="display:inline-block;border-bottom:5px solid #7FB0E6;line-height:.7;">👋</span></h1>
+        <div style="font-size:15px;color:#4E5869;margin-top:10px;">Una familia de ${state.family.length} · cocina casera</div>
+      </div>
+      <div style="display:flex;">${avatars}</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:${g.stat};gap:16px;margin-bottom:22px;">
+      <div style="background:#14274E;border-radius:20px;padding:20px;color:#fff;">
+        <div style="font-size:12.5px;font-weight:600;opacity:.85;">Por comprar</div>
+        <div class="bg" style="font-weight:800;font-size:40px;line-height:1;margin-top:8px;">${shop.length}</div>
+        <div style="font-size:12.5px;opacity:.85;margin-top:6px;">artículos agotados o por acabarse</div>
+      </div>
+      <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #DEE4EE;">
+        <div style="font-size:12.5px;font-weight:600;color:#8B94A6;">Prioridad alta</div>
+        <div class="bg" style="font-weight:800;font-size:40px;line-height:1;margin-top:8px;color:#A32C54;">${priority.length}</div>
+        <div style="font-size:12.5px;color:#8B94A6;margin-top:6px;">comprar esta semana</div>
+      </div>
+      <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #DEE4EE;">
+        <div style="font-size:12.5px;font-weight:600;color:#8B94A6;">Comidas planificadas</div>
+        <div class="bg" style="font-weight:800;font-size:40px;line-height:1;margin-top:8px;color:#C28A2A;">${plannedNow}<span style="font-size:18px;color:#B4BCCB;">/${planned}</span></div>
+        <div style="font-size:12.5px;color:#8B94A6;margin-top:6px;">esta semana</div>
+      </div>
+      <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #DEE4EE;">
+        <div style="font-size:12.5px;font-weight:600;color:#8B94A6;">Agua de la familia</div>
+        <div class="bg" style="font-weight:800;font-size:40px;line-height:1;margin-top:8px;color:#2D86C2;">${waterTotal}<span style="font-size:18px;color:#B4BCCB;">L</span></div>
+        <div style="font-size:12.5px;color:#8B94A6;margin-top:6px;">meta diaria combinada</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:${g.inicio};gap:16px;">
+      <div style="background:#fff;border-radius:20px;padding:24px;border:1px solid #DEE4EE;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <h3 class="bg" style="font-weight:800;font-size:20px;margin:0;">Hoy en la mesa</h3>
+          <button onclick="ir('comidas')" style="border:none;background:#E2ECF6;color:#0C5A48;font-weight:700;font-size:13px;padding:8px 14px;border-radius:10px;cursor:pointer;">Ver semana →</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${todayMeals.length?todayMeals.map(m=>`<div style="display:flex;align-items:center;gap:14px;padding:11px 13px;border-radius:14px;background:#F4F7FC;">
+            <div class="bg" style="width:44px;height:44px;border-radius:50%;flex-shrink:0;background:${m.dot};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35);">${esc(m.initial)}</div>
+            <div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:700;color:#8B94A6;text-transform:uppercase;letter-spacing:.4px;">${esc(m.slot)}</div>
+              <div style="font-weight:700;font-size:15px;margin-top:1px;">${esc(m.name)}</div></div>
+            <div style="font-size:12.5px;color:#8B94A6;font-weight:500;">${esc(m.sides)}</div></div>`).join('')
+            :`<div style="color:#8B94A6;font-weight:600;padding:14px;">No hay comidas para hoy. <a href="#" onclick="ir('comidas');return false" style="color:#0C5A48;">Planificar →</a></div>`}
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:20px;padding:24px;border:1px solid #DEE4EE;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+          <h3 class="bg" style="font-weight:800;font-size:20px;margin:0;">Prioridad esta semana</h3>
+          <button onclick="ir('inventario')" style="border:none;background:#F4DCE6;color:#98264C;font-weight:700;font-size:13px;padding:8px 14px;border-radius:10px;cursor:pointer;">Inventario →</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${prioPrev.map(p=>`<div style="display:flex;align-items:center;gap:11px;">
+            <div style="width:9px;height:9px;border-radius:50%;background:${p.color};flex-shrink:0;"></div>
+            <div style="flex:1;font-size:14px;font-weight:600;">${esc(p.name)}</div>
+            <div style="font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:7px;background:${p.statusBg};color:${p.statusColor};">${esc(p.statusLabel)}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+/* ============================================================
+   INVENTARIO
+   ============================================================ */
+function cycle(id){ const order=['lleno','por acabarse','agotado'];
+  const it=state.items.find(x=>x.id===id); if(it){ it.status=order[(order.indexOf(it.status)+1)%3]; guardar(); render(); } }
+function vInventario(){
+  const g=gridCols();
+  const fc=ui.invCat, ff=ui.invFilter;
+  const filtered=state.items.filter(it=>{
+    if(fc!=='Todos'&&it.cat!==fc) return false;
+    if(ff==='lleno'&&it.status!=='lleno') return false;
+    if(ff==='por acabarse'&&it.status!=='por acabarse') return false;
+    if(ff==='agotado'&&it.status!=='agotado') return false;
+    if(ff==='prioridad'&&!it.priority) return false;
+    return true;
+  });
+  const catChips=D.cats.map(c=>`<div onclick="setUI('invCat','${esc(c)}')" style="padding:8px 15px;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer;background:${fc===c?'#14274E':'#fff'};color:${fc===c?'#fff':'#586273'};border:1px solid ${fc===c?'#14274E':'#DEE4EE'};">${esc(c)}</div>`).join('');
+  const sdefs=[['todos','Todos','#AEB6C6'],['lleno','Lleno','#0F7A63'],['por acabarse','Por acabarse','#C28A2A'],['agotado','Agotado','#A32C54'],['prioridad','★ Prioridad','#A32C54']];
+  const statusChips=sdefs.map(([k,l,dot])=>`<div onclick="setUI('invFilter','${k}')" style="display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:9px;font-weight:600;font-size:13px;cursor:pointer;background:${ff===k?'#14274E':'#fff'};color:${ff===k?'#fff':'#586273'};"><span style="width:8px;height:8px;border-radius:50%;background:${dot};"></span>${esc(l)}</div>`).join('');
+  const rows=filtered.map(it=>{ const ss=statusStyle(it.status); const cc=D.catColor[it.cat]||'#6E6B50';
+    return `<div style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid #E7ECF4;">
+      <div style="width:40px;height:40px;border-radius:12px;flex-shrink:0;background:${cc}22;display:flex;align-items:center;justify-content:center;"><span style="width:14px;height:14px;border-radius:5px;background:${cc};"></span></div>
+      <div style="flex:1;min-width:0;overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;font-size:15px;">${esc(it.name)}</span>
+          ${it.priority?'<span style="font-size:10px;font-weight:800;letter-spacing:.4px;color:#A32C54;background:#F6DEE8;padding:2px 7px;border-radius:6px;">PRIORIDAD</span>':''}</div>
+        <div style="font-size:12.5px;color:#8B94A6;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(it.cat)} · ${esc(it.qty)}</div></div>
+      <div style="font-size:13px;font-weight:600;color:#4E5869;flex-shrink:0;text-align:right;">${esc(it.price||'—')}</div>
+      <div onclick="cycle('${it.id}')" style="cursor:pointer;font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:9px;background:${ss.bg};color:${ss.color};width:118px;flex-shrink:0;text-align:center;user-select:none;">${esc(ss.label)}</div>
+      <div onclick="openEdit('${it.id}')" title="Editar" style="width:32px;height:32px;border-radius:9px;background:#EDF1F7;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="#4E5869" stroke-width="2" stroke-linejoin="round"/></svg></div>
+    </div>`;}).join('');
+  const shop=shopItems().sort((a,b)=>(b.priority?1:0)-(a.priority?1:0));
+  const shopHtml=shop.map(it=>{ const ss=statusStyle(it.status); return `<div style="display:flex;align-items:center;gap:11px;">
+    <span style="width:8px;height:8px;border-radius:50%;background:${ss.dot};flex-shrink:0;"></span>
+    <div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:13.5px;">${esc(it.name)}</div><div style="font-size:11px;color:#8E8779;">${esc(it.cat)}</div></div>
+    ${it.priority?'<span style="font-size:14px;color:#C28A2A;">★</span>':''}</div>`;}).join('');
+
+  return `<section>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+      <div><h1 class="bg" style="font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Inventario de la casa</h1>
+        <div style="font-size:15px;color:#4E5869;margin-top:8px;max-width:560px;">Toca el estado de cada producto para cambiarlo, o el lápiz para editarlo. Lo que se acaba pasa solo a la lista de compra.</div></div>
+      <button onclick="openAdd()" style="border:none;background:#14274E;color:#fff;font-weight:700;font-size:14px;padding:12px 18px;border-radius:13px;cursor:pointer;display:flex;align-items:center;gap:8px;flex-shrink:0;box-shadow:0 6px 16px -8px rgba(20,39,78,.6);"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>Agregar producto</button>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 14px;">${catChips}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;">${statusChips}</div>
+    <div style="display:grid;grid-template-columns:${g.inv};gap:20px;align-items:start;">
+      <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;">
+        ${rows||'<div style="padding:40px;text-align:center;color:#8B94A6;font-weight:600;">No hay productos con este filtro.</div>'}
+      </div>
+      <div style="background:#14274E;border-radius:20px;padding:22px;position:sticky;top:20px;color:#fff;">
+        <div style="display:flex;align-items:center;gap:10px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 5h2l2 11h9l2-7H7" stroke="#7FB0E6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.4" fill="#7FB0E6"/><circle cx="17" cy="20" r="1.4" fill="#7FB0E6"/></svg>
+          <h3 class="bg" style="font-weight:800;font-size:18px;margin:0;">Lista de compra</h3></div>
+        <div style="font-size:12.5px;color:#9FB3D4;margin-top:6px;">${shop.length} artículos por reponer</div>
+        <div style="height:1px;background:#2A3A5A;margin:16px 0;"></div>
+        <div style="display:flex;flex-direction:column;gap:11px;max-height:430px;overflow:auto;">${shopHtml||'<div style="color:#9FB3D4;font-size:13px;">Todo en orden 🎉</div>'}</div>
+      </div>
+    </div>
+  </section>`;
+}
+function setUI(k,v){ ui[k]=v; render(); }
+
+/* ---------- modal agregar/editar producto ---------- */
+function openAdd(){ openInvForm({ id:null, name:'', cat: ui.invCat==='Todos'?'Frutas':ui.invCat, qty:'', price:'—', status:'lleno', priority:false }); }
+function openEdit(id){ const it=state.items.find(x=>x.id===id); if(it) openInvForm({...it, price:it.price||'—', priority:!!it.priority}); }
+function openInvForm(f){
+  const opt=(arr,val)=>arr.map(o=>`<option value="${esc(o)}" ${o===val?'selected':''}>${esc(o)}</option>`).join('');
+  modal(`<div style="padding:20px 26px;background:#fff;border-bottom:1px solid #DEE4EE;display:flex;justify-content:space-between;align-items:center;">
+      <div class="bg" style="font-weight:800;font-size:21px;">${f.id?'Editar producto':'Agregar producto'}</div>
+      <div onclick="cerrarModal()" style="width:36px;height:36px;border-radius:11px;background:#F1F4FA;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#4E5869;">✕</div></div>
+    <div style="padding:22px 26px;display:flex;flex-direction:column;gap:16px;">
+      <input type="hidden" id="f_id" value="${esc(f.id||'')}">
+      <div><label style="font-size:11px;font-weight:700;color:#586273;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Nombre del producto</label>
+        <input id="f_name" type="text" value="${esc(f.name)}" placeholder="Ej: Tomate" style="${inpStyle()}"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="${labStyle()}">Categoría</label><select id="f_cat" style="${inpStyle()}">${opt(D.invFormCats,f.cat)}</select></div>
+        <div><label style="${labStyle()}">Cantidad</label><input id="f_qty" type="text" value="${esc(f.qty)}" placeholder="Ej: 2 kg" style="${inpStyle()}"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="${labStyle()}">Precio</label><input id="f_price" type="text" value="${esc(f.price)}" placeholder="₡ / kg · u · L" style="${inpStyle()}"></div>
+        <div><label style="${labStyle()}">Estado</label><select id="f_status" style="${inpStyle()}">${opt(['lleno','por acabarse','agotado'],f.status)}</select></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:11px;cursor:pointer;user-select:none;font-size:14px;font-weight:600;color:#293247;">
+        <input id="f_prio" type="checkbox" ${f.priority?'checked':''} style="width:18px;height:18px;">Marcar como prioridad de compra ★</label>
+    </div>
+    <div style="padding:0 26px 22px;display:flex;gap:10px;justify-content:space-between;">
+      <div>${f.id?`<button onclick="delItem('${esc(f.id)}')" style="background:#F4DCE6;color:#98264C;border:none;font-weight:700;padding:11px 16px;border-radius:12px;cursor:pointer;">Eliminar</button>`:''}</div>
+      <div style="display:flex;gap:10px;"><button onclick="cerrarModal()" style="background:#EDF1F7;color:#4E5869;border:none;font-weight:700;padding:11px 16px;border-radius:12px;cursor:pointer;">Cancelar</button>
+        <button onclick="saveItem()" style="background:#14274E;color:#fff;border:none;font-weight:700;padding:11px 20px;border-radius:12px;cursor:pointer;">Guardar</button></div>
+    </div>`,520);
+}
+function inpStyle(){ return 'width:100%;border:1.5px solid #DEE4EE;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;color:#14274E;background:#fff;outline:none;'; }
+function labStyle(){ return 'font-size:11px;font-weight:700;color:#586273;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;'; }
+function saveItem(){
+  const id=$('#f_id').value||null;
+  const name=$('#f_name').value.trim();
+  if(!name){ alert('Ponle un nombre al producto.'); return; }
+  const data={ name, cat:$('#f_cat').value, qty:($('#f_qty').value||'—').trim()||'—', price:($('#f_price').value||'—').trim()||'—', status:$('#f_status').value, priority:$('#f_prio').checked };
+  if(id){ const it=state.items.find(x=>x.id===id); if(it) Object.assign(it,data); }
+  else state.items.unshift(Object.assign({id:uid()},data));
+  guardar(); cerrarModal(); render();
+}
+function delItem(id){ if(confirm('¿Eliminar este producto del inventario?')){ state.items=state.items.filter(x=>x.id!==id); guardar(); cerrarModal(); render(); } }
+
+/* ============================================================
+   COMPRA QUINCENAL
+   ============================================================ */
+function bump(key,delta){ const cur=state.qq[key]||0; state.qq[key]=Math.max(0,Math.round((cur+delta)*100)/100); guardar(); render(); }
+function fmtNum(n){ return (Math.round(n*100)/100).toString(); }
+function vQuincenal(){
+  const g=gridCols();
+  let totalOk=0;
+  const cards=D.quincenalData.map(c=>{
+    const total=c.items.reduce((s,it,i)=>s+(state.qq[`${c.id}-${i}`]||0)*it.kgPer,0);
+    const pct=Math.min(100,Math.round(total/c.max*100));
+    const inRange=total>=c.min&&total<=c.max; if(inRange)totalOk++;
+    const bandStart=Math.round(c.min/c.max*100);
+    const status= total<c.min?{l:'Falta',bg:'#F6ECD6',color:'#87671B'} : total>c.max?{l:'Te pasaste',bg:'#F4DCE6',color:'#98264C'} : {l:'En rango ✓',bg:'#E1EFE9',color:'#0C5A48'};
+    const fillColor= total>c.max?'#A32C54' : inRange?'#0F7A63' : c.color;
+    const items=c.items.map((it,i)=>{ const key=`${c.id}-${i}`; const q=state.qq[key]||0;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:11px;">
+        <div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(it.name)}</div>
+          ${it.unit!=='kg'&&it.unit!=='L'?`<div style="font-size:11px;color:#8B94A6;">≈ ${fmtNum(q*it.kgPer)} kg</div>`:''}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <div onclick="bump('${key}',${-it.step})" style="width:28px;height:28px;border-radius:9px;background:#EDF1F7;color:#4E5869;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:17px;user-select:none;">−</div>
+          <div class="bg" style="min-width:62px;text-align:center;font-weight:700;font-size:13.5px;">${fmtNum(q)} ${esc(it.unit)}</div>
+          <div onclick="bump('${key}',${it.step})" style="width:28px;height:28px;border-radius:9px;background:#E2ECF6;color:#0C5A48;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:800;font-size:17px;user-select:none;">+</div>
+        </div></div>`;}).join('');
+    return `<div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;">
+      <div style="padding:20px 22px 18px;border-bottom:1px solid #E7ECF4;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+          <div><div class="bg" style="font-weight:800;font-size:19px;line-height:1.1;">${esc(c.name)}</div>
+            <div style="font-size:12.5px;color:#8B94A6;font-weight:600;margin-top:4px;">Objetivo ${c.min}–${c.max} ${esc(c.unit)}</div></div>
+          <div style="text-align:right;flex-shrink:0;"><div class="bg" style="font-weight:800;font-size:26px;line-height:1;color:${c.color};">${fmtNum(total)}</div>
+            <div style="font-size:11px;color:#8B94A6;font-weight:600;">${esc(c.unit)} en el carrito</div></div></div>
+        <div style="position:relative;height:12px;background:#E6EBF3;border-radius:30px;margin-top:14px;overflow:hidden;">
+          <div style="position:absolute;top:0;bottom:0;left:${bandStart}%;width:${100-bandStart}%;background:repeating-linear-gradient(45deg,#D2E8DF,#D2E8DF 5px,#C2DDD0 5px,#C2DDD0 10px);"></div>
+          <div style="position:absolute;top:0;bottom:0;left:0;width:${pct}%;background:${fillColor};border-radius:30px;opacity:.92;"></div></div>
+        <div style="margin-top:10px;display:inline-block;font-size:12px;font-weight:700;padding:4px 11px;border-radius:8px;background:${status.bg};color:${status.color};">${esc(status.l)}</div>
+      </div>
+      <div style="padding:8px 12px 12px;max-height:300px;overflow-y:auto;">${items}</div>
+    </div>`;
+  }).join('');
+  return `<section>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+      <div><h1 class="bg" style="font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Compra quincenal</h1>
+        <div style="font-size:15px;color:#4E5869;margin-top:8px;">Ajusta los kg, litros o porciones de cada alimento hasta cubrir el total de cada categoría.</div></div>
+      <div style="background:#14274E;color:#fff;border-radius:14px;padding:13px 18px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.5px;color:#7FB0E6;text-transform:uppercase;">Estado del plan</div>
+        <div class="bg" style="font-weight:800;font-size:18px;margin-top:3px;">${totalOk}/${D.quincenalData.length} categorías en rango</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:${g.profile};gap:18px;margin-top:24px;">${cards}</div>
+  </section>`;
+}
+
+/* ============================================================
+   PRESUPUESTO (nuevo · por quincena)
+   ============================================================ */
+function vPresupuesto(){
+  const g=gridCols();
+  const k=presKey(); const p=presDe(k);
+  const ing=totIng(k), gas=totGas(k), bal=ing-gas;
+  const porCat={}; p.gastos.forEach(x=>{ porCat[x.categoria]=(porCat[x.categoria]||0)+num(x.monto); });
+  const catRows=Object.entries(porCat).sort((a,b)=>b[1]-a[1]);
+  const qTab=(n,label)=>`<div onclick="setPresQ(${n})" style="padding:9px 16px;border-radius:10px;font-weight:700;font-size:13.5px;cursor:pointer;background:${ui.presQ===n?'#14274E':'#fff'};color:${ui.presQ===n?'#fff':'#586273'};border:1px solid ${ui.presQ===n?'#14274E':'#DEE4EE'};">${label}</div>`;
+  const periodos=Object.keys(state.presupuesto).filter(x=>totIng(x)||totGas(x)).sort();
+  const maxP=Math.max(1,...periodos.map(x=>Math.max(totIng(x),totGas(x))));
+
+  return `<section>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+      <div><h1 class="bg" style="font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Presupuesto</h1>
+        <div style="font-size:15px;color:#4E5869;margin-top:8px;">Registra ingresos y gastos de cada quincena. Cada período se guarda por separado.</div></div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:20px;">
+      <input type="month" value="${ui.presMes}" onchange="setPresMes(this.value)" style="border:1.5px solid #DEE4EE;border-radius:12px;padding:10px 13px;font-size:14px;font-weight:700;color:#14274E;background:#fff;">
+      ${qTab(1,'1ª quincena')} ${qTab(2,'2ª quincena')}
+      <span style="font-size:13px;color:#8B94A6;font-weight:600;">${nombreMes(ui.presMes)} · ${ui.presQ===1?'días 1–15':'días 16–fin'}</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:${g.stat};gap:16px;margin:22px 0;">
+      <div style="background:#fff;border-radius:18px;padding:18px;border:1px solid #DEE4EE;"><div style="font-size:12px;font-weight:700;color:#8B94A6;text-transform:uppercase;">Ingresos</div><div class="bg" style="font-weight:800;font-size:28px;color:#0F7A63;margin-top:6px;">${dinero(ing)}</div></div>
+      <div style="background:#fff;border-radius:18px;padding:18px;border:1px solid #DEE4EE;"><div style="font-size:12px;font-weight:700;color:#8B94A6;text-transform:uppercase;">Gastos</div><div class="bg" style="font-weight:800;font-size:28px;color:#C28A2A;margin-top:6px;">${dinero(gas)}</div></div>
+      <div style="background:${bal>=0?'#14274E':'#A32C54'};border-radius:18px;padding:18px;color:#fff;"><div style="font-size:12px;font-weight:700;opacity:.85;text-transform:uppercase;">Balance</div><div class="bg" style="font-weight:800;font-size:28px;margin-top:6px;">${dinero(bal)}</div></div>
+      <div style="background:#fff;border-radius:18px;padding:18px;border:1px solid #DEE4EE;"><div style="font-size:12px;font-weight:700;color:#8B94A6;text-transform:uppercase;">Quincenas guardadas</div><div class="bg" style="font-weight:800;font-size:28px;color:#2D86C2;margin-top:6px;">${periodos.length}</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:${ui.ww>1000?'1fr 1fr':'1fr'};gap:18px;">
+      <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h3 class="bg" style="font-weight:800;font-size:18px;margin:0;color:#0F7A63;">Ingresos</h3>
+          <button onclick="addIng()" style="border:none;background:#E1EFE9;color:#0C5A48;font-weight:700;font-size:13px;padding:7px 12px;border-radius:9px;cursor:pointer;">+ Agregar</button></div>
+        ${p.ingresos.length?p.ingresos.map(i=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <input type="text" value="${esc(i.concepto)}" placeholder="Concepto (ej. salario)" onchange="editIng('${i.id}','concepto',this.value)" style="flex:1;${inpStyle()}">
+          <input type="number" value="${esc(i.monto)}" onchange="editIng('${i.id}','monto',this.value)" style="width:120px;text-align:right;${inpStyle()}">
+          <button onclick="delIng('${i.id}')" style="background:#F4DCE6;border:none;color:#98264C;width:34px;height:38px;border-radius:9px;cursor:pointer;">🗑</button></div>`).join('')
+          :'<div style="color:#8B94A6;font-style:italic;padding:8px 0;">Sin ingresos aún.</div>'}
+      </div>
+      <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><h3 class="bg" style="font-weight:800;font-size:18px;margin:0;color:#C28A2A;">Gastos</h3>
+          <button onclick="addGas()" style="border:none;background:#F6ECD6;color:#87671B;font-weight:700;font-size:13px;padding:7px 12px;border-radius:9px;cursor:pointer;">+ Agregar</button></div>
+        ${p.gastos.length?p.gastos.map(x=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+          <select onchange="editGas('${x.id}','categoria',this.value)" style="flex:1;min-width:130px;${inpStyle()}">${D.presupuestoCats.map(c=>`<option ${c===x.categoria?'selected':''}>${esc(c)}</option>`).join('')}</select>
+          <input type="text" value="${esc(x.concepto)}" placeholder="Detalle" onchange="editGas('${x.id}','concepto',this.value)" style="flex:1;min-width:110px;${inpStyle()}">
+          <input type="number" value="${esc(x.monto)}" onchange="editGas('${x.id}','monto',this.value)" style="width:110px;text-align:right;${inpStyle()}">
+          <button onclick="delGas('${x.id}')" style="background:#F4DCE6;border:none;color:#98264C;width:34px;height:38px;border-radius:9px;cursor:pointer;">🗑</button></div>`).join('')
+          :'<div style="color:#8B94A6;font-style:italic;padding:8px 0;">Sin gastos aún.</div>'}
+      </div>
+    </div>
+
+    ${catRows.length?`<div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:22px;margin-top:18px;">
+      <h3 class="bg" style="font-weight:800;font-size:18px;margin:0 0 14px;">Gastos por categoría</h3>
+      ${catRows.map(([c,v])=>{ const pct=gas?Math.round(v/gas*100):0; return `<div style="display:grid;grid-template-columns:130px 1fr auto;gap:10px;align-items:center;margin-bottom:9px;">
+        <span style="font-size:13px;font-weight:600;">${esc(c)}</span>
+        <div style="background:#EEF2F7;border-radius:8px;height:18px;overflow:hidden;"><div style="background:#C28A2A;height:100%;width:${pct}%;"></div></div>
+        <span style="font-size:12.5px;color:#8B94A6;font-weight:600;">${dinero(v)} · ${pct}%</span></div>`;}).join('')}
+    </div>`:''}
+
+    ${periodos.length?`<div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:22px;margin-top:18px;">
+      <h3 class="bg" style="font-weight:800;font-size:18px;margin:0 0 4px;">Comparativa por quincena</h3>
+      <div style="font-size:12.5px;color:#8B94A6;margin-bottom:14px;">Verde = ingresos · Naranja = gastos</div>
+      ${periodos.map(x=>{ const [ym,q]=x.split('-Q'); const i=totIng(x),ga=totGas(x);
+        return `<div style="margin-bottom:13px;"><div style="display:flex;justify-content:space-between;font-size:13px;"><b>${nombreMes(ym)} · ${q==='1'?'1ª':'2ª'} q.</b><span style="color:#8B94A6;">${dinero(i-ga)} balance</span></div>
+          <div style="background:#EEF2F7;border-radius:6px;height:12px;margin-top:4px;overflow:hidden;"><div style="background:#0F7A63;height:100%;width:${i/maxP*100}%;"></div></div>
+          <div style="background:#EEF2F7;border-radius:6px;height:12px;margin-top:3px;overflow:hidden;"><div style="background:#C28A2A;height:100%;width:${ga/maxP*100}%;"></div></div></div>`;}).join('')}
+    </div>`:''}
+  </section>`;
+}
+function setPresMes(v){ if(v){ ui.presMes=v; render(); } }
+function setPresQ(n){ ui.presQ=n; render(); }
+function addIng(){ presDe(presKey()).ingresos.push({id:uid(),concepto:'',monto:0}); guardar(); render(); }
+function editIng(id,c,v){ const x=presDe(presKey()).ingresos.find(i=>i.id===id); if(x){ x[c]=c==='monto'?num(v):v; guardar(); if(c==='monto')render(); } }
+function delIng(id){ const p=presDe(presKey()); p.ingresos=p.ingresos.filter(i=>i.id!==id); guardar(); render(); }
+function addGas(){ presDe(presKey()).gastos.push({id:uid(),categoria:D.presupuestoCats[0],concepto:'',monto:0}); guardar(); render(); }
+function editGas(id,c,v){ const x=presDe(presKey()).gastos.find(g=>g.id===id); if(x){ x[c]=c==='monto'?num(v):v; guardar(); render(); } }
+function delGas(id){ const p=presDe(presKey()); p.gastos=p.gastos.filter(g=>g.id!==id); guardar(); render(); }
+
+/* ============================================================
+   FRESCURA Y CONSUMO
+   ============================================================ */
+function vFrescura(){
+  const g=gridCols();
+  const golden=D.goldenWindows.map(w=>`<div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;">
+    <div style="background:${w.color};padding:16px 20px;color:#fff;"><div style="font-size:12px;font-weight:700;letter-spacing:.6px;opacity:.85;text-transform:uppercase;">${esc(w.tag)}</div>
+      <div class="bg" style="font-weight:800;font-size:23px;line-height:1;margin-top:4px;">${esc(w.day)}</div></div>
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:11px;">${w.items.map(it=>`<div style="display:flex;align-items:flex-start;gap:10px;font-size:14px;font-weight:600;color:#293247;line-height:1.35;"><span style="width:7px;height:7px;border-radius:50%;background:${w.color};flex-shrink:0;margin-top:6px;"></span><span>${esc(it)}</span></div>`).join('')}</div></div>`).join('');
+  const mini=D.miniMarket.map(m=>`<span style="font-size:13px;font-weight:600;background:rgba(127,176,230,.16);color:#CFE0F5;padding:7px 13px;border-radius:10px;white-space:nowrap;">${esc(m)}</span>`).join('');
+  const tiers=D.shelfTiers.map(t=>`<div style="background:#fff;border-radius:16px;border:1px solid #DEE4EE;padding:16px 18px;display:grid;grid-template-columns:${g.tier};gap:18px;align-items:center;border-left:5px solid ${t.color};">
+    <div><div class="bg" style="font-weight:800;font-size:16px;color:${t.color};">${esc(t.label)}</div><div style="font-size:11.5px;color:#8B94A6;font-weight:600;margin-top:2px;">${esc(t.sub)}</div></div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;">${t.items.map(f=>`<span style="font-size:12.5px;font-weight:600;background:${t.color}1A;color:${t.color};padding:4px 11px;border-radius:8px;white-space:nowrap;">${esc(f)}</span>`).join('')}</div></div>`).join('');
+  const waste=D.wasteRanking.map(w=>`<div style="display:flex;align-items:center;gap:15px;padding:12px 16px;border-bottom:1px solid #EEF2F7;">
+    <div class="bg" style="width:30px;height:30px;border-radius:9px;background:#F4DCE6;color:#98264C;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;">${esc(w.rank)}</div>
+    <div style="flex:1;font-weight:700;font-size:15px;">${esc(w.name)}</div><div style="font-size:12.5px;color:#8B94A6;font-weight:500;">${esc(w.note)}</div></div>`).join('');
+  return `<section>
+    <h1 class="bg" style="font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Frescura y orden de consumo</h1>
+    <div style="font-size:15px;color:#4E5869;margin-top:8px;max-width:680px;">Lo que se daña primero, se come primero. Esta es la regla de oro después de cada mercado — y qué reponer en los mini-mercados de la semana.</div>
+    <h3 class="bg" style="font-weight:800;font-size:21px;margin:30px 0 14px;">La regla de oro de la quincena</h3>
+    <div style="display:grid;grid-template-columns:${g.plate};gap:16px;">${golden}</div>
+    <div style="margin-top:18px;background:#14274E;border-radius:20px;padding:24px 26px;color:#fff;display:grid;grid-template-columns:${g.mini};gap:24px;align-items:center;">
+      <div><div style="display:flex;align-items:center;gap:9px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 5h2l2 11h9l2-7H7" stroke="#7FB0E6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><div style="font-size:12px;font-weight:700;letter-spacing:.6px;color:#9FB3D4;text-transform:uppercase;">Mini-mercado semanal</div></div>
+        <div class="bg" style="font-weight:800;font-size:25px;line-height:1.1;margin-top:8px;">Día 7 · solo lo fresco</div>
+        <div style="font-size:13.5px;color:#B9C6DD;margin-top:8px;line-height:1.5;">Estos alimentos no aguantan toda la quincena. Cómpralos a media semana para tenerlos frescos sin desperdicio.</div></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">${mini}</div></div>
+    <h3 class="bg" style="font-weight:800;font-size:21px;margin:34px 0 14px;">Escala de durabilidad</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">${tiers}</div>
+    <h3 class="bg" style="font-weight:800;font-size:21px;margin:34px 0 14px;">Mayor riesgo de desperdicio en tu casa</h3>
+    <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:10px 8px;">${waste}</div>
+  </section>`;
+}
+
+/* ============================================================
+   COMIDAS DE LA SEMANA
+   ============================================================ */
+function vComidas(){
+  const d=new Date(); const todayK=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d.getDay()];
+  const head=`<div style="display:grid;grid-template-columns:74px repeat(5,1fr);gap:10px;padding:0 4px;"><div></div>${D.slots.map(s=>`<div style="font-size:11.5px;font-weight:800;letter-spacing:.5px;color:#8B94A6;text-transform:uppercase;text-align:center;">${esc(s.l)}</div>`).join('')}</div>`;
+  const rows=D.days.map(day=>{
+    const cells=D.slots.map(s=>{ const key=`${day.k}-${s.k}`; const m=mealById(state.plan[key]);
+      if(m) return `<div onclick="openPicker('${day.k}','${s.k}')" style="background:#fff;border:1px solid #DEE4EE;border-radius:14px;padding:11px;min-height:78px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;">
+        <div style="display:flex;align-items:flex-start;gap:9px;"><span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;background:${D.tipoColor[m.tipo]};box-shadow:inset 0 0 0 2px rgba(255,255,255,.4);"></span>
+          <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:13px;line-height:1.2;">${esc(m.name)}</div><div style="font-size:11px;color:#8B94A6;margin-top:2px;line-height:1.2;">${esc(m.sides)}</div></div></div></div>`;
+      return `<div onclick="openPicker('${day.k}','${s.k}')" style="background:#fff;border:1px solid #DEE4EE;border-radius:14px;padding:11px;min-height:78px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;color:#AEB6C6;font-weight:700;font-size:13px;"><span style="font-size:17px;">+</span> Elegir</div>`;
+    }).join('');
+    const on=day.k===todayK;
+    return `<div style="display:grid;grid-template-columns:74px repeat(5,1fr);gap:10px;align-items:stretch;">
+      <div class="bg" style="display:flex;align-items:center;justify-content:center;background:${on?'#0F7A63':'#E4E9F2'};border-radius:14px;color:${on?'#fff':'#4E5869'};font-weight:800;font-size:17px;">${esc(day.k)}</div>${cells}</div>`;
+  }).join('');
+  return `<section>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;">
+      <div><h1 class="bg" style="font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Comidas de la semana</h1>
+        <div style="font-size:15px;color:#4E5869;margin-top:8px;">Toca cualquier espacio para elegir un plato del recetario familiar.</div></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;">
+        ${[['Pollo','#C28A2A'],['Res','#A32C54'],['Cerdo','#A65A86'],['Otros','#0F7A63']].map(([l,c])=>`<div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#4E5869;"><span style="width:10px;height:10px;border-radius:50%;background:${c};"></span>${l}</div>`).join('')}
+      </div></div>
+    <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px;">${head}${rows}</div>
+  </section>`;
+}
+function openPicker(dayK,slotK){
+  const slot=D.slots.find(s=>s.k===slotK); const dayObj=D.days.find(d=>d.k===dayK);
+  const curId=state.plan[`${dayK}-${slotK}`]; const cur=mealById(curId);
+  const cards=catalogFor(slot.t).map(m=>`<div onclick="pickMeal('${dayK}','${slotK}','${m.id}')" style="display:flex;align-items:center;gap:12px;padding:13px;border-radius:14px;background:${m.id===curId?'#E2ECF6':'#fff'};border:1.5px solid ${m.id===curId?'#0F7A63':'#DEE4EE'};cursor:pointer;">
+    <span style="width:38px;height:38px;border-radius:50%;flex-shrink:0;background:${D.tipoColor[m.tipo]};box-shadow:inset 0 0 0 3px rgba(255,255,255,.4);"></span>
+    <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:14px;line-height:1.2;">${esc(m.name)}</div><div style="font-size:11.5px;color:#8B94A6;margin-top:2px;line-height:1.2;">${esc(m.sides)}</div></div>
+    ${m.id===curId?'<span style="color:#0F7A63;font-size:17px;font-weight:800;">✓</span>':''}</div>`).join('');
+  modal(`<div style="padding:22px 26px;background:#fff;border-bottom:1px solid #DEE4EE;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-size:12px;font-weight:700;color:#8B94A6;text-transform:uppercase;letter-spacing:.5px;">${esc(dayObj.full)}</div>
+        <div class="bg" style="font-weight:800;font-size:22px;line-height:1.1;margin-top:2px;">${esc(slot.l)}</div></div>
+      <div onclick="cerrarModal()" style="width:36px;height:36px;border-radius:11px;background:#F1F4FA;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#4E5869;">✕</div></div>
+    <div style="padding:18px 26px;overflow-y:auto;">
+      ${cur?`<div onclick="clearMeal('${dayK}','${slotK}')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:13px;border:1.5px dashed #B4BCCB;color:#7C6A48;font-weight:700;font-size:13.5px;cursor:pointer;margin-bottom:14px;background:#fff;">Quitar «${esc(cur.name)}» de este espacio</div>`:''}
+      <div style="display:grid;grid-template-columns:repeat(${ui.ww>620?2:1},1fr);gap:10px;">${cards}</div></div>`,720);
+}
+function pickMeal(d,s,id){ state.plan[`${d}-${s}`]=id; guardar(); cerrarModal(); render(); }
+function clearMeal(d,s){ delete state.plan[`${d}-${s}`]; guardar(); cerrarModal(); render(); }
+
+/* ============================================================
+   PORCIONES SALUDABLES
+   ============================================================ */
+function vPorciones(){
+  const g=gridCols();
+  const goalKey=ui.goal; const goalDef=D.plateGoals[goalKey];
+  const goalTabs=Object.keys(D.goalLabels).map(k=>`<div onclick="setGoal('${k}')" style="padding:9px 17px;border-radius:10px;font-weight:700;font-size:13.5px;cursor:pointer;background:${ui.goal===k?'#fff':'transparent'};color:${ui.goal===k?'#14274E':'#586273'};box-shadow:${ui.goal===k?'0 2px 6px rgba(20,39,78,.12)':'none'};">${esc(D.goalLabels[k])}</div>`).join('');
+  const badges=['#C28A2A','#0F7A63','#A32C54'];
+  const plates=goalDef.plates.map((p,i)=>`<div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:22px;text-align:center;">
+    <div style="display:inline-block;background:${badges[i]};color:#fff;font-weight:800;font-size:12px;letter-spacing:1px;padding:5px 14px;border-radius:8px;">${esc(p.meal)}</div>
+    <div style="width:170px;height:170px;border-radius:50%;margin:18px auto 0;background:conic-gradient(#0F7A63 0 ${p.v}%,#A32C54 ${p.v}% ${p.v+p.c}%,#C28A2A ${p.v+p.c}% 100%);box-shadow:0 0 0 7px #fff,0 0 0 9px #DEE4EE,0 10px 24px -10px rgba(0,0,0,.25);"></div>
+    <div style="display:flex;flex-direction:column;gap:7px;margin-top:20px;text-align:left;">
+      ${[['Vegetales/Frutas','#0F7A63',p.v],['Carbohidratos','#C28A2A',p.c],['Proteína','#A32C54',p.p]].map(([l,c,v])=>`<div style="display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;"><span style="width:11px;height:11px;border-radius:3px;background:${c};"></span>${l} <b class="bg" style="margin-left:auto;">${v}%</b></div>`).join('')}</div></div>`).join('');
+  const sel=state.family.find(f=>f.id===ui.person)||state.family[0];
+  const personTabs=state.family.map(f=>`<div onclick="setPerson('${f.id}')" style="display:flex;align-items:center;gap:9px;padding:7px 14px 7px 7px;border-radius:30px;cursor:pointer;background:${ui.person===f.id?f.color+'1A':'#fff'};border:1.5px solid ${ui.person===f.id?f.color:'#DEE4EE'};">
+    <span class="bg" style="width:30px;height:30px;border-radius:50%;background:${f.color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;">${esc(f.name[0])}</span>
+    <span style="font-weight:700;font-size:14px;color:${ui.person===f.id?f.color:'#4E5869'};">${esc(f.name)}</span></div>`).join('');
+  const P=sel.portions;
+  const measures=[['Proteína',P.protein,'#C28A2A'],['Carbohidratos',P.carbs,'#A32C54'],['Grasas',P.fat,'#7C6A48'],['Fibra',P.fiber,'#0F7A63'],['Frutas',P.fruit,'#0F7A63'],['Verduras',P.veg,'#0F7A63'],['Lácteos',P.dairy,'#2E6FB0'],['Agua',P.water,'#2D86C2']];
+  const measHtml=measures.map(([l,v,c])=>`<div style="background:#F4F7FC;border-radius:15px;padding:16px;border-top:3px solid ${c};"><div style="font-size:12px;font-weight:700;color:#8B94A6;text-transform:uppercase;letter-spacing:.4px;">${esc(l)}</div><div class="bg" style="font-weight:800;font-size:20px;margin-top:7px;color:${c};line-height:1.1;">${esc(v||'—')}</div></div>`).join('');
+  const tableRows=state.family.map(f=>{ const p=f.portions; return `<tr style="border-top:1px solid #E7ECF4;">
+    <td style="padding:13px 18px;"><div style="display:flex;align-items:center;gap:10px;"><span class="bg" style="width:28px;height:28px;border-radius:50%;background:${f.color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;">${esc(f.name[0])}</span><div><div style="font-weight:700;">${esc(f.name)}</div><div style="font-size:11px;color:#8B94A6;">${esc(f.role)}</div></div></div></td>
+    <td style="padding:13px 10px;text-align:center;font-weight:700;">${esc(p.kcal)}</td><td style="padding:13px 10px;text-align:center;">${esc(p.protein)}</td><td style="padding:13px 10px;text-align:center;">${esc(p.carbs)}</td><td style="padding:13px 10px;text-align:center;">${esc(p.fiber)}</td><td style="padding:13px 10px;text-align:center;">${esc(p.fruit)}</td><td style="padding:13px 10px;text-align:center;">${esc(p.veg)}</td><td style="padding:13px 10px;text-align:center;">${esc(p.dairy)}</td><td style="padding:13px 14px;text-align:center;font-weight:700;color:#2D86C2;">${esc(p.water)}</td></tr>`;}).join('');
+  return `<section>
+    <h1 class="bg" style="font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Porciones saludables</h1>
+    <div style="font-size:15px;color:#4E5869;margin-top:8px;">La regla del plato para cada comida, y las cantidades diarias de cada miembro.</div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:22px;">
+      <div style="font-size:13.5px;font-weight:700;color:#4E5869;">Según tu objetivo:</div>
+      <div style="display:inline-flex;background:#E4E9F2;border-radius:13px;padding:4px;gap:3px;">${goalTabs}</div></div>
+    <div style="font-size:13px;color:#8B94A6;margin-top:9px;">${esc(goalDef.desc)}</div>
+    <div style="display:grid;grid-template-columns:${g.plate};gap:16px;margin-top:18px;">${plates}</div>
+    <h3 class="bg" style="font-weight:800;font-size:22px;margin:36px 0 14px;">Cantidades diarias por persona</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:20px;">${personTabs}</div>
+    <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;padding:26px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:22px;">
+        <div class="bg" style="width:52px;height:52px;border-radius:50%;background:${sel.color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;">${esc(sel.name[0])}</div>
+        <div><div class="bg" style="font-weight:800;font-size:22px;line-height:1;">${esc(sel.name)}</div><div style="font-size:13.5px;color:#8B94A6;font-weight:600;margin-top:3px;">${esc(sel.role)} · ${esc(P.kcal)} kcal al día</div></div></div>
+      <div style="display:grid;grid-template-columns:${g.measure};gap:13px;">${measHtml}</div>
+      ${P.proteinSplit?`<div style="margin-top:14px;background:#FBF4E9;border:1px solid #F0E3CD;border-radius:14px;padding:14px 16px;"><div style="font-size:12px;font-weight:800;color:#87671B;text-transform:uppercase;letter-spacing:.4px;">Cómo repartir la proteína</div><div style="font-size:13.5px;color:#4E5869;font-weight:600;margin-top:4px;line-height:1.5;">${esc(P.proteinSplit)}</div></div>`:''}
+    </div>
+    <h3 class="bg" style="font-weight:800;font-size:22px;margin:36px 0 14px;">Toda la familia de un vistazo</h3>
+    <div style="background:#fff;border-radius:20px;border:1px solid #DEE4EE;overflow:hidden;"><div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:760px;"><thead><tr style="background:#F4F7FC;">
+        <th style="text-align:left;padding:14px 18px;font-weight:800;color:#4E5869;font-size:12px;text-transform:uppercase;letter-spacing:.4px;">Persona</th>
+        <th style="padding:14px 10px;font-weight:800;color:#4E5869;font-size:12px;">Calorías</th><th style="padding:14px 10px;font-weight:800;color:#C28A2A;font-size:12px;">Proteína</th><th style="padding:14px 10px;font-weight:800;color:#A32C54;font-size:12px;">Carbos</th><th style="padding:14px 10px;font-weight:800;color:#7C6A48;font-size:12px;">Fibra</th><th style="padding:14px 10px;font-weight:800;color:#0F7A63;font-size:12px;">Fruta</th><th style="padding:14px 10px;font-weight:800;color:#0F7A63;font-size:12px;">Verdura</th><th style="padding:14px 10px;font-weight:800;color:#2E6FB0;font-size:12px;">Lácteos</th><th style="padding:14px 14px;font-weight:800;color:#2D86C2;font-size:12px;">Agua</th>
+      </tr></thead><tbody>${tableRows}</tbody></table></div></div>
+  </section>`;
+}
+function setGoal(k){ ui.goal=k; render(); }
+function setPerson(id){ ui.person=id; render(); }
+
+/* ============================================================
+   PERFILES FAMILIARES
+   ============================================================ */
+function vPerfiles(){
+  const g=gridCols();
+  const cards=state.family.map(p=>{
+    const range=p.hMax-p.hMin;
+    const markerPct=Math.max(0,Math.min(100,((p.weight-p.hMin)/(range||1))*100));
+    const status= p.weight<p.hMin?{l:'Bajo el rango',bg:'#F6ECD6',color:'#87671B'} : p.weight>p.hMax?{l:'Sobre el rango',bg:'#F4DCE6',color:'#98264C'} : {l:'En rango ✓',bg:'#E1EFE9',color:'#0C5A48'};
+    const mini=[['Proteína',p.portions.protein,'#C28A2A'],['Fruta',p.portions.fruit,'#0F7A63'],['Verdura',p.portions.veg,'#0F7A63'],['Lácteos',p.portions.dairy,'#2E6FB0'],['Agua',p.portions.water,'#2D86C2']]
+      .map(([l,v,c])=>`<div style="text-align:center;background:#F4F7FC;border-radius:12px;padding:10px 4px;"><div class="bg" style="font-weight:800;font-size:13px;color:${c};">${esc(v||'—')}</div><div style="font-size:10px;color:#8B94A6;font-weight:600;margin-top:3px;">${l}</div></div>`).join('');
+    const bodyKeys=Object.keys(p.body||{}).filter(k=>p.body[k]!==''&&p.body[k]!=null);
+    const bodyHtml=bodyKeys.length?`<div style="margin-top:18px;"><div style="font-size:11px;font-weight:700;color:#586273;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Composición corporal</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">${bodyKeys.map(k=>{ const fd=D.bodyFields.find(x=>x.key===k); return `<div style="background:#F4F7FC;border:1px solid #E7ECF4;border-radius:11px;padding:9px 11px;"><div style="font-size:10px;color:#8B94A6;font-weight:600;line-height:1.2;">${esc(fd?fd.label:k)}</div><div class="bg" style="font-weight:800;font-size:14px;margin-top:3px;color:#14274E;">${esc(p.body[k])} ${esc(fd?fd.unit:'')}</div></div>`;}).join('')}</div>
+      ${p.tipoCuerpo&&p.tipoCuerpo!=='—'?`<div style="margin-top:9px;font-size:12.5px;color:#4E5869;"><b style="color:#14274E;">Tipo de cuerpo:</b> ${esc(p.tipoCuerpo)}</div>`:''}</div>`:'';
+    const likes=p.likes&&p.likes.length?`<div><div style="font-size:11px;font-weight:700;color:#0F7A63;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Le gusta</div><div style="display:flex;flex-wrap:wrap;gap:6px;">${p.likes.map(l=>`<span style="font-size:12px;font-weight:600;background:#E2ECF6;color:#0C5A48;padding:4px 10px;border-radius:8px;">${esc(l)}</span>`).join('')}</div></div>`:'';
+    const dislikes=p.dislikes&&p.dislikes.length?`<div><div style="font-size:11px;font-weight:700;color:#A32C54;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">No le gusta</div><div style="display:flex;flex-wrap:wrap;gap:6px;">${p.dislikes.map(l=>`<span style="font-size:12px;font-weight:600;background:#F6DEE8;color:#98264C;padding:4px 10px;border-radius:8px;">${esc(l)}</span>`).join('')}</div></div>`:'';
+    const needs=p.needs&&p.needs.length?`<div style="background:#FBF4E4;border:1px solid #F0E3C4;border-radius:12px;padding:11px 13px;"><div style="font-size:11px;font-weight:700;color:#87671B;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;">A cuidar</div><div style="font-size:12.5px;color:#7A5B18;font-weight:500;line-height:1.5;">${p.needs.map(esc).join(' · ')}</div></div>`:'';
+    return `<div style="background:#fff;border-radius:22px;border:1px solid #DEE4EE;overflow:hidden;">
+      <div style="height:8px;background:${p.color};"></div>
+      <div style="padding:22px 24px 24px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="bg" style="width:54px;height:54px;border-radius:50%;background:${p.color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;flex-shrink:0;">${esc(p.name[0])}</div>
+          <div style="flex:1;"><div class="bg" style="font-weight:800;font-size:21px;line-height:1;">${esc(p.name)}</div><div style="font-size:13px;color:#8B94A6;font-weight:600;margin-top:4px;">${esc(p.role)} · ${esc(p.weight)} kg</div></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex-shrink:0;">
+            <div style="font-size:11.5px;font-weight:800;padding:5px 11px;border-radius:9px;background:${status.bg};color:${status.color};white-space:nowrap;">${esc(status.l)}</div>
+            <div onclick="openProfile('${p.id}')" style="font-size:12px;font-weight:700;color:#2E6FB0;cursor:pointer;display:flex;align-items:center;gap:5px;user-select:none;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 20h4l10-10-4-4L4 16v4Z" stroke="#2E6FB0" stroke-width="2" stroke-linejoin="round"/></svg>Editar datos</div></div></div>
+        <div style="margin-top:18px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#8B94A6;font-weight:600;margin-bottom:5px;"><span>Rango saludable ${esc(p.hMin)}–${esc(p.hMax)} kg</span><span>${esc(p.weight)} kg</span></div>
+          <div style="position:relative;height:11px;background:#E6EBF3;border-radius:30px;"><div style="position:absolute;top:0;bottom:0;left:0;width:100%;background:#EEF2F7;border-radius:30px;"></div>
+            <div style="position:absolute;top:0;bottom:0;left:0;right:0;background:#D2E8DF;border-radius:30px;"></div>
+            <div style="position:absolute;top:50%;left:${markerPct}%;width:16px;height:16px;border-radius:50%;background:${p.color};border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(0,0,0,.2);"></div></div></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:20px;">${mini}</div>
+        ${bodyHtml}
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:9px;">${likes}${dislikes}${needs}</div>
+      </div></div>`;
+  }).join('');
+  return `<section>
+    <h1 class="bg" style="font-weight:800;font-size:34px;letter-spacing:-1px;margin:0;">Perfiles familiares</h1>
+    <div style="font-size:15px;color:#4E5869;margin-top:8px;">Peso frente al rango saludable, porciones diarias, gustos y necesidades de cada uno. Toca «Editar datos» para actualizar peso y composición corporal.</div>
+    <div style="display:grid;grid-template-columns:${g.profile};gap:18px;margin-top:24px;">${cards}</div>
+  </section>`;
+}
+function openProfile(id){
+  const p=state.family.find(f=>f.id===id); if(!p) return;
+  const bodyInputs=D.bodyFields.map(fd=>`<div><label style="${labStyle()}">${esc(fd.label)} (${esc(fd.unit)})</label><input id="b_${fd.key}" type="text" value="${esc(p.body&&p.body[fd.key]!=null?p.body[fd.key]:'')}" style="${inpStyle()}"></div>`).join('');
+  const tipoOpts=D.tipoCuerpoOpts.map(o=>`<option ${o===(p.tipoCuerpo||'—')?'selected':''}>${esc(o)}</option>`).join('');
+  modal(`<div style="padding:20px 26px;background:#fff;border-bottom:1px solid #DEE4EE;display:flex;justify-content:space-between;align-items:center;">
+      <div class="bg" style="font-weight:800;font-size:21px;">Editar datos · ${esc(p.name)}</div>
+      <div onclick="cerrarModal()" style="width:36px;height:36px;border-radius:11px;background:#F1F4FA;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#4E5869;">✕</div></div>
+    <div style="padding:22px 26px;display:flex;flex-direction:column;gap:16px;max-height:70vh;overflow-y:auto;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="${labStyle()}">Peso actual (kg)</label><input id="pf_weight" type="number" step="0.1" value="${esc(p.weight)}" style="${inpStyle()}"></div>
+        <div><label style="${labStyle()}">Tipo de cuerpo</label><select id="pf_tipo" style="${inpStyle()}">${tipoOpts}</select></div>
+      </div>
+      <div><div style="font-size:11px;font-weight:700;color:#586273;text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Composición corporal (deja vacío lo que no uses)</div>
+        <div style="display:grid;grid-template-columns:repeat(${ui.ww>620?3:2},1fr);gap:10px;">${bodyInputs}</div></div>
+      <div><label style="${labStyle()}">Le gusta (separado por comas)</label><textarea id="pf_likes" style="${inpStyle()}min-height:60px;">${esc((p.likes||[]).join(', '))}</textarea></div>
+      <div><label style="${labStyle()}">No le gusta (separado por comas)</label><textarea id="pf_dislikes" style="${inpStyle()}min-height:50px;">${esc((p.dislikes||[]).join(', '))}</textarea></div>
+      <div><label style="${labStyle()}">A cuidar (una nota por línea)</label><textarea id="pf_needs" style="${inpStyle()}min-height:70px;">${esc((p.needs||[]).join('\n'))}</textarea></div>
+    </div>
+    <div style="padding:0 26px 22px;display:flex;gap:10px;justify-content:flex-end;"><button onclick="cerrarModal()" style="background:#EDF1F7;color:#4E5869;border:none;font-weight:700;padding:11px 16px;border-radius:12px;cursor:pointer;">Cancelar</button>
+      <button onclick="saveProfile('${id}')" style="background:#14274E;color:#fff;border:none;font-weight:700;padding:11px 20px;border-radius:12px;cursor:pointer;">Guardar</button></div>`,560);
+}
+function saveProfile(id){
+  const p=state.family.find(f=>f.id===id); if(!p) return;
+  p.weight=num($('#pf_weight').value)||p.weight;
+  p.tipoCuerpo=$('#pf_tipo').value;
+  p.body=p.body||{};
+  D.bodyFields.forEach(fd=>{ const v=$('#b_'+fd.key).value.trim(); if(v) p.body[fd.key]=v; else delete p.body[fd.key]; });
+  const split=s=>s.split(',').map(x=>x.trim()).filter(Boolean);
+  p.likes=split($('#pf_likes').value);
+  p.dislikes=split($('#pf_dislikes').value);
+  p.needs=$('#pf_needs').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  guardar(); cerrarModal(); render();
+}
+
+/* ============================================================
+   MODAL genérico
+   ============================================================ */
+function modal(inner,maxw){
+  $('#modal').innerHTML=`<div onclick="if(event.target===this)cerrarModal()" style="position:fixed;inset:0;background:rgba(20,39,78,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;z-index:90;padding:30px 16px;overflow-y:auto;">
+    <div style="background:#F1F4FA;border-radius:24px;width:100%;max-width:${maxw||520}px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);">${inner}</div></div>`;
+}
+function cerrarModal(){ $('#modal').innerHTML=''; }
+
+/* ============================================================
+   EXPORTAR / IMPORTAR / RESPALDO
+   ============================================================ */
+function exportar(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  const d=new Date();
+  a.href=url; a.download=`familymeal-respaldo-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+function importar(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{ try{
+      const d=JSON.parse(e.target.result);
+      if(!d||typeof d!=='object') throw new Error('Archivo no válido');
+      if(confirm('Esto reemplazará tus datos actuales con los del archivo. ¿Continuar?')){
+        const base=estadoBase();
+        state={ ajustes:Object.assign(base.ajustes,d.ajustes||{}), items:Array.isArray(d.items)?d.items:base.items,
+          qq:Object.assign(base.qq,d.qq||{}), plan:Object.assign(base.plan,d.plan||{}),
+          family:Array.isArray(d.family)&&d.family.length?d.family:base.family, presupuesto:d.presupuesto||{} };
+        guardar(); vista='inicio'; render(); alert('Copia cargada correctamente ✓');
+      }
+    }catch(err){ alert('No se pudo leer el archivo: '+err.message); }
+    ev.target.value=''; };
+  r.readAsText(file);
+}
+
+/* ---------- arranque ---------- */
+window.addEventListener('resize', ()=>{ const w=window.innerWidth; if(Math.abs(w-ui.ww)>40){ ui.ww=w; render(); } });
+render();
+</script>
+</body>
+</html>
