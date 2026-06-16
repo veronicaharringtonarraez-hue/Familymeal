@@ -445,6 +445,21 @@ function pageHead(kicker,title,desc,right){
 // Día de hoy según el reloj del dispositivo (Lun=0 … Dom=6)
 function todayKey(){ const idx=(new Date().getDay()+6)%7; return SEED.days[idx].k; }
 function todayFull(){ const d=SEED.days.find(x=>x.k===todayKey()); return d?d.full:''; }
+function fechaHoy(){ const d=new Date(); return `${todayFull().toLowerCase()} ${d.getDate()} de ${MESES[d.getMonth()].toLowerCase()} de ${d.getFullYear()}`; }
+// Banco de 30 frases motivadoras — cambia sola cada día
+const FRASES=[
+  'Hoy vas a lograr cosas grandiosas. ✨','Eres más fuerte de lo que imaginas. 💪','Tu familia es tu mayor tesoro. ❤️',
+  'Cada día es una nueva oportunidad para brillar. 🌟','Lo estás haciendo increíble, sigue así. 🙌','Hoy será un gran día, tú lo decides. ☀️',
+  'Tu esfuerzo de hoy es el éxito de mañana. 🌱','Respira, sonríe y confía en ti. 😊','Eres capaz de todo lo que te propongas. 🚀',
+  'El amor que das a tu familia siempre vuelve. 🏡','Pequeños pasos también te llevan lejos. 👣','Tu cocina llena de amor cada plato. 🍽️',
+  'Hoy mereces sentirte orgullosa de ti. 🥰','Lo mejor está por venir. 🌈','Eres la fuerza que mantiene unida a tu familia. 💖',
+  'Confía en el proceso, vas por buen camino. 🛤️','Tu sonrisa ilumina tu hogar. 😄','Hazlo con amor y todo saldrá bien. 💗',
+  'Eres un ejemplo hermoso para tus hijos. 🌻','Hoy elige ser feliz. 🌼','Cada comida saludable es un acto de amor. 🥗',
+  'Tienes todo para triunfar hoy. 🏆','Tu dedicación nunca pasa desapercibida. 🌟','Cree en ti tanto como tu familia cree en ti. 💫',
+  'Hoy es perfecto para empezar algo bueno. 🌅','Tu hogar es feliz porque tú estás en él. 🏠','Lo difícil de hoy te hace más fuerte mañana. 🔥',
+  'Mereces todo lo bueno que viene en camino. 🎁','Sigue adelante, lo estás haciendo muy bien. 👏','Tú haces que lo ordinario se vuelva extraordinario. ✨'
+];
+function fraseDelDia(){ const d=new Date(); const dayOfYear=Math.floor((d-new Date(d.getFullYear(),0,0))/86400000); return FRASES[dayOfYear % FRASES.length]; }
 
 function main(){
   switch(UI.view){
@@ -484,6 +499,10 @@ function viewInicio(){
 
   return pageHead('Hoy', `Hola, Vero 👋`, 'Una familia de 6 · 2 adultos y 4 niños · cocina casera',
     `<div class="avatars">${avatars}</div>`)
+  + `<div class="card" style="background:linear-gradient(120deg,#14274E 0%,#2E6FB0 100%);border:none;color:#fff;margin-bottom:18px;">
+      <div style="font-size:12.5px;font-weight:700;letter-spacing:.4px;opacity:.85;">Hoy es ${esc(fechaHoy())}</div>
+      <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;line-height:1.35;margin-top:7px;">${esc(fraseDelDia())}</div>
+    </div>`
   + `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:18px;">
       <div class="stat" style="background:#14274E"><div class="k">Por comprar</div><div class="v">${shop.length}</div><div class="s">productos por reponer</div></div>
       <div class="stat" style="background:#A32C54"><div class="k">Prioridad</div><div class="v">${priority.length}</div><div class="s">marcados como urgentes</div></div>
