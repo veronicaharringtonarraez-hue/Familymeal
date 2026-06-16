@@ -72,6 +72,9 @@
   table.tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#8B94A6;font-weight:700;padding:8px 10px;border-bottom:1px solid #EEF1F6;}
   table.tbl td{padding:10px;border-bottom:1px solid #F2F4F9;vertical-align:middle;}
   table.tbl tr:last-child td{border-bottom:none;}
+  table.menu-tbl{table-layout:fixed;min-width:820px;}
+  table.menu-tbl th, table.menu-tbl td{width:auto;}
+  table.menu-tbl th:first-child, table.menu-tbl td:first-child{width:56px;}
   .bump{width:30px;height:30px;border-radius:9px;border:1px solid #DEE4EE;background:#fff;font-weight:800;font-size:16px;color:#14274E;line-height:1;display:inline-flex;align-items:center;justify-content:center;}
   .bump:hover{background:#F1F4FA;}
   .bar{height:9px;border-radius:999px;background:#EEF1F6;position:relative;overflow:hidden;}
@@ -211,6 +214,160 @@ const SEED = {
     {id:'c_arroz_chino',name:'Arroz chino venezolano',tipo:'mixto',sides:'Vegetales salteados'},{id:'c_arepa_pizza',name:'Arepa pizza',tipo:'queso',sides:'Ensalada'},
     {id:'c_parrilla',name:'Parrilla familiar',tipo:'mixto',sides:'Yuca · Ensalada · Maduro'},
   ],
+  // Banco de recetas por cocinas del mundo (ingredientes en español, hechos con lo que solemos comprar)
+  cocinas:[
+    { id:'venezolana', name:'Venezolana', emoji:'🇻🇪', dishes:[
+      {id:'ve_pabellon',name:'Pabellón criollo',tipo:'res',slots:['almuerzo','cena'],
+        ing:['Carne para mechar','Arroz blanco','Frijoles negros (caraotas)','Plátano maduro','Cebolla','Tomate','Chile dulce','Ajo','Aceite','Sal','Comino'],
+        pasos:['Hierve la carne con sal hasta ablandar (1–1½ h) y desmecha.','Sofríe cebolla, tomate, chile y ajo; agrega la carne con un poco de su caldo y cocina 10 min.','Cocina las caraotas con sofrito y comino hasta espesar.','Prepara arroz blanco.','Fríe el plátano maduro en tajadas.','Sirve carne, arroz, caraotas y tajadas juntos.']},
+      {id:'ve_perico',name:'Arepas con perico',tipo:'huevo',slots:['desayuno'],
+        ing:['Harina PAN','Huevos','Tomate','Cebolla','Chile dulce','Aceite','Sal','Queso'],
+        pasos:['Amasa harina PAN con agua tibia y sal; forma arepas y cocínalas en sartén hasta dorar.','Sofríe cebolla, tomate y chile; agrega los huevos batidos y revuelve hasta cuajar.','Abre las arepas y rellénalas con el perico y queso.']},
+      {id:'ve_reina',name:'Arepa reina pepiada',tipo:'pollo',slots:['desayuno','merienda'],
+        ing:['Harina PAN','Pechuga de pollo','Aguacate','Mayonesa','Cebolla','Cilantro (culantro)','Sal'],
+        pasos:['Cocina y desmecha el pollo.','Mezcla con aguacate en trozos, mayonesa, cebolla picada, culantro y sal.','Rellena las arepas calientes.']},
+      {id:'ve_cachapa',name:'Cachapas con queso',tipo:'queso',slots:['desayuno','cena'],
+        ing:['Elote (maíz tierno)','Leche','Azúcar','Sal','Mantequilla','Queso semiduro'],
+        pasos:['Licúa los granos de elote con un poco de leche, azúcar y sal hasta una masa espesa.','Vierte porciones en sartén con mantequilla y cocina por ambos lados.','Sirve dobladas con queso.']},
+      {id:'ve_sancocho',name:'Sancocho de pollo',tipo:'pollo',slots:['almuerzo'],
+        ing:['Pollo en presas','Yuca','Plátano','Auyama','Zanahoria','Elote','Cebolla','Chile dulce','Cilantro','Sal'],
+        pasos:['Hierve el pollo con cebolla, chile y sal.','Agrega yuca, auyama, zanahoria, plátano y elote en trozos.','Cocina hasta que todo ablande.','Añade cilantro al final y sirve con arroz.']},
+      {id:'ve_asado',name:'Asado negro',tipo:'res',slots:['cena'],
+        ing:['Carne para mechar','Tapa dulce (papelón)','Cebolla','Ajo','Tomate','Aceite','Sal','Salsa de soya'],
+        pasos:['Dora la carne con la tapa dulce hasta caramelizar.','Sofríe cebolla, ajo y tomate.','Agrega agua y cocina a fuego lento 2 h hasta ablandar.','Rebana y sirve con arroz y tajadas.']},
+      {id:'ve_caraotas',name:'Caraotas con arroz',tipo:'legumbre',slots:['almuerzo','cena'],
+        ing:['Frijoles negros','Arroz blanco','Cebolla','Chile dulce','Ajo','Comino','Tapa dulce','Sal'],
+        pasos:['Cocina las caraotas hasta blandas.','Sofríe cebolla, chile y ajo; añádelos con comino y un toque de tapa dulce.','Sirve sobre arroz blanco.']},
+    ]},
+    { id:'italiana', name:'Italiana', emoji:'🇮🇹', dishes:[
+      {id:'it_bolonesa',name:'Pasta a la boloñesa',tipo:'res',slots:['almuerzo','cena'],
+        ing:['Pasta','Carne molida','Tomate','Cebolla','Ajo','Zanahoria','Salsa de tomate','Aceite','Sal','Orégano'],
+        pasos:['Sofríe cebolla, ajo y zanahoria rallada.','Añade la carne molida y dórala.','Agrega tomate y salsa de tomate; cocina 20 min con orégano y sal.','Hierve la pasta al dente y mézclala.']},
+      {id:'it_lasana',name:'Lasaña',tipo:'res',slots:['almuerzo','cena'],
+        ing:['Pasta para lasaña','Carne molida','Salsa de tomate','Queso','Leche','Harina de trigo','Mantequilla','Cebolla','Ajo'],
+        pasos:['Prepara una salsa de carne (como la boloñesa).','Haz la bechamel: derrite mantequilla, añade harina y leche removiendo hasta espesar.','Alterna capas de pasta, carne, bechamel y queso.','Hornea 30 min hasta gratinar.']},
+      {id:'it_parmesana',name:'Pollo a la parmesana',tipo:'pollo',slots:['almuerzo'],
+        ing:['Pechuga de pollo','Huevo','Harina de trigo','Pan rallado','Salsa de tomate','Queso','Aceite','Sal'],
+        pasos:['Empaniza el pollo (harina, huevo, pan rallado).','Fríelo hasta dorar.','Cúbrelo con salsa de tomate y queso.','Hornéalo hasta fundir el queso. Sirve con pasta.']},
+      {id:'it_risotto',name:'Risotto de pollo',tipo:'pollo',slots:['cena'],
+        ing:['Arroz','Pechuga de pollo','Cebolla','Ajo','Queso','Mantequilla','Caldo de pollo','Aceite'],
+        pasos:['Sofríe cebolla y ajo en mantequilla; añade el arroz.','Agrega el caldo caliente poco a poco, removiendo.','Incorpora el pollo cocido en trozos.','Termina con queso rallado.']},
+      {id:'it_noquis',name:'Ñoquis de papa',tipo:'veggie',slots:['almuerzo'],
+        ing:['Papa','Harina de trigo','Huevo','Sal','Salsa de tomate','Queso'],
+        pasos:['Cuece y haz puré las papas.','Mezcla con harina, huevo y sal; forma rollos y córtalos.','Hiérvelos hasta que floten.','Sirve con salsa de tomate y queso.']},
+      {id:'it_pizza',name:'Pizza casera',tipo:'queso',slots:['cena'],
+        ing:['Harina de trigo','Levadura','Salsa de tomate','Queso','Jamón','Aceite','Sal'],
+        pasos:['Amasa harina con levadura, agua, aceite y sal; deja reposar.','Estira la masa.','Cubre con salsa, queso y jamón.','Hornea a fuego alto 12–15 min.']},
+    ]},
+    { id:'asiatica', name:'Asiática', emoji:'🥢', dishes:[
+      {id:'as_arroz_frito',name:'Arroz frito',tipo:'mixto',slots:['almuerzo','cena'],
+        ing:['Arroz blanco cocido','Huevos','Pollo o jamón','Zanahoria','Cebolla','Salsa de soya','Aceite'],
+        pasos:['Saltea en aceite caliente la cebolla y la zanahoria en cubitos.','Añade el pollo o jamón en trozos.','Agrega el arroz cocido y la salsa de soya.','Haz un hueco, cuaja los huevos y mezcla todo.']},
+      {id:'as_agridulce',name:'Pollo agridulce',tipo:'pollo',slots:['almuerzo'],
+        ing:['Pechuga de pollo','Harina de trigo','Huevo','Chile dulce','Cebolla','Salsa de tomate','Azúcar','Vinagre','Piña','Aceite'],
+        pasos:['Empaniza y fríe el pollo en trozos.','Saltea chile y cebolla.','Haz la salsa con salsa de tomate, azúcar, vinagre y trozos de piña.','Mezcla el pollo con la salsa. Sirve con arroz.']},
+      {id:'as_res_veg',name:'Salteado de res con vegetales',tipo:'res',slots:['cena'],
+        ing:['Bistec en tiras','Brócoli','Zanahoria','Chile dulce','Cebolla','Ajo','Salsa de soya','Aceite'],
+        pasos:['Saltea la carne en tiras a fuego alto y resérvala.','Saltea los vegetales hasta crujientes.','Regresa la carne, añade ajo y salsa de soya.','Sirve con arroz.']},
+      {id:'as_chowmein',name:'Fideos salteados (chow mein)',tipo:'mixto',slots:['almuerzo','cena'],
+        ing:['Pasta (espagueti)','Pollo','Repollo','Zanahoria','Cebolla','Salsa de soya','Ajo','Aceite'],
+        pasos:['Hierve la pasta al dente.','Saltea el pollo en tiras.','Añade repollo, zanahoria y cebolla en juliana.','Incorpora la pasta y la salsa de soya; saltea todo.']},
+      {id:'as_teriyaki',name:'Pollo teriyaki',tipo:'pollo',slots:['almuerzo'],
+        ing:['Muslo o pechuga de pollo','Salsa de soya','Azúcar','Ajo','Aceite','Arroz'],
+        pasos:['Dora el pollo en trozos.','Haz una salsa con soya, azúcar y ajo; redúcela hasta que brille.','Glasea el pollo con la salsa.','Sirve sobre arroz.']},
+      {id:'as_sopa_fideos',name:'Sopa de fideos con pollo',tipo:'pollo',slots:['cena'],
+        ing:['Pasta fina (fideos)','Pollo','Zanahoria','Cebolla','Ajo','Cilantro','Salsa de soya','Sal'],
+        pasos:['Haz un caldo con pollo, cebolla y ajo.','Añade la zanahoria y cocina.','Agrega los fideos hasta ablandar.','Sirve con cilantro y un toque de soya.']},
+    ]},
+    { id:'mexicana', name:'Mexicana', emoji:'🇲🇽', dishes:[
+      {id:'mx_tacos',name:'Tacos de carne',tipo:'res',slots:['almuerzo','cena'],
+        ing:['Tortillas (harina PAN o de trigo)','Carne molida o bistec','Cebolla','Tomate','Cilantro','Chile dulce','Limón','Sal'],
+        pasos:['Guisa la carne con cebolla, tomate y especias.','Calienta las tortillas.','Rellénalas con la carne.','Acompaña con cebolla, cilantro y limón.']},
+      {id:'mx_fajitas',name:'Fajitas de pollo',tipo:'pollo',slots:['almuerzo'],
+        ing:['Pechuga de pollo','Chile dulce','Cebolla','Ajo','Tortillas','Aceite','Sal','Comino'],
+        pasos:['Corta pollo y vegetales en tiras.','Saltea el pollo con comino y sal.','Añade chile y cebolla.','Sirve en tortillas calientes.']},
+      {id:'mx_arroz',name:'Arroz a la mexicana',tipo:'veggie',slots:['almuerzo','cena'],
+        ing:['Arroz','Tomate','Cebolla','Ajo','Zanahoria','Aceite','Sal'],
+        pasos:['Licúa tomate, cebolla y ajo.','Dora el arroz en aceite.','Añade el licuado y agua; cocina tapado con zanahoria en cubitos.']},
+      {id:'mx_enchiladas',name:'Enchiladas de pollo',tipo:'pollo',slots:['cena'],
+        ing:['Tortillas','Pollo desmechado','Salsa de tomate','Chile dulce','Cebolla','Queso','Natilla'],
+        pasos:['Rellena las tortillas con pollo y enróllalas.','Cúbrelas con salsa de tomate y chile.','Añade queso y natilla.','Hornea hasta gratinar.']},
+      {id:'mx_quesadillas',name:'Quesadillas',tipo:'queso',slots:['merienda','cena'],
+        ing:['Tortillas de trigo','Queso','Jamón o pollo','Aceite'],
+        pasos:['Rellena las tortillas con queso (y jamón o pollo).','Dóblalas y dóralas en sartén por ambos lados hasta fundir el queso.']},
+      {id:'mx_picadillo',name:'Picadillo',tipo:'res',slots:['almuerzo'],
+        ing:['Carne molida','Papa','Zanahoria','Tomate','Cebolla','Ajo','Aceite','Sal'],
+        pasos:['Dora la carne molida.','Añade papa y zanahoria en cubitos.','Agrega tomate, cebolla y ajo; cocina hasta suavizar.','Sirve con arroz.']},
+    ]},
+    { id:'espanola', name:'Española', emoji:'🇪🇸', dishes:[
+      {id:'es_tortilla',name:'Tortilla española',tipo:'huevo',slots:['desayuno','cena'],
+        ing:['Huevos','Papa','Cebolla','Aceite','Sal'],
+        pasos:['Fríe la papa y la cebolla en láminas hasta tiernas.','Bate los huevos y mézclalos.','Cuaja en sartén por un lado, voltea y termina.']},
+      {id:'es_paella',name:'Arroz a la marinera (paella)',tipo:'mixto',slots:['almuerzo'],
+        ing:['Arroz','Pollo','Tilapia o atún','Chile dulce','Tomate','Cebolla','Ajo','Zanahoria','Aceite','Sal'],
+        pasos:['Dora el pollo.','Sofríe cebolla, ajo, chile y tomate.','Añade el arroz y el caldo; incorpora el pescado.','Cocina sin remover hasta secar.']},
+      {id:'es_lentejas',name:'Lentejas estofadas',tipo:'legumbre',slots:['almuerzo'],
+        ing:['Lentejas','Papa','Zanahoria','Cebolla','Ajo','Tomate','Chorizo','Aceite','Sal'],
+        pasos:['Sofríe cebolla, ajo y tomate.','Añade lentejas, papa, zanahoria y chorizo.','Cubre con agua y cocina hasta espesar.']},
+      {id:'es_ajillo',name:'Pollo al ajillo',tipo:'pollo',slots:['almuerzo','cena'],
+        ing:['Muslos de pollo','Ajo','Aceite','Sal','Papa'],
+        pasos:['Dora el pollo troceado.','Añade abundante ajo laminado.','Cocina hasta dorar.','Sirve con papas.']},
+      {id:'es_albondigas',name:'Albóndigas en salsa',tipo:'res',slots:['almuerzo','cena'],
+        ing:['Carne molida','Huevo','Pan rallado','Cebolla','Ajo','Tomate','Zanahoria','Aceite','Sal'],
+        pasos:['Mezcla la carne con huevo, pan rallado, ajo y sal; forma bolitas.','Dóralas.','Haz una salsa con tomate, cebolla y zanahoria.','Cocina las albóndigas en la salsa.']},
+    ]},
+    { id:'francesa', name:'Francesa', emoji:'🇫🇷', dishes:[
+      {id:'fr_crepas',name:'Crepas',tipo:'dulce',slots:['desayuno','merienda'],
+        ing:['Harina de trigo','Huevos','Leche','Mantequilla','Azúcar','Sal'],
+        pasos:['Bate harina, huevos, leche, azúcar y sal hasta una mezcla líquida.','Vierte una capa fina en sartén con mantequilla.','Cocina por ambos lados.','Rellena con fruta, queso o mermelada.']},
+      {id:'fr_gratin',name:'Papas gratinadas',tipo:'queso',slots:['cena'],
+        ing:['Papa','Leche','Queso','Mantequilla','Ajo','Sal','Pimienta'],
+        pasos:['Corta las papas en rodajas finas.','Acomódalas en un molde con ajo, sal y pimienta.','Cúbrelas con leche y queso.','Hornea hasta dorar.']},
+      {id:'fr_tortilla',name:'Tortilla francesa',tipo:'huevo',slots:['desayuno','merienda'],
+        ing:['Huevos','Mantequilla','Sal','Queso o jamón'],
+        pasos:['Bate los huevos con sal.','Cuaja en mantequilla a fuego suave.','Rellena con queso o jamón y dobla.']},
+      {id:'fr_pollo_salsa',name:'Pollo a la francesa en salsa',tipo:'pollo',slots:['cena'],
+        ing:['Pollo','Cebolla','Ajo','Zanahoria','Harina de trigo','Mantequilla','Caldo','Sal'],
+        pasos:['Dora el pollo y resérvalo.','Sofríe cebolla, ajo y zanahoria.','Espolvorea harina y añade el caldo.','Cocina el pollo en la salsa hasta tierno.']},
+      {id:'fr_ratatouille',name:'Pisto de verduras (ratatouille)',tipo:'veggie',slots:['almuerzo','cena'],
+        ing:['Chile dulce','Tomate','Cebolla','Auyama','Ajo','Aceite','Sal','Orégano'],
+        pasos:['Corta todas las verduras en cubos.','Sofríe cebolla y ajo.','Añade el resto y cocina a fuego lento.','Sirve con arroz o pan.']},
+    ]},
+    { id:'americana', name:'Americana', emoji:'🇺🇸', dishes:[
+      {id:'us_hamburguesa',name:'Hamburguesa casera',tipo:'res',slots:['almuerzo','cena'],
+        ing:['Carne molida','Pan de sándwich','Queso','Tomate','Lechuga','Cebolla','Sal'],
+        pasos:['Mezcla la carne con sal y forma las hamburguesas.','Ásalas en sartén por ambos lados.','Funde queso encima.','Arma con pan, tomate, lechuga y cebolla.']},
+      {id:'us_pollo_frito',name:'Pollo frito empanizado',tipo:'pollo',slots:['almuerzo'],
+        ing:['Pollo en presas','Harina de trigo','Huevo','Leche','Sal','Pimienta','Aceite'],
+        pasos:['Remoja el pollo en leche.','Pásalo por harina sazonada.','Fríe en aceite caliente hasta dorar y cocer.','Sirve con papas.']},
+      {id:'us_mac_cheese',name:'Macarrones con queso',tipo:'queso',slots:['almuerzo','cena'],
+        ing:['Pasta (codito)','Queso','Leche','Mantequilla','Harina de trigo','Sal'],
+        pasos:['Hierve la pasta.','Derrite mantequilla, añade harina y leche; espesa.','Funde el queso en la salsa.','Mezcla con la pasta.']},
+      {id:'us_bbq_ribs',name:'Costillas BBQ',tipo:'cerdo',slots:['cena'],
+        ing:['Costilla de cerdo','Salsa BBQ','Ajo','Sal','Tapa dulce'],
+        pasos:['Sazona las costillas con sal y ajo.','Hornéalas tapadas a fuego bajo hasta tiernas.','Úntalas con salsa BBQ.','Hornea destapadas hasta caramelizar.']},
+      {id:'us_pancakes',name:'Panqueques',tipo:'dulce',slots:['desayuno'],
+        ing:['Harina de trigo','Huevos','Leche','Azúcar','Mantequilla','Polvo de hornear','Sal'],
+        pasos:['Bate los secos y los húmedos por separado y únelos.','Vierte porciones en sartén con mantequilla.','Voltéalos al salir burbujas.','Sirve con fruta o miel.']},
+    ]},
+    { id:'mediterranea', name:'Mediterránea', emoji:'🫒', dishes:[
+      {id:'me_garbanzos',name:'Arroz con garbanzos',tipo:'legumbre',slots:['almuerzo'],
+        ing:['Garbanzos','Arroz','Cebolla','Ajo','Tomate','Comino','Aceite','Sal'],
+        pasos:['Cocina los garbanzos hasta blandos.','Sofríe cebolla, ajo y tomate con comino.','Mézclalos con el arroz y los garbanzos.','Cocina tapado.']},
+      {id:'me_pollo_limon',name:'Pollo al limón',tipo:'pollo',slots:['almuerzo','cena'],
+        ing:['Pollo','Limón','Ajo','Aceite','Orégano','Sal','Papa'],
+        pasos:['Adoba el pollo con limón, ajo, orégano y sal.','Hornéalo con papas.','Rocíalo con su jugo hasta dorar.']},
+      {id:'me_kebab',name:'Kebab de carne en sartén',tipo:'res',slots:['cena'],
+        ing:['Carne molida','Cebolla','Ajo','Comino','Pan de trigo','Tomate','Sal'],
+        pasos:['Mezcla la carne con cebolla rallada, ajo, comino y sal.','Forma rollitos y dóralos en sartén.','Sirve en pan con tomate y cebolla.']},
+      {id:'me_hummus',name:'Hummus de garbanzos',tipo:'legumbre',slots:['merienda'],
+        ing:['Garbanzos','Ajo','Limón','Aceite','Sal','Mantequilla de maní'],
+        pasos:['Cuece los garbanzos.','Licúalos con ajo, limón, aceite, sal y un poco de mantequilla de maní.','Sirve con pan.']},
+      {id:'me_ensalada',name:'Ensalada mediterránea',tipo:'veggie',slots:['merienda','almuerzo'],
+        ing:['Tomate','Pepino','Cebolla','Lechuga','Queso','Aceite','Limón','Sal'],
+        pasos:['Pica tomate, pepino, cebolla y lechuga.','Añade el queso en cubos.','Aliña con aceite, limón y sal.']},
+    ]},
+  ],
   shelfTiers:[
     { label:'1–3 días', sub:'Consumir ya', color:'#A32C54', items:['Fresas maduras','Melón abierto','Sandía abierta','Lechuga','Culantro','Cebollino','Ensalada verde','Yogur abierto'] },
     { label:'3–7 días', sub:'Pronto', color:'#C2783A', items:['Mango','Banano maduro','Papaya abierta','Pepino','Tomate maduro','Chile dulce','Jamón abierto','Pollo descongelado'] },
@@ -340,7 +497,8 @@ function freshData(){
   };
 }
 function defaultQQ(){ const o={}; SEED.quincenalData.forEach(c=>c.items.forEach((it,i)=>{o[c.id+'-'+i]=it.def;})); return o; }
-function defaultPlan(){ return {
+function defaultPlan(){
+  const base = {
   'Lun-desayuno':'d_perico','Lun-m1':'s_fruta','Lun-almuerzo':'l_pollo_horno','Lun-m2':'s_yogurt','Lun-cena':'c_arepas',
   'Mar-desayuno':'d_panquecas','Mar-m1':'s_yogurt','Mar-almuerzo':'l_pasta_carne','Mar-m2':'s_queque','Mar-cena':'c_pollo_guisado',
   'Mié-desayuno':'d_cachapas','Mié-m1':'s_batido','Mié-almuerzo':'l_pabellon','Mié-m2':'s_gelatina','Mié-cena':'c_sopa_res',
@@ -348,13 +506,16 @@ function defaultPlan(){ return {
   'Vie-desayuno':'d_tostadas','Vie-m1':'s_fruta','Vie-almuerzo':'l_pescado','Vie-m2':'s_brownies','Vie-cena':'c_cachapas',
   'Sáb-desayuno':'d_empanadas','Sáb-m1':'s_cereal','Sáb-almuerzo':'l_costillas','Sáb-m2':'s_arroz_leche','Sáb-cena':'c_parrilla',
   'Dom-desayuno':'d_pan_perico','Dom-m1':'s_mini_arepa','Dom-almuerzo':'l_bistec','Dom-m2':'s_churchill','Dom-cena':'c_sancocho',
-};}
+  };
+  const o={}; for(const k in base) o[k]=[base[k]]; return o;
+}
 
 function ensureDataFields(){
   if(!DATA || typeof DATA!=='object') DATA = freshData();
   if(!DATA.inventory) DATA.inventory = SEED.inventory.map(x=>({...x}));
   if(!DATA.qq) DATA.qq = defaultQQ();
   if(!DATA.plan) DATA.plan = defaultPlan();
+  else { for(const k in DATA.plan){ const v=DATA.plan[k]; DATA.plan[k] = v==null?[]:(Array.isArray(v)?v.filter(Boolean):[v]); } }
   if(!DATA.weights) DATA.weights={}; if(!DATA.body) DATA.body={};
   if(!DATA.budgets) DATA.budgets={};
   if(!DATA.budgetMonth || !DATA.budgets[DATA.budgetMonth]){
@@ -379,9 +540,11 @@ function save(){
 function commit(msg){ save(); render(); if(msg) toast(msg); }
 
 /* ---------- helpers de comidas ---------- */
-function allMeals(){ return [...SEED.desayunos,...SEED.meriendas,...SEED.almuerzos,...SEED.cenas]; }
+function cocinaDishes(){ return SEED.cocinas.flatMap(c=>c.dishes); }
+function allMeals(){ return [...SEED.desayunos,...SEED.meriendas,...SEED.almuerzos,...SEED.cenas, ...cocinaDishes()]; }
 function mealById(id){ return allMeals().find(m=>m.id===id); }
 function catalogFor(t){ return t==='desayuno'?SEED.desayunos : t==='merienda'?SEED.meriendas : t==='almuerzo'?SEED.almuerzos : SEED.cenas; }
+function planIds(key){ const v=DATA.plan[key]; return Array.isArray(v)?v:(v==null?[]:[v]); }
 function statusStyle(s){
   if(s==='lleno') return {bg:'#E1EFE9',color:'#0C5A48',dot:'#0F7A63',label:'Lleno'};
   if(s==='por acabarse') return {bg:'#F6ECD6',color:'#87671B',dot:'#C28A2A',label:'Por acabarse'};
@@ -605,10 +768,11 @@ function viewInicio(){
   const plannedCount = Object.values(plan).filter(Boolean).length;
   const avatars = SEED.family.map(f=>`<div class="avatar" style="background:${f.color}">${esc(f.name[0])}</div>`).join('');
   const today=todayKey();
-  const todayMeals = SEED.slots.map(s=>{ const m=mealById(plan[today+'-'+s.k]);
+  const todayMeals = SEED.slots.map(s=>{ const ms=planIds(today+'-'+s.k).map(mealById).filter(Boolean); const m=ms[0];
+    const nombres = ms.length?ms.map(x=>x.name).join(', '):'Sin asignar';
     return `<div class="row" style="padding:9px 0;border-bottom:1px solid #F2F4F9;">
       <div class="avatar" style="width:34px;height:34px;font-size:13px;background:${m?SEED.tipoColor[m.tipo]:'#AEB6C6'}">${m?esc(m.name[0]):'?'}</div>
-      <div style="flex:1"><div style="font-weight:700;font-size:14px;">${m?esc(m.name):'Sin asignar'}</div><div class="muted" style="font-size:12px;">${esc(s.l)}${m&&m.sides?' · '+esc(m.sides):''}</div></div>
+      <div style="flex:1"><div style="font-weight:700;font-size:14px;">${esc(nombres)}</div><div class="muted" style="font-size:12px;">${esc(s.l)}</div></div>
     </div>`;}).join('');
   const prio = priority.slice(0,8).map(it=>{ const ss=statusStyle(it.status);
     return `<span class="pill" style="background:${ss.bg};color:${ss.color}">${esc(it.name)}</span>`;}).join('') || '<span class="muted">Sin pendientes prioritarios 🎉</span>';
@@ -764,16 +928,22 @@ function viewQuincenal(){
 
 /* ---------------- COMIDAS ---------------- */
 function viewComidas(){
-  const plan=DATA.plan; const today=todayKey();
-  const head = `<tr><th style="width:54px;">Día</th>${SEED.slots.map(s=>`<th>${esc(s.l)}</th>`).join('')}</tr>`;
+  const today=todayKey();
+  const head = `<tr><th>Día</th>${SEED.slots.map(s=>`<th>${esc(s.l)}</th>`).join('')}</tr>`;
   const rows = SEED.days.map(d=>{
-    const cells = SEED.slots.map(s=>{ const key=d.k+'-'+s.k; const m=mealById(plan[key]);
-      return `<td><button class="btn ghost sm" style="width:100%;text-align:left;align-items:flex-start;flex-direction:column;gap:2px;min-height:50px;${m?'':'color:#AEB6C6;'}" data-act="pick" data-day="${d.k}" data-slot="${s.k}">
-        ${m?`<span style="display:flex;align-items:center;gap:6px;font-weight:700;"><span class="dot" style="background:${SEED.tipoColor[m.tipo]}"></span>${esc(m.name)}</span><span class="muted" style="font-size:11px;">${esc(m.sides||'')}</span>`:'+ Asignar'}
-      </button></td>`;}).join('');
-    return `<tr><td><span class="pill" style="background:${d.k===today?'#0F7A63':'#E4E9F2'};color:${d.k===today?'#fff':'#4E5869'}">${d.k}</span></td>${cells}</tr>`;}).join('');
-  return pageHead('Comidas de la semana', 'Menú semanal', 'Toca cualquier comida para cambiarla. Tus cambios se guardan solos.')
-  + `<div class="card"><div style="overflow-x:auto;"><table class="tbl">${head}${rows}</table></div></div>`;
+    const cells = SEED.slots.map(s=>{ const key=d.k+'-'+s.k; const ids=planIds(key);
+      const chips = ids.map(id=>{ const m=mealById(id); if(!m) return '';
+        return `<div class="row" style="gap:6px;align-items:flex-start;">
+          <span class="dot" style="background:${SEED.tipoColor[m.tipo]||'#5E5A9E'};margin-top:5px;flex:none;"></span>
+          <span style="font-weight:600;font-size:12.5px;line-height:1.25;">${esc(m.name)}</span></div>`;}).join('');
+      return `<td style="vertical-align:top;">
+        <div style="display:flex;flex-direction:column;gap:6px;min-height:84px;">
+          <div style="display:flex;flex-direction:column;gap:5px;flex:1;">${chips||'<span class="muted" style="font-size:12px;">Sin asignar</span>'}</div>
+          <button class="btn ghost sm" style="width:100%;justify-content:center;color:#2E6FB0;border-color:#BFD6F0;" data-act="pick" data-day="${d.k}" data-slot="${s.k}">＋ Agregar</button>
+        </div></td>`;}).join('');
+    return `<tr><td style="vertical-align:top;"><span class="pill" style="background:${d.k===today?'#0F7A63':'#E4E9F2'};color:${d.k===today?'#fff':'#4E5869'}">${d.k}</span></td>${cells}</tr>`;}).join('');
+  return pageHead('Comidas de la semana', 'Menú semanal', 'Toca ＋ Agregar para sumar comidas de distintas cocinas del mundo, con su receta. Se guarda solo.')
+  + `<div class="card"><div style="overflow-x:auto;"><table class="tbl menu-tbl">${head}${rows}</table></div></div>`;
 }
 
 /* ---------------- PORCIONES ---------------- */
@@ -892,16 +1062,45 @@ function modalInvForm(){
     </div>
   </div></div>`;
 }
+function recipeHTML(m){
+  const ing = (m.ing||[]).map(i=>`<li>${esc(i)}</li>`).join('');
+  const pasos = (m.pasos||[]).map(p=>`<li style="margin-bottom:4px;">${esc(p)}</li>`).join('');
+  if(!ing && !pasos) return '';
+  return `<div style="border-top:1px solid #F2F4F9;margin-top:10px;padding-top:10px;font-size:13px;">
+    ${ing?`<div style="font-weight:800;margin-bottom:4px;">Ingredientes</div><ul style="margin:0 0 10px 18px;padding:0;">${ing}</ul>`:''}
+    ${pasos?`<div style="font-weight:800;margin-bottom:4px;">Preparación</div><ol style="margin:0 0 0 18px;padding:0;">${pasos}</ol>`:''}
+  </div>`;
+}
 function modalPicker(){
   const pk=UI.picker; const slot=SEED.slots.find(s=>s.k===pk.slot); const dayObj=SEED.days.find(d=>d.k===pk.day);
-  const curId=DATA.plan[pk.day+'-'+pk.slot];
-  const cards = catalogFor(slot.t).map(m=>`<button class="card" style="text-align:left;border-color:${m.id===curId?'#0F7A63':'#DEE4EE'};background:${m.id===curId?'#E2ECF6':'#fff'};padding:12px;" data-act="choose" data-mealid="${m.id}">
-    <div class="row" style="gap:8px;font-weight:700;"><span class="dot" style="background:${SEED.tipoColor[m.tipo]}"></span>${esc(m.name)}</div>
-    <div class="muted" style="font-size:12px;margin-top:3px;">${esc(m.sides||'')}</div></button>`).join('');
+  const key=pk.day+'-'+pk.slot; const assigned=planIds(key);
+  const cocina = pk.cocina||'rapidas';
+  const cocinasDisp = SEED.cocinas.filter(c=>c.dishes.some(d=>d.slots.includes(slot.t)));
+  const chips = [`<button class="chip ${cocina==='rapidas'?'on':''}" data-act="pk-cocina" data-cocina="rapidas">⚡ Rápidas</button>`]
+    .concat(cocinasDisp.map(c=>`<button class="chip ${cocina===c.id?'on':''}" data-act="pk-cocina" data-cocina="${c.id}">${c.emoji} ${esc(c.name)}</button>`)).join('');
+  let dishes;
+  if(cocina==='rapidas') dishes = catalogFor(slot.t);
+  else { const c=SEED.cocinas.find(x=>x.id===cocina); dishes = c?c.dishes.filter(d=>d.slots.includes(slot.t)):[]; }
+  const cards = dishes.map(m=>{
+    const has = assigned.includes(m.id); const showR = pk.recipe===m.id; const tieneReceta = !!(m.ing||m.pasos);
+    return `<div class="card" style="padding:12px;border-color:${has?'#0F7A63':'#DEE4EE'};${has?'background:#F2FAF6;':''}">
+      <div class="row" style="justify-content:space-between;gap:8px;align-items:flex-start;">
+        <div class="row" style="gap:8px;font-weight:700;"><span class="dot" style="background:${SEED.tipoColor[m.tipo]||'#5E5A9E'};margin-top:5px;flex:none;"></span>${esc(m.name)}</div>
+        <button class="btn ${has?'danger':''} sm" style="flex:none;" data-act="${has?'remove-meal':'add-meal'}" data-mealid="${m.id}">${has?'Quitar':'＋'}</button>
+      </div>
+      ${m.sides?`<div class="muted" style="font-size:12px;margin-top:6px;">Acompañar: ${esc(m.sides)}</div>`:''}
+      ${tieneReceta?`<button class="btn ghost sm" style="margin-top:8px;width:100%;" data-act="pk-recipe" data-mealid="${m.id}">${showR?'Ocultar receta ▲':'Ver receta ▼'}</button>`:''}
+      ${showR?recipeHTML(m):''}
+    </div>`;}).join('') || '<div class="muted" style="grid-column:1/-1;">No hay platos de esta cocina para este momento.</div>';
+  const assignedHTML = assigned.length
+    ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:12px;">${assigned.map(id=>{const mm=mealById(id);return mm?`<span class="pill" style="background:#E1EFE9;color:#0C5A48;">${esc(mm.name)} <span data-act="remove-meal" data-mealid="${id}" style="cursor:pointer;font-weight:800;margin-left:2px;">✕</span></span>`:'';}).join('')}</div>`
+    : `<div class="muted" style="font-size:13px;margin-bottom:12px;">Aún no has agregado comidas a este momento. Toca ＋ en cualquier plato.</div>`;
   return `<div class="overlay" data-act="close-modal"><div class="modal wide" data-stop>
-    <div class="modal-head"><div><h2 class="card-title">${esc(slot.l)} · ${esc(dayObj.full)}</h2><div class="muted" style="font-size:13px;">Elige una comida</div></div>
-      <div class="row" style="gap:8px;">${curId?'<button class="btn danger sm" data-act="clear-cell">Quitar</button>':''}<button class="x" data-act="close-modal">✕</button></div></div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">${cards}</div>
+    <div class="modal-head"><div><h2 class="card-title">${esc(slot.l)} · ${esc(dayObj.full)}</h2><div class="muted" style="font-size:13px;">Agrega una o varias comidas del mundo</div></div>
+      <button class="x" data-act="close-modal">✕</button></div>
+    ${assignedHTML}
+    <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:14px;">${chips}</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr));">${cards}</div>
   </div></div>`;
 }
 function modalProfile(){
@@ -965,9 +1164,12 @@ document.addEventListener('click', (e)=>{
       const cur=DATA.qq[key]||0; DATA.qq[key]=Math.max(0,Math.round((cur+delta)*100)/100); commit(); break; }
     case 'qq-reco':{ if(confirm('¿Reemplazar las cantidades de la compra quincenal por las recomendadas para tu familia? (No afecta inventario, presupuesto ni menú.)')){ DATA.qq=defaultQQ(); commit('Cantidades recomendadas aplicadas ✓'); } break; }
     // comidas
-    case 'pick': UI.picker={day:t.dataset.day,slot:t.dataset.slot}; render(); break;
-    case 'choose':{ const pk=UI.picker; DATA.plan[pk.day+'-'+pk.slot]=t.dataset.mealid; UI.picker=null; commit('Comida actualizada'); break; }
-    case 'clear-cell':{ const pk=UI.picker; DATA.plan[pk.day+'-'+pk.slot]=null; UI.picker=null; commit('Comida quitada'); break; }
+    case 'pick': UI.picker={day:t.dataset.day,slot:t.dataset.slot,cocina:'rapidas',recipe:null}; render(); break;
+    case 'pk-cocina': UI.picker.cocina=t.dataset.cocina; UI.picker.recipe=null; render(); break;
+    case 'pk-recipe': UI.picker.recipe=(UI.picker.recipe===t.dataset.mealid?null:t.dataset.mealid); render(); break;
+    case 'add-meal':{ const pk=UI.picker; const key=pk.day+'-'+pk.slot; const arr=planIds(key);
+      if(!arr.includes(t.dataset.mealid)){ arr.push(t.dataset.mealid); DATA.plan[key]=arr; commit('Comida agregada ✓'); } break; }
+    case 'remove-meal':{ const pk=UI.picker; const key=pk.day+'-'+pk.slot; DATA.plan[key]=planIds(key).filter(id=>id!==t.dataset.mealid); commit('Comida quitada'); break; }
     // porciones
     case 'person': UI.person=t.dataset.id; render(); break;
     case 'goal': UI.goal=t.dataset.goal; render(); break;
