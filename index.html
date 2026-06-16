@@ -237,33 +237,33 @@ const SEED = {
   days:[{k:'Lun',full:'Lunes'},{k:'Mar',full:'Martes'},{k:'Mié',full:'Miércoles'},{k:'Jue',full:'Jueves'},{k:'Vie',full:'Viernes'},{k:'Sáb',full:'Sábado'},{k:'Dom',full:'Domingo'}],
   slots:[{k:'desayuno',l:'Desayuno',t:'desayuno'},{k:'m1',l:'Merienda AM',t:'merienda'},{k:'almuerzo',l:'Almuerzo',t:'almuerzo'},{k:'m2',l:'Merienda PM',t:'merienda'},{k:'cena',l:'Cena',t:'cena'}],
   quincenalData:[
-    {id:'prot',name:'Proteínas animales',unit:'kg',color:'#9C3A52',min:40,max:50,items:[
-      {name:'Pollo entero',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Pechuga de pollo',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Muslo de pollo',unit:'kg',step:0.5,kgPer:1,def:4},
-      {name:'Bistec',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Carne para mechar',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Carne molida',unit:'kg',step:0.5,kgPer:1,def:2.5},
-      {name:'Costilla de res',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Carne para sopa',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Chuleta de cerdo',unit:'kg',step:0.5,kgPer:1,def:2.5},
-      {name:'Costilla de cerdo',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Tilapia',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Huevos',unit:'u',step:6,kgPer:0.06,def:30},
+    {id:'prot',name:'Proteínas animales',unit:'kg',color:'#9C3A52',min:22,max:32,items:[
+      {name:'Pollo entero',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Pechuga de pollo',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Muslo de pollo',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Bistec',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Carne para mechar',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Carne molida',unit:'kg',step:0.5,kgPer:1,def:2.5},
+      {name:'Costilla de res',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Carne para sopa',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Chuleta de cerdo',unit:'kg',step:0.5,kgPer:1,def:1.5},
+      {name:'Costilla de cerdo',unit:'kg',step:0.5,kgPer:1,def:1},{name:'Tilapia',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Huevos',unit:'u',step:6,kgPer:0.06,def:60},
       {name:'Jamón',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Chorizo',unit:'kg',step:0.25,kgPer:1,def:0.5} ]},
-    {id:'granos',name:'Granos y cereales',unit:'kg',color:'#9C7C45',min:19,max:27,items:[
-      {name:'Arroz blanco',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Pasta',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Lentejas',unit:'kg',step:0.5,kgPer:1,def:2.5},
-      {name:'Frijoles rojos',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Frijoles negros',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Garbanzos',unit:'kg',step:0.5,kgPer:1,def:2.5},
-      {name:'Avena',unit:'kg',step:0.5,kgPer:1,def:1.5} ]},
-    {id:'harinas',name:'Harinas y panes',unit:'kg',color:'#B89A52',min:9,max:13,items:[
+    {id:'granos',name:'Granos y cereales',unit:'kg',color:'#9C7C45',min:9,max:13,items:[
+      {name:'Arroz blanco',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Pasta',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Lentejas',unit:'kg',step:0.5,kgPer:1,def:1.5},
+      {name:'Frijoles rojos',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Frijoles negros',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Garbanzos',unit:'kg',step:0.5,kgPer:1,def:1},
+      {name:'Avena',unit:'kg',step:0.5,kgPer:1,def:1} ]},
+    {id:'harinas',name:'Harinas y panes',unit:'kg',color:'#B89A52',min:5,max:8,items:[
       {name:'Harina PAN',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Harina de trigo',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Pan Altamura',unit:'u',step:1,kgPer:0.5,def:2},
       {name:'Pan de sándwich',unit:'u',step:1,kgPer:0.6,def:1},{name:'Galleta María',unit:'pq',step:1,kgPer:0.2,def:2},{name:'Cereal',unit:'pq',step:1,kgPer:0.4,def:2} ]},
     {id:'tuberc',name:'Tubérculos y plátanos',unit:'kg',color:'#7C6A48',min:14,max:19,items:[
       {name:'Papa',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Yuca',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Auyama',unit:'kg',step:0.5,kgPer:1,def:2},
       {name:'Camote',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Plátano',unit:'u',step:1,kgPer:0.2,def:12},{name:'Elote',unit:'u',step:1,kgPer:0.25,def:4} ]},
-    {id:'frutas',name:'Frutas',unit:'kg',color:'#A6415C',min:26,max:35,items:[
-      {name:'Sandía',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Melón',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Mango',unit:'kg',step:0.5,kgPer:1,def:1.5},
-      {name:'Banano',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Manzana',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Mandarina',unit:'kg',step:0.5,kgPer:1,def:2},
-      {name:'Naranja',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Piña',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Fresas',unit:'kg',step:0.25,kgPer:1,def:0.8},
-      {name:'Uva',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Papaya',unit:'kg',step:0.5,kgPer:1,def:2} ]},
-    {id:'verduras',name:'Verduras',unit:'kg',color:'#0F7A63',min:23,max:32,items:[
-      {name:'Tomate',unit:'kg',step:0.25,kgPer:1,def:2},{name:'Cebolla',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Zanahoria',unit:'kg',step:0.5,kgPer:1,def:3},
-      {name:'Repollo',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Pepino',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Chile dulce',unit:'kg',step:0.25,kgPer:1,def:2},
-      {name:'Brócoli',unit:'kg',step:0.25,kgPer:1,def:1.5},{name:'Lechuga',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Aguacate',unit:'kg',step:0.5,kgPer:1,def:2} ]},
-    {id:'leche',name:'Leche y yogurt',unit:'L',color:'#2E6FB0',min:24,max:33,items:[
-      {name:'Leche',unit:'L',step:1,kgPer:1,def:20},{name:'Yogurt',unit:'L',step:0.5,kgPer:1,def:6},{name:'Natilla',unit:'L',step:0.5,kgPer:1,def:2} ]},
+    {id:'frutas',name:'Frutas',unit:'kg',color:'#A6415C',min:27,max:37,items:[
+      {name:'Sandía',unit:'kg',step:0.5,kgPer:1,def:6},{name:'Melón',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Mango',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Banano',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Manzana',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Mandarina',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Naranja',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Piña',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Fresas',unit:'kg',step:0.25,kgPer:1,def:1},
+      {name:'Uva',unit:'kg',step:0.25,kgPer:1,def:1.5},{name:'Papaya',unit:'kg',step:0.5,kgPer:1,def:3} ]},
+    {id:'verduras',name:'Verduras',unit:'kg',color:'#0F7A63',min:24,max:33,items:[
+      {name:'Tomate',unit:'kg',step:0.25,kgPer:1,def:4},{name:'Cebolla',unit:'kg',step:0.5,kgPer:1,def:3.5},{name:'Zanahoria',unit:'kg',step:0.5,kgPer:1,def:4},
+      {name:'Repollo',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Pepino',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Chile dulce',unit:'kg',step:0.25,kgPer:1,def:2.5},
+      {name:'Brócoli',unit:'kg',step:0.25,kgPer:1,def:2.5},{name:'Lechuga',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Aguacate',unit:'kg',step:0.5,kgPer:1,def:3} ]},
+    {id:'leche',name:'Leche y yogurt',unit:'L',color:'#2E6FB0',min:30,max:42,items:[
+      {name:'Leche',unit:'L',step:1,kgPer:1,def:28},{name:'Yogurt',unit:'L',step:0.5,kgPer:1,def:6},{name:'Natilla',unit:'L',step:0.5,kgPer:1,def:2} ]},
   ],
   inventory: buildInventory(),
 };
@@ -614,7 +614,8 @@ function viewQuincenal(){
       <div class="muted" style="font-size:12px;">Objetivo ${c.min}–${c.max} ${c.unit} · Total ${fmtNum(Math.round(total*10)/10)} ${c.unit}</div>
       <div class="bar" style="margin:10px 0 14px;"><span class="band" style="left:${bandStart}%;width:${bandWidth}%"></span><span style="width:${fillPct}%;background:${st.fill}"></span></div>
       ${items}</div>`;}).join('');
-  return pageHead('Compra quincenal', 'Lista de la quincena', 'Ajusta las cantidades con los botones. Se guardan automáticamente.')
+  return pageHead('Compra quincenal', 'Lista de la quincena', 'Ajusta las cantidades con los botones. Se guardan automáticamente.',
+    `<button class="btn ghost sm" data-act="qq-reco">↺ Usar cantidades recomendadas</button>`)
   + `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">${cards}</div>`;
 }
 
@@ -819,6 +820,7 @@ document.addEventListener('click', (e)=>{
     // quincenal
     case 'qq':{ const key=t.dataset.key, delta=parseFloat(t.dataset.delta);
       const cur=DATA.qq[key]||0; DATA.qq[key]=Math.max(0,Math.round((cur+delta)*100)/100); commit(); break; }
+    case 'qq-reco':{ if(confirm('¿Reemplazar las cantidades de la compra quincenal por las recomendadas para tu familia? (No afecta inventario, presupuesto ni menú.)')){ DATA.qq=defaultQQ(); commit('Cantidades recomendadas aplicadas ✓'); } break; }
     // comidas
     case 'pick': UI.picker={day:t.dataset.day,slot:t.dataset.slot}; render(); break;
     case 'choose':{ const pk=UI.picker; DATA.plan[pk.day+'-'+pk.slot]=t.dataset.mealid; UI.picker=null; commit('Comida actualizada'); break; }
