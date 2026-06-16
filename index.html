@@ -587,36 +587,44 @@ function mealById(id){ return allMeals().find(m=>m.id===id); }
 function catalogFor(t){ return t==='desayuno'?SEED.desayunos : t==='merienda'?SEED.meriendas : t==='almuerzo'?SEED.almuerzos : SEED.cenas; }
 function planIds(key){ const v=DATA.plan[key]; return Array.isArray(v)?v:(v==null?[]:[v]); }
 
-/* ---------- Menú internacional extendido (recetas en línea) ---------- */
-const EXT_ENDPOINT = (function(){ try{ return localStorage.getItem('familymeal_recipeapi') || 'https://recipe-api.com/api/v1/dinner'; }catch(e){ return 'https://recipe-api.com/api/v1/dinner'; } })();
+/* ---------- Menú internacional extendido (TheMealDB, gratis y con CORS) ---------- */
+const MEALDB_RANDOM = 'https://www.themealdb.com/api/json/v1/1/random.php';
 let EXT = { status:'idle', dishes:[] }; // idle | loading | ok | error
-function normalizeExt(data){
-  let arr = Array.isArray(data) ? data : (data.recipes||data.results||data.data||data.meals||data.dinners||[]);
-  if(!Array.isArray(arr)) return [];
-  const toList = (v)=> Array.isArray(v) ? v.map(x=>typeof x==='string'?x:(x&&(x.name||x.original||x.ingredient))||'').filter(Boolean)
-                      : (typeof v==='string' ? v.split(/\r?\n|·|,|;/).map(s=>s.trim()).filter(Boolean) : []);
-  const toSteps = (v)=> Array.isArray(v) ? v.map(x=>typeof x==='string'?x:(x&&(x.step||x.text))||'').filter(Boolean)
-                      : (typeof v==='string' ? v.split(/\r?\n|\.\s+(?=[A-ZÁÉÍÓÚÑ])/).map(s=>s.trim()).filter(Boolean) : []);
-  return arr.slice(0,40).map((x,i)=>({
-    id:'ext_'+i,
-    name: (x.name||x.title||x.strMeal||x.recipe||('Receta '+(i+1))),
-    tipo: 'mixto',
-    ing: toList(x.ingredients||x.extendedIngredients||x.ingredient),
-    pasos: toSteps(x.instructions||x.steps||x.strInstructions||x.directions||x.method),
-  }));
+function normalizeMealDB(m){
+  const ing=[];
+  for(let i=1;i<=20;i++){ const n=m['strIngredient'+i], q=m['strMeasure'+i];
+    if(n && n.trim()) ing.push(((q&&q.trim())?q.trim()+' ':'')+n.trim()); }
+  let pasos=(m.strInstructions||'').split(/\r?\n+/).map(s=>s.trim()).filter(Boolean);
+  if(pasos.length<=1) pasos=(m.strInstructions||'').split(/(?<=\.)\s+(?=[A-Z])/).map(s=>s.trim()).filter(Boolean);
+  return { id:'ext_'+m.idMeal, name:m.strMeal, tipo:'mixto', area:m.strArea, category:m.strCategory, thumb:m.strMealThumb, ing, pasos };
 }
 async function extLoad(){
   if(EXT.status==='loading') return;
   EXT.status='loading'; render();
   try{
-    const ctrl = new AbortController(); const t=setTimeout(()=>ctrl.abort(), 12000);
-    const r = await fetch(EXT_ENDPOINT, { headers:{accept:'application/json'}, signal:ctrl.signal });
-    clearTimeout(t);
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    EXT.dishes = normalizeExt(await r.json());
+    const calls = Array.from({length:8},()=>fetch(MEALDB_RANDOM).then(r=>r.ok?r.json():null).catch(()=>null));
+    const results = await Promise.all(calls);
+    const meals = results.filter(Boolean).flatMap(d=>(d&&d.meals)?d.meals:[]);
+    const seen={}; const uniq = meals.filter(m=>m&&m.idMeal&&!seen[m.idMeal]&&(seen[m.idMeal]=1));
+    EXT.dishes = uniq.map(normalizeMealDB);
     EXT.status = EXT.dishes.length ? 'ok' : 'error';
-  }catch(e){ console.error('recipe-api:', e.message); EXT.status='error'; }
+  }catch(e){ console.error('TheMealDB:', e.message); EXT.status='error'; }
   render();
+}
+// Traducción al español (Google translate, sin clave)
+async function gtxTranslate(text){
+  if(!text || !text.trim()) return text||'';
+  const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=es&dt=t&q='+encodeURIComponent(text);
+  const r=await fetch(url); if(!r.ok) throw new Error('tr '+r.status);
+  const j=await r.json(); return (j[0]||[]).map(s=>s[0]).join('');
+}
+async function translateDish(d){
+  const [name, ing, pasos] = await Promise.all([
+    gtxTranslate(d.name),
+    Promise.all((d.ing||[]).map(gtxTranslate)),
+    Promise.all((d.pasos||[]).map(gtxTranslate)),
+  ]);
+  return { name, ing, pasos };
 }
 function statusStyle(s){
   if(s==='lleno') return {bg:'#E1EFE9',color:'#0C5A48',dot:'#0F7A63',label:'Lleno'};
@@ -1145,15 +1153,26 @@ function recipeHTML(m){
   </div>`;
 }
 function dishCard(m, assigned, recipeOpen){
-  const has = assigned.includes(m.id); const showR = recipeOpen===m.id; const tieneReceta = !!((m.ing&&m.ing.length)||(m.pasos&&m.pasos.length));
+  const has = assigned.includes(m.id); const showR = recipeOpen===m.id;
+  const isExt = typeof m.id==='string' && m.id.indexOf('ext_')===0;
+  const src = (isExt && m.es && m.viewEs) ? {name:m.es.name, ing:m.es.ing, pasos:m.es.pasos, sides:m.sides} : m;
+  const tieneReceta = !!((src.ing&&src.ing.length)||(src.pasos&&src.pasos.length));
+  const transBtn = isExt ? (
+    m.transStatus==='loading' ? '<button class="btn ghost sm" disabled style="margin-top:6px;width:100%;">Traduciendo… ⏳</button>'
+    : m.es ? `<button class="btn ghost sm" style="margin-top:6px;width:100%;" data-act="ext-translate" data-mealid="${m.id}">${m.viewEs?'Ver original (EN)':'🇪🇸 Ver en español'}</button>`
+    : `<button class="btn ghost sm" style="margin-top:6px;width:100%;color:#2E6FB0;border-color:#BFD6F0;" data-act="ext-translate" data-mealid="${m.id}">🌐 Traducir al español</button>`
+  ) : '';
   return `<div class="card" style="padding:12px;border-color:${has?'#0F7A63':'#DEE4EE'};${has?'background:#F2FAF6;':''}">
+    ${isExt&&m.thumb?`<img src="${esc(m.thumb)}" alt="" loading="lazy" style="width:100%;height:96px;object-fit:cover;border-radius:8px;margin-bottom:8px;">`:''}
     <div class="row" style="justify-content:space-between;gap:8px;align-items:flex-start;">
-      <div class="row" style="gap:8px;font-weight:700;"><span class="dot" style="background:${SEED.tipoColor[m.tipo]||'#5E5A9E'};margin-top:5px;flex:none;"></span>${esc(m.name)}</div>
+      <div class="row" style="gap:8px;font-weight:700;"><span class="dot" style="background:${SEED.tipoColor[m.tipo]||'#5E5A9E'};margin-top:5px;flex:none;"></span>${esc(src.name)}</div>
       <button class="btn ${has?'danger':''} sm" style="flex:none;" data-act="${has?'remove-meal':'add-meal'}" data-mealid="${m.id}">${has?'Quitar':'＋'}</button>
     </div>
-    ${m.sides?`<div class="muted" style="font-size:12px;margin-top:6px;">Acompañar: ${esc(m.sides)}</div>`:''}
-    ${tieneReceta?`<button class="btn ghost sm" style="margin-top:8px;width:100%;" data-act="pk-recipe" data-mealid="${m.id}">${showR?'Ocultar receta ▲':'Ver receta ▼'}</button>`:''}
-    ${showR?recipeHTML(m):''}
+    ${isExt&&(m.area||m.category)?`<div class="muted" style="font-size:11px;margin-top:4px;">${esc([m.area,m.category].filter(Boolean).join(' · '))}</div>`:''}
+    ${src.sides?`<div class="muted" style="font-size:12px;margin-top:6px;">Acompañar: ${esc(src.sides)}</div>`:''}
+    ${transBtn}
+    ${tieneReceta?`<button class="btn ghost sm" style="margin-top:6px;width:100%;" data-act="pk-recipe" data-mealid="${m.id}">${showR?'Ocultar receta ▲':'Ver receta ▼'}</button>`:''}
+    ${showR?recipeHTML(src):''}
   </div>`;
 }
 function modalPicker(){
@@ -1166,9 +1185,9 @@ function modalPicker(){
   let cards;
   if(cocina==='extendido'){
     const esp = (SEED.especiales||[]).filter(d=>!d.slots||d.slots.includes(slot.t));
-    const status = EXT.status==='loading' ? '<div class="muted">Buscando recetas en línea… ⏳</div>'
-      : EXT.status==='error' ? '<div class="muted">No se pudo conectar al recetario en línea. Mientras tanto, aquí tienes recetas especiales de la casa 👇 <button class="btn ghost sm" data-act="ext-retry" style="margin-left:6px;">Reintentar</button></div>'
-      : EXT.status==='ok' ? `<div class="muted">${EXT.dishes.length} recetas encontradas en línea ✨</div>` : '';
+    const status = EXT.status==='loading' ? '<div class="muted">Buscando recetas internacionales en TheMealDB… ⏳</div>'
+      : EXT.status==='error' ? '<div class="muted">No se pudo conectar a TheMealDB. Mientras tanto, aquí tienes recetas especiales de la casa 👇 <button class="btn ghost sm" data-act="ext-retry" style="margin-left:6px;">Reintentar</button></div>'
+      : EXT.status==='ok' ? `<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;"><span class="muted">${EXT.dishes.length} recetas internacionales (TheMealDB) ✨ · usa 🌐 para traducir</span><button class="btn ghost sm" data-act="ext-retry">🔄 Ver otras recetas</button></div>` : '';
     const extCards = (EXT.status==='ok'?EXT.dishes:[]).map(m=>dishCard(m,assigned,pk.recipe)).join('');
     const espCards = esp.map(m=>dishCard(m,assigned,pk.recipe)).join('') || '<div class="muted">No hay recetas especiales para este momento.</div>';
     cards = `<div style="grid-column:1/-1;margin-bottom:2px;">${status}</div>${extCards}
@@ -1255,11 +1274,18 @@ document.addEventListener('click', (e)=>{
     case 'pick': UI.picker={day:t.dataset.day,slot:t.dataset.slot,cocina:'rapidas',recipe:null}; render(); break;
     case 'pk-cocina': UI.picker.cocina=t.dataset.cocina; UI.picker.recipe=null;
       if(t.dataset.cocina==='extendido' && (EXT.status==='idle'||EXT.status==='error')) extLoad(); render(); break;
-    case 'ext-retry': EXT.status='idle'; extLoad(); break;
+    case 'ext-retry': EXT.status='idle'; EXT.dishes=[]; extLoad(); break;
+    case 'ext-translate':{ const d=(EXT.dishes||[]).find(x=>x.id===t.dataset.mealid); if(!d) break;
+      if(d.es){ d.viewEs=!d.viewEs; render(); break; }
+      d.transStatus='loading'; render();
+      translateDish(d).then(es=>{ d.es=es; d.viewEs=true; d.transStatus='done'; render(); })
+        .catch(e=>{ console.error(e); d.transStatus='error'; render(); toast('No se pudo traducir, intenta de nuevo'); });
+      break; }
     case 'pk-recipe': UI.picker.recipe=(UI.picker.recipe===t.dataset.mealid?null:t.dataset.mealid); render(); break;
     case 'add-meal':{ const pk=UI.picker; const key=pk.day+'-'+pk.slot; let id=t.dataset.mealid; const arr=planIds(key);
       if(id.indexOf('ext_')===0){ const src=(EXT.dishes||[]).find(d=>d.id===id);
-        if(src){ id='cm_'+Math.random().toString(36).slice(2,9); DATA.customMeals[id]={id,name:src.name,tipo:src.tipo||'mixto',ing:src.ing||[],pasos:src.pasos||[]}; } }
+        if(src){ const useEs=src.es&&src.viewEs; id='cm_'+Math.random().toString(36).slice(2,9);
+          DATA.customMeals[id]={id, name:useEs?src.es.name:src.name, tipo:'mixto', ing:useEs?src.es.ing:(src.ing||[]), pasos:useEs?src.es.pasos:(src.pasos||[])}; } }
       if(!arr.includes(id)){ arr.push(id); DATA.plan[key]=arr; commit('Comida agregada ✓'); } break; }
     case 'remove-meal':{ const pk=UI.picker; const key=pk.day+'-'+pk.slot; DATA.plan[key]=planIds(key).filter(id=>id!==t.dataset.mealid); commit('Comida quitada'); break; }
     // porciones
