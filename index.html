@@ -181,6 +181,14 @@ const SEED = {
     {id:'d_domino',name:'Arepa dominó',tipo:'legumbre',sides:'Caraotas · Queso · Aguacate'},{id:'d_sifrina',name:'Arepa sifrina',tipo:'pollo',sides:'Aguacate · Queso amarillo'},
     {id:'d_pelua',name:'Arepa pelúa',tipo:'res',sides:'Carne mechada · Queso'},{id:'d_avena',name:'Avena venezolana',tipo:'lacteo',sides:'Pan · Queso · Fruta'},
     {id:'d_panquecas',name:'Panquecas',tipo:'dulce',sides:'Fruta · Miel · Yogur'},
+    {id:'d_omelette',name:'Omelette',tipo:'huevo',slots:['desayuno'],ing:['Huevos','Queso','Jamón','Cebolla','Chile dulce','Sal','Aceite'],
+      pasos:['Bate los huevos con sal.','Sofríe cebolla y chile en un poco de aceite.','Vierte el huevo y deja cuajar a fuego suave.','Coloca queso y jamón en una mitad y dobla el omelette.']},
+    {id:'d_huevo_revuelto',name:'Huevos revueltos',tipo:'huevo',slots:['desayuno'],ing:['Huevos','Mantequilla','Sal'],
+      pasos:['Bate los huevos con sal.','Calienta mantequilla en la sartén.','Vierte el huevo y revuelve a fuego bajo hasta cuajar suave.']},
+    {id:'d_huevo_frito',name:'Huevo frito',tipo:'huevo',slots:['desayuno'],ing:['Huevos','Aceite','Sal'],
+      pasos:['Calienta aceite en la sartén.','Casca el huevo con cuidado.','Fríe hasta que la clara cuaje; sala al gusto.']},
+    {id:'d_tortilla_huevo',name:'Tortilla de huevo',tipo:'huevo',slots:['desayuno'],ing:['Huevos','Cebolla','Sal','Aceite'],
+      pasos:['Bate los huevos con sal y cebolla picada.','Vierte en sartén con aceite caliente.','Cuaja por un lado, voltea y termina.']},
   ],
   meriendas:[
     {id:'s_yogurt',name:'Yogurt de fresa',tipo:'lacteo',sides:'Banano · Granola'},{id:'s_cereal',name:'Cereal con leche',tipo:'lacteo',sides:'Banano o fresas'},
@@ -433,33 +441,88 @@ const SEED = {
   days:[{k:'Lun',full:'Lunes'},{k:'Mar',full:'Martes'},{k:'Mié',full:'Miércoles'},{k:'Jue',full:'Jueves'},{k:'Vie',full:'Viernes'},{k:'Sáb',full:'Sábado'},{k:'Dom',full:'Domingo'}],
   slots:[{k:'desayuno',l:'Desayuno',t:'desayuno'},{k:'m1',l:'Merienda AM',t:'merienda'},{k:'almuerzo',l:'Almuerzo',t:'almuerzo'},{k:'m2',l:'Merienda PM',t:'merienda'},{k:'cena',l:'Cena',t:'cena'}],
   quincenalData:[
-    {id:'prot',name:'Proteínas animales',unit:'kg',color:'#9C3A52',min:22,max:32,items:[
-      {name:'Pollo entero',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Pechuga de pollo',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Muslo de pollo',unit:'kg',step:0.5,kgPer:1,def:2.5},
-      {name:'Bistec',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Carne para mechar',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Carne molida',unit:'kg',step:0.5,kgPer:1,def:2.5},
-      {name:'Costilla de res',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Carne para sopa',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Chuleta de cerdo',unit:'kg',step:0.5,kgPer:1,def:1.5},
-      {name:'Costilla de cerdo',unit:'kg',step:0.5,kgPer:1,def:1},{name:'Tilapia',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Huevos',unit:'u',step:6,kgPer:0.06,def:60},
-      {name:'Jamón',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Chorizo',unit:'kg',step:0.25,kgPer:1,def:0.5} ]},
-    {id:'granos',name:'Granos y cereales',unit:'kg',color:'#9C7C45',min:9,max:13,items:[
-      {name:'Arroz blanco',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Pasta',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Lentejas',unit:'kg',step:0.5,kgPer:1,def:1.5},
-      {name:'Frijoles rojos',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Frijoles negros',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Garbanzos',unit:'kg',step:0.5,kgPer:1,def:1},
-      {name:'Avena',unit:'kg',step:0.5,kgPer:1,def:1} ]},
-    {id:'harinas',name:'Harinas y panes',unit:'kg',color:'#B89A52',min:5,max:8,items:[
-      {name:'Harina PAN',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Harina de trigo',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Pan Altamura',unit:'u',step:1,kgPer:0.5,def:2},
-      {name:'Pan de sándwich',unit:'u',step:1,kgPer:0.6,def:1},{name:'Galleta María',unit:'pq',step:1,kgPer:0.2,def:2},{name:'Cereal',unit:'pq',step:1,kgPer:0.4,def:2} ]},
-    {id:'tuberc',name:'Tubérculos y plátanos',unit:'kg',color:'#7C6A48',min:14,max:19,items:[
-      {name:'Papa',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Yuca',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Auyama',unit:'kg',step:0.5,kgPer:1,def:2},
-      {name:'Camote',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Plátano',unit:'u',step:1,kgPer:0.2,def:12},{name:'Elote',unit:'u',step:1,kgPer:0.25,def:4} ]},
-    {id:'frutas',name:'Frutas',unit:'kg',color:'#A6415C',min:27,max:37,items:[
-      {name:'Sandía',unit:'kg',step:0.5,kgPer:1,def:6},{name:'Melón',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Mango',unit:'kg',step:0.5,kgPer:1,def:2},
-      {name:'Banano',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Manzana',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Mandarina',unit:'kg',step:0.5,kgPer:1,def:3},
-      {name:'Naranja',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Piña',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Fresas',unit:'kg',step:0.25,kgPer:1,def:1},
-      {name:'Uva',unit:'kg',step:0.25,kgPer:1,def:1.5},{name:'Papaya',unit:'kg',step:0.5,kgPer:1,def:3} ]},
-    {id:'verduras',name:'Verduras',unit:'kg',color:'#0F7A63',min:24,max:33,items:[
-      {name:'Tomate',unit:'kg',step:0.25,kgPer:1,def:4},{name:'Cebolla',unit:'kg',step:0.5,kgPer:1,def:3.5},{name:'Zanahoria',unit:'kg',step:0.5,kgPer:1,def:4},
-      {name:'Repollo',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Pepino',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Chile dulce',unit:'kg',step:0.25,kgPer:1,def:2.5},
-      {name:'Brócoli',unit:'kg',step:0.25,kgPer:1,def:2.5},{name:'Lechuga',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Aguacate',unit:'kg',step:0.5,kgPer:1,def:3} ]},
-    {id:'leche',name:'Leche y yogurt',unit:'L',color:'#2E6FB0',min:30,max:42,items:[
-      {name:'Leche',unit:'L',step:1,kgPer:1,def:28},{name:'Yogurt',unit:'L',step:0.5,kgPer:1,def:6},{name:'Natilla',unit:'L',step:0.5,kgPer:1,def:2} ]},
+    {id:'prot',name:'Proteínas animales',emoji:'🥩',unit:'kg',color:'#9C3A52',obj:true,min:22,max:32,items:[
+      {name:'Bistec',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Carne molida',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Carne mechada',unit:'kg',step:0.5,kgPer:1,def:2},
+      {name:'Carne para guisar',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Carne en trozos',unit:'kg',step:0.5,kgPer:1},{name:'Costilla de res',unit:'kg',step:0.5,kgPer:1,def:1.5},
+      {name:'Osobuco',unit:'kg',step:0.5,kgPer:1},{name:'Lomo de res',unit:'kg',step:0.5,kgPer:1},{name:'Posta de res',unit:'kg',step:0.5,kgPer:1},
+      {name:'Cecina',unit:'kg',step:0.25,kgPer:1},{name:'Falda',unit:'kg',step:0.5,kgPer:1},{name:'Chuleta de res',unit:'kg',step:0.5,kgPer:1},
+      {name:'Tapa de lomo',unit:'kg',step:0.5,kgPer:1},{name:'Solomo',unit:'kg',step:0.5,kgPer:1},{name:'Lomito',unit:'kg',step:0.5,kgPer:1},
+      {name:'Cola de res',unit:'kg',step:0.5,kgPer:1},{name:'Hígado de res',unit:'kg',step:0.25,kgPer:1},
+      {name:'Chuleta de cerdo',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Costilla de cerdo',unit:'kg',step:0.5,kgPer:1,def:1},{name:'Posta de cerdo',unit:'kg',step:0.5,kgPer:1},
+      {name:'Lomo de cerdo',unit:'kg',step:0.5,kgPer:1},{name:'Trocitos de cerdo',unit:'kg',step:0.5,kgPer:1},{name:'Carne de cerdo para guisar',unit:'kg',step:0.5,kgPer:1},
+      {name:'Pernil',unit:'kg',step:0.5,kgPer:1},{name:'Paleta',unit:'kg',step:0.5,kgPer:1},{name:'Chorizo criollo',unit:'kg',step:0.25,kgPer:1,def:0.5},
+      {name:'Tocino',unit:'kg',step:0.25,kgPer:1},{name:'Jamón de cerdo',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Papada',unit:'kg',step:0.25,kgPer:1},
+      {name:'Pechuga',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Pechuga con hueso',unit:'kg',step:0.5,kgPer:1},{name:'Pechuga deshuesada',unit:'kg',step:0.5,kgPer:1},
+      {name:'Muslo',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Encuentro (contramuslo)',unit:'kg',step:0.5,kgPer:1},{name:'Muslo y cuadril',unit:'kg',step:0.5,kgPer:1},
+      {name:'Ala',unit:'kg',step:0.5,kgPer:1},{name:'Alitas',unit:'kg',step:0.5,kgPer:1},{name:'Pollo entero',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Pollo picado',unit:'kg',step:0.5,kgPer:1},{name:'Trocitos de pollo',unit:'kg',step:0.5,kgPer:1},{name:'Filete de pollo',unit:'kg',step:0.5,kgPer:1},
+      {name:'Pollo mechado',unit:'kg',step:0.5,kgPer:1},
+      {name:'Jamón de pavo',unit:'kg',step:0.25,kgPer:1},{name:'Pechuga de pavo',unit:'kg',step:0.5,kgPer:1},{name:'Pavo molido',unit:'kg',step:0.5,kgPer:1},{name:'Pavo entero',unit:'kg',step:0.5,kgPer:1},
+      {name:'Atún',unit:'kg',step:0.25,kgPer:1},{name:'Sardina',unit:'kg',step:0.25,kgPer:1},{name:'Tilapia',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Salmón',unit:'kg',step:0.25,kgPer:1},
+      {name:'Corvina',unit:'kg',step:0.25,kgPer:1},{name:'Merluza',unit:'kg',step:0.25,kgPer:1},{name:'Bacalao',unit:'kg',step:0.25,kgPer:1},{name:'Trucha',unit:'kg',step:0.25,kgPer:1},
+      {name:'Dorado',unit:'kg',step:0.25,kgPer:1},{name:'Pargo',unit:'kg',step:0.25,kgPer:1},
+      {name:'Camarón',unit:'kg',step:0.25,kgPer:1},{name:'Langostino',unit:'kg',step:0.25,kgPer:1},{name:'Pulpo',unit:'kg',step:0.25,kgPer:1},{name:'Calamar',unit:'kg',step:0.25,kgPer:1},
+      {name:'Mejillones',unit:'kg',step:0.25,kgPer:1},{name:'Almejas',unit:'kg',step:0.25,kgPer:1},{name:'Ostras',unit:'kg',step:0.25,kgPer:1},
+      {name:'Huevo de gallina',unit:'u',step:6,kgPer:0.06,def:60} ]},
+    {id:'granos',name:'Granos y cereales',emoji:'🌾',unit:'kg',color:'#9C7C45',obj:true,min:9,max:13,items:[
+      {name:'Arroz blanco',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Arroz integral',unit:'kg',step:0.5,kgPer:1},{name:'Arroz jazmín',unit:'kg',step:0.5,kgPer:1},
+      {name:'Arroz parvorizado',unit:'kg',step:0.5,kgPer:1},{name:'Pasta',unit:'kg',step:0.5,kgPer:1,def:1.5},
+      {name:'Frijol negro',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Frijol rojo',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Frijol blanco',unit:'kg',step:0.5,kgPer:1},
+      {name:'Frijol carioca',unit:'kg',step:0.5,kgPer:1},{name:'Frijol pinto',unit:'kg',step:0.5,kgPer:1},
+      {name:'Lentejas',unit:'kg',step:0.5,kgPer:1,def:1.5},{name:'Garbanzos',unit:'kg',step:0.5,kgPer:1,def:1},
+      {name:'Avena',unit:'kg',step:0.5,kgPer:1,def:1},{name:'Maíz',unit:'kg',step:0.5,kgPer:1},{name:'Trigo',unit:'kg',step:0.5,kgPer:1},
+      {name:'Cebada',unit:'kg',step:0.5,kgPer:1},{name:'Centeno',unit:'kg',step:0.5,kgPer:1},{name:'Quinoa',unit:'kg',step:0.25,kgPer:1} ]},
+    {id:'harinas',name:'Harinas y panes',emoji:'🍞',unit:'kg',color:'#B89A52',obj:true,min:5,max:8,items:[
+      {name:'Harina de maíz (PAN)',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Harina de trigo',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Harina integral',unit:'kg',step:0.5,kgPer:1},
+      {name:'Harina de avena',unit:'kg',step:0.5,kgPer:1},{name:'Harina de arroz',unit:'kg',step:0.5,kgPer:1},{name:'Harina de yuca',unit:'kg',step:0.5,kgPer:1},
+      {name:'Harina de almendra',unit:'kg',step:0.25,kgPer:1},{name:'Harina de coco',unit:'kg',step:0.25,kgPer:1},
+      {name:'Pan blanco',unit:'u',step:1,kgPer:0.5},{name:'Pan integral',unit:'u',step:1,kgPer:0.5},{name:'Pan de sándwich',unit:'u',step:1,kgPer:0.6,def:1},
+      {name:'Pan Altamura',unit:'u',step:1,kgPer:0.5,def:2},{name:'Pan francés',unit:'u',step:1,kgPer:0.3},{name:'Pan de hamburguesa',unit:'u',step:1,kgPer:0.4},
+      {name:'Pan para hot dog',unit:'u',step:1,kgPer:0.4},{name:'Tortilla de trigo',unit:'pq',step:1,kgPer:0.4},{name:'Tortilla de maíz',unit:'pq',step:1,kgPer:0.4},
+      {name:'Galleta María',unit:'pq',step:1,kgPer:0.2,def:2},{name:'Cereal',unit:'pq',step:1,kgPer:0.4,def:2} ]},
+    {id:'tuberc',name:'Tubérculos, raíces y plátanos',emoji:'🥔',unit:'kg',color:'#7C6A48',obj:true,min:14,max:19,items:[
+      {name:'Papa',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Camote (batata)',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Yuca',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Ñame',unit:'kg',step:0.5,kgPer:1},{name:'Jengibre',unit:'kg',step:0.25,kgPer:1},{name:'Remolacha',unit:'kg',step:0.5,kgPer:1},
+      {name:'Auyama',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Elote',unit:'u',step:1,kgPer:0.25,def:4},
+      {name:'Plátano verde',unit:'u',step:1,kgPer:0.2,def:6},{name:'Plátano maduro',unit:'u',step:1,kgPer:0.2,def:6} ]},
+    {id:'frutas',name:'Frutas',emoji:'🍎',unit:'kg',color:'#A6415C',obj:true,min:27,max:37,items:[
+      {name:'Mango',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Banano',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Papaya',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Piña',unit:'kg',step:0.5,kgPer:1,def:2.5},{name:'Melón',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Sandía',unit:'kg',step:0.5,kgPer:1,def:6},
+      {name:'Guayaba',unit:'kg',step:0.25,kgPer:1},{name:'Maracuyá',unit:'kg',step:0.25,kgPer:1},{name:'Coco',unit:'u',step:1,kgPer:0.4},
+      {name:'Mandarina',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Naranja',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Limón',unit:'kg',step:0.25,kgPer:1},{name:'Toronja',unit:'kg',step:0.5,kgPer:1},
+      {name:'Manzana',unit:'kg',step:0.5,kgPer:1,def:2},{name:'Pera',unit:'kg',step:0.5,kgPer:1},{name:'Durazno (melocotón)',unit:'kg',step:0.25,kgPer:1},{name:'Ciruela',unit:'kg',step:0.25,kgPer:1},
+      {name:'Uva',unit:'kg',step:0.25,kgPer:1,def:1.5},{name:'Fresa',unit:'kg',step:0.25,kgPer:1,def:1},{name:'Mora',unit:'kg',step:0.25,kgPer:1},{name:'Frambuesa',unit:'kg',step:0.25,kgPer:1},
+      {name:'Arándano',unit:'kg',step:0.25,kgPer:1},{name:'Cereza',unit:'kg',step:0.25,kgPer:1},{name:'Kiwi',unit:'kg',step:0.25,kgPer:1} ]},
+    {id:'verduras',name:'Verduras y hortalizas',emoji:'🥬',unit:'kg',color:'#0F7A63',obj:true,min:24,max:33,items:[
+      {name:'Lechuga',unit:'kg',step:0.5,kgPer:1,def:3},{name:'Espinaca',unit:'kg',step:0.25,kgPer:1},{name:'Acelga',unit:'kg',step:0.25,kgPer:1},{name:'Repollo',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Brócoli',unit:'kg',step:0.25,kgPer:1,def:2.5},{name:'Coliflor',unit:'kg',step:0.5,kgPer:1},
+      {name:'Tomate',unit:'kg',step:0.25,kgPer:1,def:4},{name:'Chile dulce',unit:'kg',step:0.25,kgPer:1,def:2.5},{name:'Pepino',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Zucchini',unit:'kg',step:0.5,kgPer:1},{name:'Berenjena',unit:'kg',step:0.5,kgPer:1},{name:'Chayote',unit:'kg',step:0.5,kgPer:1},
+      {name:'Zanahoria',unit:'kg',step:0.5,kgPer:1,def:4},{name:'Cebolla',unit:'kg',step:0.5,kgPer:1,def:3.5},{name:'Aguacate',unit:'kg',step:0.5,kgPer:1,def:3},
+      {name:'Ayote',unit:'kg',step:0.5,kgPer:1},{name:'Ayote sazón',unit:'kg',step:0.5,kgPer:1},{name:'Ayote mantequilla',unit:'kg',step:0.5,kgPer:1},
+      {name:'Apio',unit:'kg',step:0.25,kgPer:1},{name:'Hongos o champiñones',unit:'kg',step:0.25,kgPer:1} ]},
+    {id:'leche',name:'Leches y yogures',emoji:'🥛',unit:'L',color:'#2E6FB0',obj:true,min:30,max:42,items:[
+      {name:'Leche entera',unit:'L',step:1,kgPer:1,def:28},{name:'Leche semidescremada',unit:'L',step:1,kgPer:1},{name:'Leche descremada',unit:'L',step:1,kgPer:1},
+      {name:'Leche deslactosada',unit:'L',step:1,kgPer:1},{name:'Leche evaporada',unit:'L',step:0.5,kgPer:1},{name:'Leche condensada',unit:'L',step:0.5,kgPer:1},
+      {name:'Leche en polvo',unit:'kg',step:0.5,kgPer:1},{name:'Dulce de leche',unit:'L',step:0.5,kgPer:1},
+      {name:'Yogur bebible',unit:'L',step:0.5,kgPer:1,def:6},{name:'Yogur griego',unit:'L',step:0.5,kgPer:1},{name:'Yogur con frutas',unit:'L',step:0.5,kgPer:1},
+      {name:'Natilla',unit:'L',step:0.5,kgPer:1,def:2} ]},
+    {id:'quesos',name:'Quesos y derivados',emoji:'🧀',unit:'u',color:'#BE9E2E',obj:false,items:[
+      {name:'Queso cheddar',unit:'u',step:1,kgPer:1},{name:'Queso San Carlos',unit:'u',step:1,kgPer:1},{name:'Queso semiduro',unit:'u',step:1,kgPer:1},
+      {name:'Queso mozzarella',unit:'u',step:1,kgPer:1},{name:'Queso crema',unit:'u',step:1,kgPer:1},{name:'Queso parmesano',unit:'u',step:1,kgPer:1},
+      {name:'Queso fresco',unit:'u',step:1,kgPer:1},{name:'Queso maduro',unit:'u',step:1,kgPer:1},
+      {name:'Mantequilla',unit:'u',step:1,kgPer:1},{name:'Margarina',unit:'u',step:1,kgPer:1},{name:'Crema dulce',unit:'u',step:1,kgPer:1},{name:'Helado',unit:'u',step:1,kgPer:1} ]},
+    {id:'especias',name:'Aliños y especias',emoji:'🌿',unit:'u',color:'#4F7A6A',obj:false,items:[
+      {name:'Ajo',unit:'u',step:1,kgPer:1},{name:'Culantro coyote',unit:'u',step:1,kgPer:1},{name:'Culantro castilla',unit:'u',step:1,kgPer:1},{name:'Cebollino',unit:'u',step:1,kgPer:1},
+      {name:'Apio',unit:'u',step:1,kgPer:1},{name:'Puerro',unit:'u',step:1,kgPer:1},
+      {name:'Sal',unit:'u',step:1,kgPer:1},{name:'Pimienta',unit:'u',step:1,kgPer:1},{name:'Comino',unit:'u',step:1,kgPer:1},{name:'Orégano',unit:'u',step:1,kgPer:1},
+      {name:'Paprika',unit:'u',step:1,kgPer:1},{name:'Curry',unit:'u',step:1,kgPer:1},{name:'Laurel',unit:'u',step:1,kgPer:1},{name:'Romero',unit:'u',step:1,kgPer:1},
+      {name:'Tomillo',unit:'u',step:1,kgPer:1},{name:'Canela',unit:'u',step:1,kgPer:1},{name:'Clavo de olor',unit:'u',step:1,kgPer:1},{name:'Nuez moscada',unit:'u',step:1,kgPer:1},
+      {name:'Ajo en polvo',unit:'u',step:1,kgPer:1},{name:'Cebolla en polvo',unit:'u',step:1,kgPer:1} ]},
+    {id:'condimentos',name:'Condimentos y salsas',emoji:'🧂',unit:'u',color:'#9C7C45',obj:false,items:[
+      {name:'Salsa de soya',unit:'u',step:1,kgPer:1},{name:'Salsa inglesa',unit:'u',step:1,kgPer:1},{name:'Salsa Alfredo',unit:'u',step:1,kgPer:1},{name:'Salsa de tomate',unit:'u',step:1,kgPer:1},
+      {name:'Mayonesa',unit:'u',step:1,kgPer:1},{name:'Mostaza',unit:'u',step:1,kgPer:1},{name:'Ketchup',unit:'u',step:1,kgPer:1},{name:'Salsa BBQ',unit:'u',step:1,kgPer:1},
+      {name:'Vinagre',unit:'u',step:1,kgPer:1},{name:'Aceite',unit:'u',step:1,kgPer:1} ]},
   ],
   inventory: buildInventory(),
 };
@@ -529,14 +592,35 @@ function freshData(){
   return {
     v:1,
     inventory: SEED.inventory.map(x=>({...x})),
-    qq: defaultQQ(),
+    qqItems: buildQqItems(),
     customMeals: {},
     plan: defaultPlan(),
     weights:{}, body:{},
     budgets, budgetMonth: m,
   };
 }
-function defaultQQ(){ const o={}; SEED.quincenalData.forEach(c=>c.items.forEach((it,i)=>{o[c.id+'-'+i]=it.def;})); return o; }
+function slug(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+function buildQqItems(carry){
+  const out={};
+  SEED.quincenalData.forEach(c=>{
+    out[c.id]=c.items.map((it,i)=>({
+      id: c.id+'_'+i+'_'+slug(it.name),
+      name: it.name, unit: it.unit, step: it.step, kgPer: it.kgPer,
+      qty: (carry && carry[c.id] && carry[c.id][it.name]!=null) ? carry[c.id][it.name] : (it.def||0)
+    }));
+  });
+  return out;
+}
+// nombres antiguos de la quincena (para conservar cantidades al migrar al nuevo catálogo)
+const QQ_OLD_NAMES = {
+  prot:['Pollo entero','Pechuga','Muslo','Bistec','Carne mechada','Carne molida','Costilla de res','Carne para guisar','Chuleta de cerdo','Costilla de cerdo','Tilapia','Huevo de gallina','Jamón de cerdo','Chorizo criollo'],
+  granos:['Arroz blanco','Pasta','Lentejas','Frijol rojo','Frijol negro','Garbanzos','Avena'],
+  harinas:['Harina de maíz (PAN)','Harina de trigo','Pan Altamura','Pan de sándwich','Galleta María','Cereal'],
+  tuberc:['Papa','Yuca','Auyama','Camote (batata)','Plátano maduro','Elote'],
+  frutas:['Sandía','Melón','Mango','Banano','Manzana','Mandarina','Naranja','Piña','Fresa','Uva','Papaya'],
+  verduras:['Tomate','Cebolla','Zanahoria','Repollo','Pepino','Chile dulce','Brócoli','Lechuga','Aguacate'],
+  leche:['Leche entera','Yogur bebible','Natilla'],
+};
 function defaultPlan(){
   const base = {
   'Lun-desayuno':'d_perico','Lun-m1':'s_fruta','Lun-almuerzo':'l_pollo_horno','Lun-m2':'s_yogurt','Lun-cena':'c_arepas',
@@ -553,7 +637,12 @@ function defaultPlan(){
 function ensureDataFields(){
   if(!DATA || typeof DATA!=='object') DATA = freshData();
   if(!DATA.inventory) DATA.inventory = SEED.inventory.map(x=>({...x}));
-  if(!DATA.qq) DATA.qq = defaultQQ();
+  if(!DATA.qqItems){
+    const carry={};
+    if(DATA.qq){ for(const k in DATA.qq){ const dash=k.lastIndexOf('-'); const cat=k.slice(0,dash); const idx=+k.slice(dash+1);
+      const nm=QQ_OLD_NAMES[cat] && QQ_OLD_NAMES[cat][idx]; if(nm){ (carry[cat]=carry[cat]||{})[nm]=DATA.qq[k]; } } }
+    DATA.qqItems = buildQqItems(carry); delete DATA.qq;
+  }
   if(!DATA.customMeals) DATA.customMeals = {};
   if(!DATA.plan) DATA.plan = defaultPlan();
   else { for(const k in DATA.plan){ const v=DATA.plan[k]; DATA.plan[k] = v==null?[]:(Array.isArray(v)?v.filter(Boolean):[v]); } }
@@ -979,30 +1068,41 @@ function viewInventario(){
 
 /* ---------------- COMPRA QUINCENAL ---------------- */
 function viewQuincenal(){
-  const qq=DATA.qq;
   const cards = SEED.quincenalData.map(c=>{
-    let total=0;
-    const items = c.items.map((it,i)=>{ const key=c.id+'-'+i; const qty=qq[key]!=null?qq[key]:it.def; total+=qty*it.kgPer;
-      const isUnit=it.unit==='u'||it.unit==='pq';
-      return `<div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid #F2F4F9;">
-        <div style="flex:1"><div style="font-weight:600;font-size:14px;">${esc(it.name)}</div>${isUnit?`<div class="muted" style="font-size:11px;">≈ ${fmtNum(qty*it.kgPer)} ${c.unit==='L'?'L':'kg'}</div>`:''}</div>
-        <div class="row" style="gap:6px;"><button class="bump" data-act="qq" data-key="${key}" data-delta="${-it.step}">−</button>
-          <div style="min-width:64px;text-align:center;font-weight:800;font-size:14px;">${fmtNum(qty)} ${it.unit}</div>
-          <button class="bump" data-act="qq" data-key="${key}" data-delta="${it.step}">+</button></div>
+    const items = DATA.qqItems[c.id]||[];
+    let total=0; items.forEach(it=> total+=(+it.qty||0)*(it.kgPer||0));
+    const selCount = items.filter(it=>(+it.qty||0)>0).length;
+    const rows = items.map(it=>{ const qty=+it.qty||0; const isUnit=it.unit==='u'||it.unit==='pq';
+      return `<div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid #F2F4F9;gap:6px;">
+        <div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:14px;${qty>0?'':'color:#8B94A6;'}">${esc(it.name)}</div>${(isUnit&&c.obj!==false&&qty>0)?`<div class="muted" style="font-size:11px;">≈ ${fmtNum(qty*it.kgPer)} ${c.unit==='L'?'L':'kg'}</div>`:''}</div>
+        <div class="row" style="gap:5px;flex:none;">
+          <button class="bump" data-act="qq" data-cat="${c.id}" data-id="${it.id}" data-delta="${-it.step}">−</button>
+          <div style="min-width:58px;text-align:center;font-weight:800;font-size:14px;">${fmtNum(qty)} ${esc(it.unit)}</div>
+          <button class="bump" data-act="qq" data-cat="${c.id}" data-id="${it.id}" data-delta="${it.step}">+</button>
+          <button class="bump" data-act="qq-edit" data-cat="${c.id}" data-id="${it.id}" title="Renombrar" style="color:#2E6FB0;">✏️</button>
+          <button class="bump" data-act="qq-del" data-cat="${c.id}" data-id="${it.id}" title="Eliminar" style="color:#A32C54;">🗑</button>
+        </div>
       </div>`;}).join('');
-    const scale=c.max*1.18; const clamp=x=>Math.max(0,Math.min(100,x));
-    const fillPct=clamp(total/scale*100), bandStart=clamp(c.min/scale*100), bandWidth=clamp(c.max/scale*100)-bandStart;
-    let st;
-    if(total<c.min) st={label:'Faltan '+fmtNum(c.min-total)+' '+c.unit,bg:'#F6ECD6',color:'#87671B',fill:'#C28A2A'};
-    else if(total>c.max) st={label:fmtNum(total-c.max)+' '+c.unit+' por encima',bg:'#E3EEF5',color:'#2E6E8E',fill:'#2E6FB0'};
-    else st={label:'✓ En el objetivo',bg:'#E1EFE9',color:'#0C5A48',fill:'#0F7A63'};
-    return `<div class="card">
-      <div class="row" style="justify-content:space-between;margin-bottom:4px;"><h3 class="card-title" style="font-size:16px;color:${c.color}">${esc(c.name)}</h3>
-        <span class="pill" style="background:${st.bg};color:${st.color}">${st.label}</span></div>
-      <div class="muted" style="font-size:12px;">Objetivo ${c.min}–${c.max} ${c.unit} · Total ${fmtNum(Math.round(total*10)/10)} ${c.unit}</div>
-      <div class="bar" style="margin:10px 0 14px;"><span class="band" style="left:${bandStart}%;width:${bandWidth}%"></span><span style="width:${fillPct}%;background:${st.fill}"></span></div>
-      ${items}</div>`;}).join('');
-  return pageHead('Compra quincenal', 'Lista de la quincena', 'Ajusta las cantidades con los botones. Se guardan automáticamente.',
+    let header;
+    if(c.obj!==false){
+      const scale=c.max*1.18; const clamp=x=>Math.max(0,Math.min(100,x));
+      const fillPct=clamp(total/scale*100), bandStart=clamp(c.min/scale*100), bandWidth=clamp(c.max/scale*100)-bandStart;
+      let st;
+      if(total<c.min) st={label:'Faltan '+fmtNum(c.min-total)+' '+c.unit,bg:'#F6ECD6',color:'#87671B',fill:'#C28A2A'};
+      else if(total>c.max) st={label:fmtNum(total-c.max)+' '+c.unit+' por encima',bg:'#E3EEF5',color:'#2E6E8E',fill:'#2E6FB0'};
+      else st={label:'✓ En el objetivo',bg:'#E1EFE9',color:'#0C5A48',fill:'#0F7A63'};
+      header = `<div class="row" style="justify-content:space-between;margin-bottom:4px;gap:8px;"><h3 class="card-title" style="font-size:16px;color:${c.color}">${c.emoji||''} ${esc(c.name)}</h3>
+          <span class="pill" style="background:${st.bg};color:${st.color}">${st.label}</span></div>
+        <div class="muted" style="font-size:12px;">Objetivo ${c.min}–${c.max} ${c.unit} · Total ${fmtNum(Math.round(total*10)/10)} ${c.unit}</div>
+        <div class="bar" style="margin:10px 0 12px;"><span class="band" style="left:${bandStart}%;width:${bandWidth}%"></span><span style="width:${fillPct}%;background:${st.fill}"></span></div>`;
+    } else {
+      header = `<div class="row" style="justify-content:space-between;margin-bottom:4px;gap:8px;"><h3 class="card-title" style="font-size:16px;color:${c.color}">${c.emoji||''} ${esc(c.name)}</h3>
+          <span class="pill" style="background:#F1F4FA;color:#586273;">${selCount} en la lista</span></div>
+        <div class="muted" style="font-size:12px;margin-bottom:12px;">Marca las cantidades de lo que compras. Sin objetivo de peso.</div>`;
+    }
+    return `<div class="card">${header}${rows}
+      <button class="btn ghost sm" style="width:100%;margin-top:10px;color:#2E6FB0;border-color:#BFD6F0;" data-act="qq-add" data-cat="${c.id}">＋ Agregar alimento</button></div>`;}).join('');
+  return pageHead('Compra quincenal', 'Lista de la quincena', 'Ajusta cantidades con − y +, renombra con ✏️, elimina con 🗑 lo que nunca compras o agrega lo que falte. Se guarda solo.',
     `<button class="btn ghost sm" data-act="qq-reco">↺ Usar cantidades recomendadas</button>`)
   + `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">${cards}</div>`;
 }
@@ -1267,9 +1367,18 @@ document.addEventListener('click', (e)=>{
       if(t.classList.contains('overlay') && e.target!==t) break;
       UI.invForm=null; UI.picker=null; UI.editing=null; UI.cloudForm=null; render(); break;
     // quincenal
-    case 'qq':{ const key=t.dataset.key, delta=parseFloat(t.dataset.delta);
-      const cur=DATA.qq[key]||0; DATA.qq[key]=Math.max(0,Math.round((cur+delta)*100)/100); commit(); break; }
-    case 'qq-reco':{ if(confirm('¿Reemplazar las cantidades de la compra quincenal por las recomendadas para tu familia? (No afecta inventario, presupuesto ni menú.)')){ DATA.qq=defaultQQ(); commit('Cantidades recomendadas aplicadas ✓'); } break; }
+    case 'qq':{ const cat=t.dataset.cat, id=t.dataset.id, delta=parseFloat(t.dataset.delta);
+      const it=(DATA.qqItems[cat]||[]).find(x=>x.id===id); if(it){ it.qty=Math.max(0,Math.round(((+it.qty||0)+delta)*100)/100); commit(); } break; }
+    case 'qq-del':{ const cat=t.dataset.cat, id=t.dataset.id; const it=(DATA.qqItems[cat]||[]).find(x=>x.id===id);
+      if(it && confirm('¿Eliminar "'+it.name+'" de la lista? (Puedes recuperarlo con "Usar cantidades recomendadas").')){ DATA.qqItems[cat]=DATA.qqItems[cat].filter(x=>x.id!==id); commit('Alimento eliminado'); } break; }
+    case 'qq-edit':{ const cat=t.dataset.cat, id=t.dataset.id; const it=(DATA.qqItems[cat]||[]).find(x=>x.id===id); if(!it) break;
+      const nv=prompt('Nuevo nombre para el alimento:', it.name); if(nv && nv.trim()){ it.name=nv.trim(); commit('Alimento actualizado'); } break; }
+    case 'qq-add':{ const cat=t.dataset.cat; const c=SEED.quincenalData.find(x=>x.id===cat); if(!c) break;
+      const nm=prompt('Nombre del alimento a agregar:'); if(!nm || !nm.trim()) break;
+      const unit = c.obj===false?'u':(c.unit==='L'?'L':'kg'); const step = unit==='u'?1:0.5;
+      DATA.qqItems[cat]=DATA.qqItems[cat]||[]; DATA.qqItems[cat].push({id:'usr_'+Math.random().toString(36).slice(2,8), name:nm.trim(), unit, step, kgPer: unit==='u'?(c.obj===false?1:0.2):1, qty:0});
+      commit('Alimento agregado ✓'); break; }
+    case 'qq-reco':{ if(confirm('¿Restaurar la lista de la quincena con todos los alimentos y las cantidades recomendadas? (Repone los eliminados; no afecta inventario, presupuesto ni menú.)')){ DATA.qqItems=buildQqItems(); commit('Lista recomendada restaurada ✓'); } break; }
     // comidas
     case 'pick': UI.picker={day:t.dataset.day,slot:t.dataset.slot,cocina:'rapidas',recipe:null}; render(); break;
     case 'pk-cocina': UI.picker.cocina=t.dataset.cocina; UI.picker.recipe=null;
