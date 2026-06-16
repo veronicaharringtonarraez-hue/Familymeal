@@ -368,6 +368,45 @@ const SEED = {
         pasos:['Pica tomate, pepino, cebolla y lechuga.','Añade el queso en cubos.','Aliña con aceite, limón y sal.']},
     ]},
   ],
+  // Recetas especiales para fechas de celebración o para probar algo nuevo
+  especiales:[
+    {id:'esp_hallacas',name:'Hallacas navideñas',tipo:'mixto',slots:['almuerzo','cena'],
+      ing:['Harina PAN','Carne de cerdo','Pollo','Carne de res','Cebolla','Chile dulce','Ajo','Tomate','Aceitunas','Pasas','Alcaparras','Hojas de plátano','Onoto (achiote)','Sal'],
+      pasos:['Guisa las tres carnes con el sofrito (mejor un día antes).','Amasa la harina PAN con caldo y onoto.','Extiende la masa sobre la hoja de plátano engrasada.','Coloca el guiso y los adornos (aceitunas, pasas, alcaparras).','Envuelve y amarra las hallacas.','Hiérvelas 45–60 min.']},
+    {id:'esp_pan_jamon',name:'Pan de jamón',tipo:'mixto',slots:['desayuno','merienda','cena'],
+      ing:['Harina de trigo','Levadura','Azúcar','Mantequilla','Huevos','Leche','Jamón','Aceitunas','Pasas','Sal'],
+      pasos:['Amasa harina, levadura, azúcar, mantequilla, huevo y leche; deja levar.','Estira la masa en un rectángulo.','Cubre con jamón, aceitunas y pasas.','Enrolla con cuidado.','Barniza con huevo y hornea 30–35 min.']},
+    {id:'esp_ensalada_gallina',name:'Ensalada de gallina',tipo:'pollo',slots:['almuerzo','cena'],
+      ing:['Pechuga de pollo','Papa','Zanahoria','Manzana','Mayonesa','Guisantes (petit pois)','Sal'],
+      pasos:['Cocina y desmecha el pollo.','Hierve papa y zanahoria en cubitos.','Mezcla con manzana picada y guisantes.','Une todo con mayonesa y sal.','Enfría antes de servir.']},
+    {id:'esp_pernil',name:'Pernil de cerdo al horno',tipo:'cerdo',slots:['almuerzo','cena'],
+      ing:['Pierna de cerdo','Ajo','Cebolla','Naranja','Limón','Salsa inglesa','Sal','Pimienta','Orégano'],
+      pasos:['Adoba el pernil con ajo, cítricos, salsa inglesa y especias (de un día para otro).','Hornéalo tapado a fuego medio varias horas.','Destápalo y dóralo al final.','Deja reposar y rebana.']},
+    {id:'esp_pavo',name:'Pavo horneado relleno',tipo:'pollo',slots:['almuerzo','cena'],
+      ing:['Pavo','Mantequilla','Ajo','Cebolla','Pan','Manzana','Pasas','Sal','Pimienta'],
+      pasos:['Adoba el pavo con mantequilla, ajo y especias.','Prepara un relleno con pan, cebolla, manzana y pasas.','Rellena el pavo.','Hornea cubierto, rociando con su jugo, hasta dorar.']},
+    {id:'esp_paella_mariscos',name:'Paella de mariscos',tipo:'pescado',slots:['almuerzo','cena'],
+      ing:['Arroz','Tilapia','Camarones','Chile dulce','Tomate','Cebolla','Ajo','Guisantes','Onoto o azafrán','Aceite','Sal'],
+      pasos:['Sofríe cebolla, ajo, chile y tomate.','Añade el arroz y el caldo con onoto.','Incorpora el pescado y los mariscos.','Cocina sin remover hasta secar; decora con guisantes.']},
+    {id:'esp_lasana_fiesta',name:'Lasaña de fiesta',tipo:'res',slots:['almuerzo','cena'],
+      ing:['Pasta para lasaña','Carne molida','Pollo','Jamón','Salsa de tomate','Queso','Leche','Harina de trigo','Mantequilla'],
+      pasos:['Prepara una salsa de carne y pollo.','Haz la bechamel con mantequilla, harina y leche.','Alterna capas de pasta, carnes, jamón, bechamel y queso.','Hornea hasta gratinar bien dorada.']},
+    {id:'esp_costillas_glaseadas',name:'Costillas glaseadas',tipo:'cerdo',slots:['cena'],
+      ing:['Costilla de cerdo','Salsa BBQ','Tapa dulce','Ajo','Salsa de soya','Sal'],
+      pasos:['Sazona y hornea las costillas tapadas hasta tiernas.','Prepara un glaseado con BBQ, tapa dulce, ajo y soya.','Pincela las costillas y hornéalas destapadas hasta caramelizar.']},
+    {id:'esp_pollo_relleno',name:'Pollo relleno al horno',tipo:'pollo',slots:['almuerzo','cena'],
+      ing:['Pollo entero','Jamón','Queso','Zanahoria','Cebolla','Ajo','Mantequilla','Sal','Pimienta'],
+      pasos:['Adoba el pollo por dentro y por fuera.','Rellénalo con jamón, queso y vegetales.','Asegura la abertura con palillos.','Hornea rociando con mantequilla hasta dorar.']},
+    {id:'esp_tres_leches',name:'Torta tres leches',tipo:'dulce',slots:['merienda','cena'],
+      ing:['Harina de trigo','Huevos','Azúcar','Leche','Leche en polvo','Natilla','Vainilla','Polvo de hornear'],
+      pasos:['Bate huevos con azúcar; integra harina y polvo de hornear.','Hornea el bizcocho.','Mezcla las tres leches (líquida, en polvo diluida y natilla).','Baña el bizcocho frío y refrigera.']},
+    {id:'esp_quesillo',name:'Quesillo venezolano',tipo:'dulce',slots:['merienda','cena'],
+      ing:['Huevos','Leche','Leche condensada','Azúcar','Vainilla'],
+      pasos:['Carameliza azúcar en el molde.','Licúa huevos, leche y leche condensada con vainilla.','Vierte sobre el caramelo.','Cocina a baño maría hasta cuajar.','Enfría y desmolda.']},
+    {id:'esp_dulce_lechosa',name:'Dulce de lechosa',tipo:'dulce',slots:['merienda','cena'],
+      ing:['Lechosa verde (papaya)','Tapa dulce (papelón)','Azúcar','Canela','Clavos de olor'],
+      pasos:['Corta la lechosa verde en tiras.','Cocínala con papelón, azúcar, canela y clavos.','Deja hervir a fuego lento hasta tomar color y almíbar.','Sirve frío.']},
+  ],
   shelfTiers:[
     { label:'1–3 días', sub:'Consumir ya', color:'#A32C54', items:['Fresas maduras','Melón abierto','Sandía abierta','Lechuga','Culantro','Cebollino','Ensalada verde','Yogur abierto'] },
     { label:'3–7 días', sub:'Pronto', color:'#C2783A', items:['Mango','Banano maduro','Papaya abierta','Pepino','Tomate maduro','Chile dulce','Jamón abierto','Pollo descongelado'] },
@@ -491,6 +530,7 @@ function freshData(){
     v:1,
     inventory: SEED.inventory.map(x=>({...x})),
     qq: defaultQQ(),
+    customMeals: {},
     plan: defaultPlan(),
     weights:{}, body:{},
     budgets, budgetMonth: m,
@@ -514,6 +554,7 @@ function ensureDataFields(){
   if(!DATA || typeof DATA!=='object') DATA = freshData();
   if(!DATA.inventory) DATA.inventory = SEED.inventory.map(x=>({...x}));
   if(!DATA.qq) DATA.qq = defaultQQ();
+  if(!DATA.customMeals) DATA.customMeals = {};
   if(!DATA.plan) DATA.plan = defaultPlan();
   else { for(const k in DATA.plan){ const v=DATA.plan[k]; DATA.plan[k] = v==null?[]:(Array.isArray(v)?v.filter(Boolean):[v]); } }
   if(!DATA.weights) DATA.weights={}; if(!DATA.body) DATA.body={};
@@ -541,10 +582,42 @@ function commit(msg){ save(); render(); if(msg) toast(msg); }
 
 /* ---------- helpers de comidas ---------- */
 function cocinaDishes(){ return SEED.cocinas.flatMap(c=>c.dishes); }
-function allMeals(){ return [...SEED.desayunos,...SEED.meriendas,...SEED.almuerzos,...SEED.cenas, ...cocinaDishes()]; }
+function allMeals(){ return [...SEED.desayunos,...SEED.meriendas,...SEED.almuerzos,...SEED.cenas, ...cocinaDishes(), ...(SEED.especiales||[]), ...Object.values((DATA&&DATA.customMeals)||{})]; }
 function mealById(id){ return allMeals().find(m=>m.id===id); }
 function catalogFor(t){ return t==='desayuno'?SEED.desayunos : t==='merienda'?SEED.meriendas : t==='almuerzo'?SEED.almuerzos : SEED.cenas; }
 function planIds(key){ const v=DATA.plan[key]; return Array.isArray(v)?v:(v==null?[]:[v]); }
+
+/* ---------- Menú internacional extendido (recetas en línea) ---------- */
+const EXT_ENDPOINT = (function(){ try{ return localStorage.getItem('familymeal_recipeapi') || 'https://recipe-api.com/api/v1/dinner'; }catch(e){ return 'https://recipe-api.com/api/v1/dinner'; } })();
+let EXT = { status:'idle', dishes:[] }; // idle | loading | ok | error
+function normalizeExt(data){
+  let arr = Array.isArray(data) ? data : (data.recipes||data.results||data.data||data.meals||data.dinners||[]);
+  if(!Array.isArray(arr)) return [];
+  const toList = (v)=> Array.isArray(v) ? v.map(x=>typeof x==='string'?x:(x&&(x.name||x.original||x.ingredient))||'').filter(Boolean)
+                      : (typeof v==='string' ? v.split(/\r?\n|·|,|;/).map(s=>s.trim()).filter(Boolean) : []);
+  const toSteps = (v)=> Array.isArray(v) ? v.map(x=>typeof x==='string'?x:(x&&(x.step||x.text))||'').filter(Boolean)
+                      : (typeof v==='string' ? v.split(/\r?\n|\.\s+(?=[A-ZÁÉÍÓÚÑ])/).map(s=>s.trim()).filter(Boolean) : []);
+  return arr.slice(0,40).map((x,i)=>({
+    id:'ext_'+i,
+    name: (x.name||x.title||x.strMeal||x.recipe||('Receta '+(i+1))),
+    tipo: 'mixto',
+    ing: toList(x.ingredients||x.extendedIngredients||x.ingredient),
+    pasos: toSteps(x.instructions||x.steps||x.strInstructions||x.directions||x.method),
+  }));
+}
+async function extLoad(){
+  if(EXT.status==='loading') return;
+  EXT.status='loading'; render();
+  try{
+    const ctrl = new AbortController(); const t=setTimeout(()=>ctrl.abort(), 12000);
+    const r = await fetch(EXT_ENDPOINT, { headers:{accept:'application/json'}, signal:ctrl.signal });
+    clearTimeout(t);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    EXT.dishes = normalizeExt(await r.json());
+    EXT.status = EXT.dishes.length ? 'ok' : 'error';
+  }catch(e){ console.error('recipe-api:', e.message); EXT.status='error'; }
+  render();
+}
 function statusStyle(s){
   if(s==='lleno') return {bg:'#E1EFE9',color:'#0C5A48',dot:'#0F7A63',label:'Lleno'};
   if(s==='por acabarse') return {bg:'#F6ECD6',color:'#87671B',dot:'#C28A2A',label:'Por acabarse'};
@@ -1071,6 +1144,18 @@ function recipeHTML(m){
     ${pasos?`<div style="font-weight:800;margin-bottom:4px;">Preparación</div><ol style="margin:0 0 0 18px;padding:0;">${pasos}</ol>`:''}
   </div>`;
 }
+function dishCard(m, assigned, recipeOpen){
+  const has = assigned.includes(m.id); const showR = recipeOpen===m.id; const tieneReceta = !!((m.ing&&m.ing.length)||(m.pasos&&m.pasos.length));
+  return `<div class="card" style="padding:12px;border-color:${has?'#0F7A63':'#DEE4EE'};${has?'background:#F2FAF6;':''}">
+    <div class="row" style="justify-content:space-between;gap:8px;align-items:flex-start;">
+      <div class="row" style="gap:8px;font-weight:700;"><span class="dot" style="background:${SEED.tipoColor[m.tipo]||'#5E5A9E'};margin-top:5px;flex:none;"></span>${esc(m.name)}</div>
+      <button class="btn ${has?'danger':''} sm" style="flex:none;" data-act="${has?'remove-meal':'add-meal'}" data-mealid="${m.id}">${has?'Quitar':'＋'}</button>
+    </div>
+    ${m.sides?`<div class="muted" style="font-size:12px;margin-top:6px;">Acompañar: ${esc(m.sides)}</div>`:''}
+    ${tieneReceta?`<button class="btn ghost sm" style="margin-top:8px;width:100%;" data-act="pk-recipe" data-mealid="${m.id}">${showR?'Ocultar receta ▲':'Ver receta ▼'}</button>`:''}
+    ${showR?recipeHTML(m):''}
+  </div>`;
+}
 function modalPicker(){
   const pk=UI.picker; const slot=SEED.slots.find(s=>s.k===pk.slot); const dayObj=SEED.days.find(d=>d.k===pk.day);
   const key=pk.day+'-'+pk.slot; const assigned=planIds(key);
@@ -1078,20 +1163,22 @@ function modalPicker(){
   const cocinasDisp = SEED.cocinas.filter(c=>c.dishes.some(d=>d.slots.includes(slot.t)));
   const chips = [`<button class="chip ${cocina==='rapidas'?'on':''}" data-act="pk-cocina" data-cocina="rapidas">⚡ Rápidas</button>`]
     .concat(cocinasDisp.map(c=>`<button class="chip ${cocina===c.id?'on':''}" data-act="pk-cocina" data-cocina="${c.id}">${c.emoji} ${esc(c.name)}</button>`)).join('');
-  let dishes;
-  if(cocina==='rapidas') dishes = catalogFor(slot.t);
-  else { const c=SEED.cocinas.find(x=>x.id===cocina); dishes = c?c.dishes.filter(d=>d.slots.includes(slot.t)):[]; }
-  const cards = dishes.map(m=>{
-    const has = assigned.includes(m.id); const showR = pk.recipe===m.id; const tieneReceta = !!(m.ing||m.pasos);
-    return `<div class="card" style="padding:12px;border-color:${has?'#0F7A63':'#DEE4EE'};${has?'background:#F2FAF6;':''}">
-      <div class="row" style="justify-content:space-between;gap:8px;align-items:flex-start;">
-        <div class="row" style="gap:8px;font-weight:700;"><span class="dot" style="background:${SEED.tipoColor[m.tipo]||'#5E5A9E'};margin-top:5px;flex:none;"></span>${esc(m.name)}</div>
-        <button class="btn ${has?'danger':''} sm" style="flex:none;" data-act="${has?'remove-meal':'add-meal'}" data-mealid="${m.id}">${has?'Quitar':'＋'}</button>
-      </div>
-      ${m.sides?`<div class="muted" style="font-size:12px;margin-top:6px;">Acompañar: ${esc(m.sides)}</div>`:''}
-      ${tieneReceta?`<button class="btn ghost sm" style="margin-top:8px;width:100%;" data-act="pk-recipe" data-mealid="${m.id}">${showR?'Ocultar receta ▲':'Ver receta ▼'}</button>`:''}
-      ${showR?recipeHTML(m):''}
-    </div>`;}).join('') || '<div class="muted" style="grid-column:1/-1;">No hay platos de esta cocina para este momento.</div>';
+  let cards;
+  if(cocina==='extendido'){
+    const esp = (SEED.especiales||[]).filter(d=>!d.slots||d.slots.includes(slot.t));
+    const status = EXT.status==='loading' ? '<div class="muted">Buscando recetas en línea… ⏳</div>'
+      : EXT.status==='error' ? '<div class="muted">No se pudo conectar al recetario en línea. Mientras tanto, aquí tienes recetas especiales de la casa 👇 <button class="btn ghost sm" data-act="ext-retry" style="margin-left:6px;">Reintentar</button></div>'
+      : EXT.status==='ok' ? `<div class="muted">${EXT.dishes.length} recetas encontradas en línea ✨</div>` : '';
+    const extCards = (EXT.status==='ok'?EXT.dishes:[]).map(m=>dishCard(m,assigned,pk.recipe)).join('');
+    const espCards = esp.map(m=>dishCard(m,assigned,pk.recipe)).join('') || '<div class="muted">No hay recetas especiales para este momento.</div>';
+    cards = `<div style="grid-column:1/-1;margin-bottom:2px;">${status}</div>${extCards}
+      <div style="grid-column:1/-1;font-weight:800;margin:6px 0 0;">🎉 Recetas especiales de la casa</div>${espCards}`;
+  } else {
+    let dishes;
+    if(cocina==='rapidas') dishes = catalogFor(slot.t);
+    else { const c=SEED.cocinas.find(x=>x.id===cocina); dishes = c?c.dishes.filter(d=>d.slots.includes(slot.t)):[]; }
+    cards = dishes.map(m=>dishCard(m,assigned,pk.recipe)).join('') || '<div class="muted" style="grid-column:1/-1;">No hay platos de esta cocina para este momento.</div>';
+  }
   const assignedHTML = assigned.length
     ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:12px;">${assigned.map(id=>{const mm=mealById(id);return mm?`<span class="pill" style="background:#E1EFE9;color:#0C5A48;">${esc(mm.name)} <span data-act="remove-meal" data-mealid="${id}" style="cursor:pointer;font-weight:800;margin-left:2px;">✕</span></span>`:'';}).join('')}</div>`
     : `<div class="muted" style="font-size:13px;margin-bottom:12px;">Aún no has agregado comidas a este momento. Toca ＋ en cualquier plato.</div>`;
@@ -1099,7 +1186,8 @@ function modalPicker(){
     <div class="modal-head"><div><h2 class="card-title">${esc(slot.l)} · ${esc(dayObj.full)}</h2><div class="muted" style="font-size:13px;">Agrega una o varias comidas del mundo</div></div>
       <button class="x" data-act="close-modal">✕</button></div>
     ${assignedHTML}
-    <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:14px;">${chips}</div>
+    <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:10px;">${chips}</div>
+    <button class="btn sm" style="width:100%;margin-bottom:14px;${cocina==='extendido'?'background:#0F7A63;':''}" data-act="pk-cocina" data-cocina="extendido">🌐 Menú internacional extendido</button>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr));">${cards}</div>
   </div></div>`;
 }
@@ -1165,10 +1253,14 @@ document.addEventListener('click', (e)=>{
     case 'qq-reco':{ if(confirm('¿Reemplazar las cantidades de la compra quincenal por las recomendadas para tu familia? (No afecta inventario, presupuesto ni menú.)')){ DATA.qq=defaultQQ(); commit('Cantidades recomendadas aplicadas ✓'); } break; }
     // comidas
     case 'pick': UI.picker={day:t.dataset.day,slot:t.dataset.slot,cocina:'rapidas',recipe:null}; render(); break;
-    case 'pk-cocina': UI.picker.cocina=t.dataset.cocina; UI.picker.recipe=null; render(); break;
+    case 'pk-cocina': UI.picker.cocina=t.dataset.cocina; UI.picker.recipe=null;
+      if(t.dataset.cocina==='extendido' && (EXT.status==='idle'||EXT.status==='error')) extLoad(); render(); break;
+    case 'ext-retry': EXT.status='idle'; extLoad(); break;
     case 'pk-recipe': UI.picker.recipe=(UI.picker.recipe===t.dataset.mealid?null:t.dataset.mealid); render(); break;
-    case 'add-meal':{ const pk=UI.picker; const key=pk.day+'-'+pk.slot; const arr=planIds(key);
-      if(!arr.includes(t.dataset.mealid)){ arr.push(t.dataset.mealid); DATA.plan[key]=arr; commit('Comida agregada ✓'); } break; }
+    case 'add-meal':{ const pk=UI.picker; const key=pk.day+'-'+pk.slot; let id=t.dataset.mealid; const arr=planIds(key);
+      if(id.indexOf('ext_')===0){ const src=(EXT.dishes||[]).find(d=>d.id===id);
+        if(src){ id='cm_'+Math.random().toString(36).slice(2,9); DATA.customMeals[id]={id,name:src.name,tipo:src.tipo||'mixto',ing:src.ing||[],pasos:src.pasos||[]}; } }
+      if(!arr.includes(id)){ arr.push(id); DATA.plan[key]=arr; commit('Comida agregada ✓'); } break; }
     case 'remove-meal':{ const pk=UI.picker; const key=pk.day+'-'+pk.slot; DATA.plan[key]=planIds(key).filter(id=>id!==t.dataset.mealid); commit('Comida quitada'); break; }
     // porciones
     case 'person': UI.person=t.dataset.id; render(); break;
