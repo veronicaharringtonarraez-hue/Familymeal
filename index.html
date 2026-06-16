@@ -442,6 +442,9 @@ function pageHead(kicker,title,desc,right){
     ${desc?`<div class="page-desc">${esc(desc)}</div>`:''}
   </div>${right||''}</div>`;
 }
+// Día de hoy según el reloj del dispositivo (Lun=0 … Dom=6)
+function todayKey(){ const idx=(new Date().getDay()+6)%7; return SEED.days[idx].k; }
+function todayFull(){ const d=SEED.days.find(x=>x.k===todayKey()); return d?d.full:''; }
 
 function main(){
   switch(UI.view){
@@ -465,7 +468,7 @@ function viewInicio(){
   const plan = DATA.plan;
   const plannedCount = Object.values(plan).filter(Boolean).length;
   const avatars = SEED.family.map(f=>`<div class="avatar" style="background:${f.color}">${esc(f.name[0])}</div>`).join('');
-  const today='Mié';
+  const today=todayKey();
   const todayMeals = SEED.slots.map(s=>{ const m=mealById(plan[today+'-'+s.k]);
     return `<div class="row" style="padding:9px 0;border-bottom:1px solid #F2F4F9;">
       <div class="avatar" style="width:34px;height:34px;font-size:13px;background:${m?SEED.tipoColor[m.tipo]:'#AEB6C6'}">${m?esc(m.name[0]):'?'}</div>
@@ -488,7 +491,7 @@ function viewInicio(){
       <div class="stat" style="background:#2E6FB0"><div class="k">Gastado este mes</div><div class="v" style="font-size:26px;">${fmtCRC(actual)}</div><div class="s">de ${fmtCRC(planned)} presupuestado</div></div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
-      <div class="card"><h3 class="card-title">Comidas de hoy</h3><div class="muted" style="font-size:13px;margin-bottom:6px;">Miércoles</div>${todayMeals}</div>
+      <div class="card"><h3 class="card-title">Comidas de hoy</h3><div class="muted" style="font-size:13px;margin-bottom:6px;">${esc(todayFull())}</div>${todayMeals}</div>
       <div class="card"><h3 class="card-title">Lista urgente</h3><div class="muted" style="font-size:13px;margin-bottom:12px;">Productos marcados como prioridad</div><div class="row" style="flex-wrap:wrap;gap:8px;">${prio}</div></div>
     </div>`;
 }
@@ -621,7 +624,7 @@ function viewQuincenal(){
 
 /* ---------------- COMIDAS ---------------- */
 function viewComidas(){
-  const plan=DATA.plan; const today='Mié';
+  const plan=DATA.plan; const today=todayKey();
   const head = `<tr><th style="width:54px;">Día</th>${SEED.slots.map(s=>`<th>${esc(s.l)}</th>`).join('')}</tr>`;
   const rows = SEED.days.map(d=>{
     const cells = SEED.slots.map(s=>{ const key=d.k+'-'+s.k; const m=mealById(plan[key]);
