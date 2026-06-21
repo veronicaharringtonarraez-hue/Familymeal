@@ -61,6 +61,7 @@ Para abrir la app desde una dirección web (en vez de manejar el archivo):
 
 ## Archivos
 - `index.html` — la aplicación (esto es lo que debes abrir y usar).
+- `presupuesto.html` — la app de Presupuesto Familiar Mensual, integrada dentro de la sección **Presupuesto** de Familymeal (también se puede abrir sola).
 - `supabase-setup.sql` — script para preparar la base de datos de la nube.
 - `.github/workflows/pages.yml` — publica la app como página web automáticamente.
 - `Familymeal.dc.html` / `support.js` — prototipo de diseño original (solo referencia).

@@ -1022,7 +1022,7 @@ function viewInicio(){
       <div class="stat" style="background:#14274E"><div class="k">Por comprar</div><div class="v">${shop.length}</div><div class="s">productos por reponer</div></div>
       <div class="stat" style="background:#A32C54"><div class="k">Prioridad</div><div class="v">${priority.length}</div><div class="s">marcados como urgentes</div></div>
       <div class="stat" style="background:#0F7A63"><div class="k">Comidas planificadas</div><div class="v">${plannedCount}</div><div class="s">de 35 esta semana</div></div>
-      <div class="stat" style="background:#2E6FB0"><div class="k">Gastado este mes</div><div class="v" style="font-size:26px;">${fmtCRC(actual)}</div><div class="s">de ${fmtCRC(planned)} presupuestado</div></div>
+      <div class="stat" style="background:#2E6FB0"><div class="k">Consume pronto</div><div class="v">${consumeSoon().length}</div><div class="s">alimentos por usar ya</div></div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
       <div class="card"><h3 class="card-title">Comidas de hoy</h3><div class="muted" style="font-size:13px;margin-bottom:6px;">${esc(todayFull())}</div>${todayMeals}</div>
@@ -1032,68 +1032,12 @@ function viewInicio(){
 
 /* ---------------- PRESUPUESTOS ---------------- */
 function viewPresupuesto(){
-  const months = Object.keys(DATA.budgets).sort();
-  const cur = DATA.budgetMonth;
-  const b = DATA.budgets[cur];
-  const planned = b.categories.reduce((a,c)=>a+(+c.planned||0),0);
-  const actual = b.categories.reduce((a,c)=>a+(+c.actual||0),0);
-  const income = +b.income||0;
-  const balPlan = income - planned;
-  const balReal = income - actual;
-
-  const opts = months.map(m=>`<option value="${m}" ${m===cur?'selected':''}>${esc(monthLabel(m))}</option>`).join('');
-  const right = `<div class="row" style="gap:8px;flex-wrap:wrap;">
-    <select class="input" data-act="month-change" style="width:auto;min-width:160px;font-weight:700;">${opts}</select>
-    <button class="btn sm" data-act="month-new">+ Nuevo mes</button>
-  </div>`;
-
-  const rows = b.categories.map(c=>{
-    const diff=(+c.planned||0)-(+c.actual||0);
-    const over=(+c.actual||0)>(+c.planned||0);
-    const pct = c.planned>0 ? Math.min(100, (c.actual/c.planned)*100) : (c.actual>0?100:0);
-    return `<tr>
-      <td><div class="row"><span class="dot" style="background:${c.color||'#7C6A48'}"></span>
-        <input class="input" style="border:none;background:transparent;padding:6px 4px;font-weight:700;" value="${esc(c.name)}" data-act="cat-field" data-id="${c.id}" data-field="name"></div></td>
-      <td style="width:140px;"><input class="input" type="number" min="0" step="1000" value="${+c.planned||0}" data-act="cat-field" data-id="${c.id}" data-field="planned"></td>
-      <td style="width:140px;"><input class="input" type="number" min="0" step="1000" value="${+c.actual||0}" data-act="cat-field" data-id="${c.id}" data-field="actual"></td>
-      <td style="width:150px;">
-        <div class="bar" style="margin-bottom:5px;"><span style="width:${pct}%;background:${over?'#A32C54':c.color||'#0F7A63'}"></span></div>
-        <div style="font-size:12px;font-weight:700;color:${over?'#A32C54':diff<0?'#A32C54':'#0C5A48'}">${over?'+'+fmtCRC(Math.abs(diff))+' sobre':fmtCRC(diff)+' libre'}</div>
-      </td>
-      <td style="width:40px;text-align:right;"><button class="x" data-act="cat-del" data-id="${c.id}" title="Eliminar">✕</button></td>
-    </tr>`;
-  }).join('');
-
-  return pageHead('Presupuestos', monthLabel(cur), 'Define cuánto planeas gastar y registra lo que realmente gastaste. Cada mes se guarda por separado.', right)
-  + `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:18px;">
-      <div class="stat" style="background:#0F7A63"><div class="k">Ingreso del mes</div><div class="v" style="font-size:26px;">${fmtCRC(income)}</div></div>
-      <div class="stat" style="background:#14274E"><div class="k">Presupuestado</div><div class="v" style="font-size:26px;">${fmtCRC(planned)}</div><div class="s">${balPlan<0?fmtCRC(Math.abs(balPlan))+' sobre el ingreso':fmtCRC(balPlan)+' sin asignar'}</div></div>
-      <div class="stat" style="background:#2E6FB0"><div class="k">Gastado real</div><div class="v" style="font-size:26px;">${fmtCRC(actual)}</div><div class="s">${planned>0?Math.round(actual/planned*100):0}% de lo presupuestado</div></div>
-      <div class="stat" style="background:${balReal<0?'#A32C54':'#1d3563'}"><div class="k">Saldo real</div><div class="v" style="font-size:26px;">${fmtCRC(balReal)}</div><div class="s">${balReal<0?'Te pasaste del ingreso':'Disponible este mes'}</div></div>
-    </div>
-    <div class="card" style="margin-bottom:16px;">
-      <div class="row" style="flex-wrap:wrap;gap:16px;">
-        <div class="field" style="flex:1;min-width:200px;"><label>Ingreso / dinero disponible del mes</label>
-          <input class="input" type="number" min="0" step="1000" value="${income}" data-act="income"></div>
-        <div class="field" style="flex:2;min-width:240px;"><label>Nota del mes (opcional)</label>
-          <input class="input" value="${esc(b.note||'')}" placeholder="Ej. mes con cumpleaños, gasto extra en…" data-act="bnote"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="row" style="justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-        <h3 class="card-title">Categorías de gasto</h3>
-        <button class="btn sm" data-act="cat-add">+ Agregar categoría</button>
-      </div>
-      <div style="overflow-x:auto;"><table class="tbl"><thead><tr>
-        <th>Categoría</th><th>Presupuesto</th><th>Gastado</th><th>Estado</th><th></th>
-      </tr></thead><tbody>${rows||'<tr><td colspan="5" class="muted" style="padding:20px;text-align:center;">Sin categorías. Agrega una para empezar.</td></tr>'}</tbody>
-      <tfoot><tr style="font-weight:800;">
-        <td style="padding-top:14px;">TOTAL</td>
-        <td style="padding-top:14px;">${fmtCRC(planned)}</td>
-        <td style="padding-top:14px;">${fmtCRC(actual)}</td>
-        <td style="padding-top:14px;" colspan="2"></td>
-      </tr></tfoot></table></div>
-    </div>`;
+  return pageHead('Presupuesto familiar', 'Presupuesto Familiar Mensual', 'Ingresos, prioridades de gasto, deudas, ahorro y el enfoque del mes — tu app completa de presupuesto.',
+    `<a class="btn ghost sm" href="presupuesto.html" target="_blank" rel="noopener">⤢ Abrir en pantalla completa</a>`)
+  + `<div class="card" style="padding:0;overflow:hidden;border-radius:16px;">
+       <iframe src="presupuesto.html" title="Presupuesto Familiar Mensual" style="width:100%;height:calc(100dvh - 150px);min-height:600px;border:0;display:block;background:#1B2333;"></iframe>
+     </div>
+     <div class="muted" style="font-size:12px;margin-top:8px;line-height:1.5;">💡 El presupuesto guarda sus datos por separado y tiene su propio respaldo (exportar/importar). En el celular, si se ve apretado, usa “⤢ Abrir en pantalla completa”.</div>`;
 }
 
 /* ---------------- INVENTARIO ---------------- */
