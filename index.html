@@ -720,6 +720,59 @@ function statusStyle(s){
   if(s==='por acabarse') return {bg:'#F6ECD6',color:'#87671B',dot:'#C28A2A',label:'Por acabarse'};
   return {bg:'#F4DCE6',color:'#98264C',dot:'#A32C54',label:'Agotado'};
 }
+/* ---------- frescura: reloj por fecha de compra ---------- */
+const DAY_MS=86400000;
+function shelfDaysFor(it){
+  const n=(it.name||'').toLowerCase();
+  const kw=[
+    [/(lechuga|culantro|cilantro|cebollino|espinaca|acelga|fresa|frambuesa|mora|arándano|cereza|champi|hongo)/,3],
+    [/(mel[oó]n|sand[ií]a|papaya|aguacate|banano|mango|tomate|pepino|br[oó]coli|coliflor|uva|durazno|ciruela|maracuy|guayaba|zucchini|berenjena)/,6],
+    [/(manzana|pera|naranja|mandarina|lim[oó]n|toronja|zanahoria|repollo|chile|piña|kiwi|remolacha|chayote|apio|puerro)/,12],
+    [/(papa|yuca|camote|batata|pl[aá]tano|ñame|auyama|ayote|cebolla|ajo|jengibre|elote)/,20],
+    [/(pollo|pescado|tilapia|salm[oó]n|corvina|merluza|bacalao|trucha|dorado|pargo|sardina|at[uú]n|bistec|molida|mechad|cerdo|chuleta|costilla|pavo|camar|langostino|pulpo|calamar|mejill|almeja|ostra|res|h[ií]gado|osobuco|lomo|posta|falda|solomo|lomito)/,4],
+    [/huevo/,21],
+    [/(leche|yogur|natilla|crema)/,8],
+    [/queso/,18],
+    [/(jam[oó]n|chorizo|salchicha|tocino)/,12],
+  ];
+  for(const [re,d] of kw){ if(re.test(n)) return d; }
+  const cat=(it.cat||'').toLowerCase();
+  if(cat.includes('fruta')) return 7;
+  if(cat.includes('verdura')) return 7;
+  if(cat.includes('proteína')||cat.includes('proteina')) return 4;
+  if(cat.includes('lácteo')||cat.includes('lacteo')) return 8;
+  return 60;
+}
+function isPerecedero(it){ return shelfDaysFor(it)<=21 && !/(limpieza|higiene|beb[eé])/i.test(it.cat||''); }
+function daysLeft(it){ if(!it.boughtAt) return null; return shelfDaysFor(it) - Math.floor((Date.now()-it.boughtAt)/DAY_MS); }
+function freshState(dl){
+  if(dl==null) return {k:'sin',bg:'#F1F4FA',color:'#586273',label:'Sin fecha de compra'};
+  if(dl<0) return {k:'venc',bg:'#F4DCE6',color:'#98264C',label:'Vencido hace '+(-dl)+(dl===-1?' día':' días')};
+  if(dl===0) return {k:'hoy',bg:'#F4DCE6',color:'#98264C',label:'¡Consúmelo HOY!'};
+  if(dl===1) return {k:'urg',bg:'#FBE3D6',color:'#A24B1E',label:'Queda 1 día'};
+  if(dl<=3) return {k:'pronto',bg:'#F6ECD6',color:'#87671B',label:'Quedan '+dl+' días'};
+  return {k:'ok',bg:'#E1EFE9',color:'#0C5A48',label:'Quedan '+dl+' días'};
+}
+function frescuraItems(){
+  return DATA.inventory.filter(it=> isPerecedero(it) && it.status!=='agotado')
+    .map(it=>({it, dl:daysLeft(it)}))
+    .sort((a,b)=>{ if(a.dl==null) return 1; if(b.dl==null) return -1; return a.dl-b.dl; });
+}
+function consumeSoon(){ return frescuraItems().filter(x=> x.dl!=null && x.dl<=2); }
+function downloadShopping(){
+  const list=DATA.inventory.filter(it=> it.status==='agotado'||it.status==='por acabarse'||it.priority);
+  if(!list.length){ toast('No hay nada por comprar 🎉'); return; }
+  const byCat={}; list.forEach(it=>{ (byCat[it.cat]=byCat[it.cat]||[]).push(it); });
+  let txt='🛒 LISTA DE COMPRAS · '+fechaHoy()+'\n'+'='.repeat(34)+'\n\n';
+  Object.keys(byCat).sort().forEach(cat=>{ txt+=cat.toUpperCase()+'\n';
+    byCat[cat].forEach(it=>{ const tag=it.priority?' ★ PRIORIDAD':(it.status==='agotado'?' (agotado)':' (por acabarse)'); txt+='  [ ] '+it.name+' — '+it.qty+tag+'\n'; });
+    txt+='\n'; });
+  txt+='Total: '+list.length+' productos por comprar.\n';
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download='lista-compras-'+monthKey(new Date())+'.txt'; a.click(); URL.revokeObjectURL(url);
+  toast('Lista de compras descargada ✔');
+}
 
 /* ============================================================
    RENDER
@@ -958,6 +1011,13 @@ function viewInicio(){
       <div style="font-size:12.5px;font-weight:700;letter-spacing:.4px;opacity:.85;">Hoy es ${esc(fechaHoy())}</div>
       <div style="font-family:'Bricolage Grotesque';font-weight:800;font-size:21px;line-height:1.35;margin-top:7px;">${esc(fraseDelDia())}</div>
     </div>`
+  + (consumeSoon().length ? `<div class="card" style="border:1px solid #F0C9D7;background:#FCEFF4;margin-bottom:18px;">
+      <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <h3 class="card-title" style="color:#98264C;">⏰ Consume pronto para no desperdiciar</h3>
+        <button class="btn ghost sm" data-act="nav" data-view="frescura">Ver frescura</button></div>
+      <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px;">${consumeSoon().map(({it,dl})=>{const fs=freshState(dl);return `<span class="pill" style="background:${fs.bg};color:${fs.color};">${esc(it.name)} · ${fs.label}</span>`;}).join('')}</div>
+      <div class="muted" style="font-size:12.5px;margin-top:10px;">Inclúyelos en el menú de hoy. <button class="btn ghost sm" data-act="nav" data-view="comidas" style="padding:3px 9px;">Ir al menú</button></div>
+    </div>` : '')
   + `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-bottom:18px;">
       <div class="stat" style="background:#14274E"><div class="k">Por comprar</div><div class="v">${shop.length}</div><div class="s">productos por reponer</div></div>
       <div class="stat" style="background:#A32C54"><div class="k">Prioridad</div><div class="v">${priority.length}</div><div class="s">marcados como urgentes</div></div>
@@ -966,7 +1026,7 @@ function viewInicio(){
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
       <div class="card"><h3 class="card-title">Comidas de hoy</h3><div class="muted" style="font-size:13px;margin-bottom:6px;">${esc(todayFull())}</div>${todayMeals}</div>
-      <div class="card"><h3 class="card-title">Lista urgente</h3><div class="muted" style="font-size:13px;margin-bottom:12px;">Productos marcados como prioridad</div><div class="row" style="flex-wrap:wrap;gap:8px;">${prio}</div></div>
+      <div class="card"><div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;"><h3 class="card-title">Lista urgente</h3><button class="btn ghost sm" data-act="dl-shopping">⬇️ Descargar lista de compras</button></div><div class="muted" style="font-size:13px;margin-bottom:12px;">Productos marcados como prioridad</div><div class="row" style="flex-wrap:wrap;gap:8px;">${prio}</div></div>
     </div>`;
 }
 
@@ -1058,7 +1118,7 @@ function viewInventario(){
       <td><button class="pill" style="background:${ss.bg};color:${ss.color};border:none;" data-act="inv-cycle" data-id="${it.id}"><span class="dot" style="background:${ss.dot}"></span>${ss.label}</button></td>
       <td style="text-align:right;"><button class="btn ghost sm" data-act="inv-edit" data-id="${it.id}">Editar</button></td>
     </tr>`;}).join('');
-  const right = `<button class="btn" data-act="inv-add">+ Agregar producto</button>`;
+  const right = `<div class="row" style="gap:8px;"><button class="btn ghost" data-act="dl-shopping">⬇️ Lista de compras</button><button class="btn" data-act="inv-add">+ Agregar producto</button></div>`;
   return pageHead('Inventario', 'Despensa y casa', `${filtered.length} de ${inv.length} productos`, right)
   + `<div class="card" style="margin-bottom:14px;"><div class="row" style="flex-wrap:wrap;gap:7px;margin-bottom:10px;">${catChips}</div>
        <div class="row" style="flex-wrap:wrap;gap:7px;">${stChips}</div></div>
@@ -1155,7 +1215,30 @@ function viewFrescura(){
   const waste = SEED.wasteRanking.map((w,i)=>`<div class="row" style="padding:10px 0;border-bottom:${i===SEED.wasteRanking.length-1?'none':'1px solid #F2F4F9'};">
     <div class="avatar" style="width:30px;height:30px;font-size:13px;background:${i<3?'#FBF1D8':'#F1F4FA'};color:${i<3?'#9A7A1B':'#8B94A6'}">${w.rank}</div>
     <div style="flex:1"><div style="font-weight:700;font-size:14px;">${esc(w.name)}</div><div class="muted" style="font-size:12px;">${esc(w.note)}</div></div></div>`).join('');
+  // Reloj de frescura por alimento (según la fecha en que se marcó "lleno")
+  const fi = frescuraItems();
+  const clockRows = fi.map(({it,dl})=>{ const fs=freshState(dl); const cc=SEED.catColor[it.cat]||'#7C6A48';
+    const vida=shelfDaysFor(it);
+    const sugerencia = (dl!=null && dl<=3) ? `<div style="font-size:12px;color:${fs.color};margin-top:3px;">💡 Inclúyelo en el menú ${dl<=0?'de hoy':'pronto'} para no desperdiciarlo. <button class="btn ghost sm" data-act="nav" data-view="comidas" style="padding:3px 9px;margin-left:4px;">Ir al menú</button></div>` : '';
+    const accion = dl==null ? `<button class="btn ghost sm" data-act="fresh-bought" data-id="${it.id}">🛒 Comprado hoy</button>`
+      : `<span class="pill" style="background:${fs.bg};color:${fs.color};">⏰ ${fs.label}</span>`;
+    return `<div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #F2F4F9;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:14px;">${esc(it.name)} <span class="pill" style="background:${cc}22;color:${cc};font-size:11px;">${esc(it.cat)}</span></div>
+        <div class="muted" style="font-size:11px;">Dura ~${vida} días desde la compra${it.boughtAt?' · comprado el '+new Date(it.boughtAt).toLocaleDateString('es'):''}</div>
+        ${sugerencia}
+      </div>
+      <div style="flex:none;text-align:right;">${accion}</div>
+    </div>`;}).join('') || '<div class="muted" style="font-size:13px;">No hay alimentos perecederos activos. Marca tus productos como “Lleno” en el inventario al comprarlos para iniciar el reloj. ⏰</div>';
+  const soon = consumeSoon().length;
+  const clockCard = `<div class="card" style="margin-bottom:18px;">
+    <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+      <h3 class="card-title">⏰ Reloj de frescura</h3>
+      ${soon?`<span class="pill" style="background:#F4DCE6;color:#98264C;">${soon} por consumir pronto</span>`:'<span class="pill" style="background:#E1EFE9;color:#0C5A48;">Todo bajo control</span>'}</div>
+    <div class="muted" style="font-size:12.5px;margin-bottom:8px;line-height:1.5;">El reloj cuenta desde el día en que marcas el producto como <b>“Lleno”</b> en el inventario (cuando lo compras). Te avisa cuántos días le quedan antes de dañarse.</div>
+    ${clockRows}</div>`;
   return pageHead('Frescura y consumo', 'Orden de consumo', 'Qué usar primero para que nada se desperdicie.')
+  + clockCard
   + `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-bottom:18px;">${tiers}</div>
      <div class="card"><h3 class="card-title">Se daña más rápido</h3><div class="muted" style="font-size:13px;margin-bottom:6px;">Vigila estos primero</div>${waste}</div>`;
 }
@@ -1351,7 +1434,9 @@ document.addEventListener('click', (e)=>{
     case 'inv-cat': UI.invCat=t.dataset.cat; render(); break;
     case 'inv-filter': UI.invFilter=t.dataset.filter; render(); break;
     case 'inv-cycle':{ const id=t.dataset.id; const order=['lleno','por acabarse','agotado'];
-      const it=DATA.inventory.find(x=>x.id===id); if(it){ it.status=order[(order.indexOf(it.status)+1)%3]; commit(); } break; }
+      const it=DATA.inventory.find(x=>x.id===id); if(it){ it.status=order[(order.indexOf(it.status)+1)%3]; if(it.status==='lleno') it.boughtAt=Date.now(); commit(); } break; }
+    case 'fresh-bought':{ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ it.boughtAt=Date.now(); if(it.status==='agotado') it.status='lleno'; commit('Reloj de frescura iniciado ⏰'); } break; }
+    case 'dl-shopping': downloadShopping(); break;
     case 'inv-add': UI.invForm={id:null,name:'',cat:UI.invCat==='Todos'?'Frutas':UI.invCat,qty:'',status:'lleno',priority:false}; render(); break;
     case 'inv-edit':{ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ UI.invForm={...it}; render(); } break; }
     case 'if-prio':{ // conservar lo escrito antes de re-renderizar
