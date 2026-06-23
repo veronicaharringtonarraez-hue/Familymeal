@@ -20,8 +20,14 @@
   button{font-family:inherit;cursor:pointer;}
   input,select,textarea{font-family:inherit;color:#14274E;}
   .shell{display:flex;min-height:100vh;background:#EDF1F7;}
-  /* sidebar */
-  .sidebar{width:256px;flex-shrink:0;background:#FFFFFF;border-right:1px solid #DEE4EE;display:flex;flex-direction:column;padding:22px 16px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  /* logo flotante: siempre visible para abrir la barra */
+  .fab-logo{position:fixed;top:12px;left:12px;z-index:60;width:46px;height:46px;border-radius:14px;background:#14274E;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;box-shadow:0 8px 20px -6px rgba(20,39,78,.55);}
+  .fab-logo:hover{background:#1d3563;}
+  .side-backdrop{position:fixed;inset:0;background:rgba(20,39,78,.40);z-index:45;opacity:0;pointer-events:none;transition:opacity .2s;}
+  .side-backdrop.show{opacity:1;pointer-events:auto;}
+  /* sidebar retráctil (off-canvas) */
+  .sidebar{position:fixed;left:0;top:0;height:100vh;width:264px;max-width:84vw;transform:translateX(-105%);transition:transform .22s cubic-bezier(.4,0,.2,1);background:#FFFFFF;border-right:1px solid #DEE4EE;display:flex;flex-direction:column;padding:18px 16px;overflow-y:auto;z-index:50;box-shadow:0 18px 50px -12px rgba(20,39,78,.4);}
+  .sidebar.open{transform:translateX(0);}
   .brand{display:flex;align-items:center;gap:11px;padding:0 8px 4px;}
   .brand-logo{width:40px;height:40px;border-radius:13px;background:#14274E;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 14px -6px rgba(20,39,78,.5);}
   .brand-name{font-family:'Bricolage Grotesque';font-weight:800;font-size:19px;letter-spacing:-.5px;line-height:1;}
@@ -36,7 +42,7 @@
   .side-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;border-radius:11px;border:1px solid #DEE4EE;background:#fff;color:#14274E;font-weight:700;font-size:12.5px;}
   .side-btn:hover{background:#F1F4FA;}
   /* main */
-  .main{flex:1;min-width:0;padding:28px 34px 70px;max-width:1320px;}
+  .main{flex:1;min-width:0;padding:64px 34px 70px;max-width:1320px;margin:0 auto;width:100%;}
   .page-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:24px;}
   .page-kicker{font-size:14px;font-weight:600;color:#8B94A6;}
   .page-title{font-weight:800;font-size:34px;letter-spacing:-1px;margin:4px 0 0;line-height:1;}
@@ -81,24 +87,17 @@
   .bar > span{position:absolute;left:0;top:0;bottom:0;border-radius:999px;}
   .band{position:absolute;top:0;bottom:0;background:rgba(15,122,99,.18);}
   /* modal */
-  .overlay{position:fixed;inset:0;background:rgba(20,39,78,.42);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50;}
+  .overlay{position:fixed;inset:0;background:rgba(20,39,78,.42);display:flex;align-items:center;justify-content:center;padding:18px;z-index:70;}
   .modal{background:#fff;border-radius:22px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:22px;box-shadow:0 30px 60px -20px rgba(20,39,78,.5);}
   .modal.wide{max-width:760px;}
   .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
   .x{width:34px;height:34px;border-radius:10px;border:1px solid #DEE4EE;background:#fff;font-size:18px;color:#586273;display:flex;align-items:center;justify-content:center;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#14274E;color:#fff;padding:12px 20px;border-radius:14px;font-weight:700;font-size:14px;box-shadow:0 12px 30px -10px rgba(20,39,78,.6);z-index:80;opacity:0;transition:opacity .25s, transform .25s;pointer-events:none;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
-  .menu-btn{display:none;}
   @media (max-width:860px){
-    .shell{flex-direction:column;}
-    .sidebar{width:100%;height:auto;position:relative;border-right:none;border-bottom:1px solid #DEE4EE;padding:14px;}
-    .sidebar.collapsed .nav, .sidebar.collapsed .side-card{display:none;}
-    .nav{flex-direction:row;flex-wrap:wrap;}
-    .nav-item{width:auto;}
-    .side-card{margin-top:14px;}
-    .main{padding:18px 16px 60px;}
+    .main{padding:60px 15px 60px;}
     .page-title{font-size:27px;}
-    .menu-btn{display:flex;}
+    .page-head{margin-bottom:18px;}
   }
 </style>
 </head>
@@ -785,19 +784,22 @@ const NAV = [
 
 function render(){
   const app = document.getElementById('app');
-  app.innerHTML = `<div class="shell">${sidebar()}<main class="main">${main()}</main></div>${modals()}`;
+  const fab = `<button class="fab-logo" data-act="toggle-side" aria-label="Abrir o cerrar menú" title="Menú">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 3c-3.2 0-5 2.3-5 5.6 0 4.2 2.6 9.3 5 12.4 2.4-3.1 5-8.2 5-12.4C17 5.3 15.2 3 12 3Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></button>`;
+  const backdrop = `<div class="side-backdrop ${UI.sideOpen?'show':''}" data-act="toggle-side"></div>`;
+  app.innerHTML = `${fab}${backdrop}<div class="shell">${sidebar()}<main class="main">${main()}</main></div>${modals()}`;
 }
 
 function sidebar(){
   const items = NAV.map(n=>`<button class="nav-item ${UI.view===n.k?'active':''}" data-act="nav" data-view="${n.k}">${esc(n.label)}</button>`).join('');
-  return `<aside class="sidebar ${UI.sideOpen?'':'collapsed'}" id="sidebar">
+  return `<aside class="sidebar ${UI.sideOpen?'open':''}" id="sidebar">
     <div class="brand">
       <div class="brand-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3c-3.2 0-5 2.3-5 5.6 0 4.2 2.6 9.3 5 12.4 2.4-3.1 5-8.2 5-12.4C17 5.3 15.2 3 12 3Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
       <div style="flex:1">
         <div class="brand-name">Familymeal</div>
         <div class="brand-sub">Cocina · Casa · Salud</div>
       </div>
-      <button class="x menu-btn" data-act="toggle-side" aria-label="Menú">☰</button>
+      <button class="x" data-act="toggle-side" aria-label="Cerrar menú" style="font-size:20px;">✕</button>
     </div>
     <nav class="nav">${items}</nav>
     ${cloudBadge()}
