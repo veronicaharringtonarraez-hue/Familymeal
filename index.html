@@ -643,6 +643,7 @@ function ensureDataFields(){
     DATA.qqItems = buildQqItems(carry); delete DATA.qq;
   }
   if(!DATA.customMeals) DATA.customMeals = {};
+  if(!DATA.qqSynced) DATA.qqSynced = {};
   if(!DATA.plan) DATA.plan = defaultPlan();
   else { for(const k in DATA.plan){ const v=DATA.plan[k]; DATA.plan[k] = v==null?[]:(Array.isArray(v)?v.filter(Boolean):[v]); } }
   if(!DATA.weights) DATA.weights={}; if(!DATA.body) DATA.body={};
@@ -666,7 +667,29 @@ function save(){
   catch(e){ console.error(e); toast('No se pudo guardar'); }
   cloudPush();   // si la sincronización está activa, sube los cambios
 }
-function commit(msg){ save(); render(); if(msg) toast(msg); }
+function commit(msg){ syncQuincenalToInventory(); save(); render(); if(msg) toast(msg); }
+
+/* ---- Reflejar los alimentos de la quincena (con cantidad) en el inventario ---- */
+const QQ_TO_INV = { prot:'Proteína', granos:'Cereales', harinas:'Cereales', tuberc:'Verduras', frutas:'Frutas', verduras:'Verduras', leche:'Lácteos', quesos:'Lácteos', especias:'Condimentos', condimentos:'Salsas' };
+function syncQuincenalToInventory(){
+  if(!DATA || !DATA.qqItems || !Array.isArray(DATA.inventory)) return 0;
+  if(!DATA.qqSynced) DATA.qqSynced = {};
+  const invSlugs = new Set(DATA.inventory.map(it=>slug(it.name)));
+  let added=0;
+  SEED.quincenalData.forEach(cat=>{
+    const invCat = QQ_TO_INV[cat.id] || 'Cereales';
+    (DATA.qqItems[cat.id]||[]).forEach(it=>{
+      if((+it.qty||0)<=0) return;            // solo lo que sí compras (cantidad > 0)
+      const key = slug(it.name);
+      if(DATA.qqSynced[key]) return;          // ya se consideró antes (no reaparece si lo borras)
+      DATA.qqSynced[key] = true;
+      if(invSlugs.has(key)) return;           // ya existe en inventario → no duplicar
+      DATA.inventory.push({ id:'qq_'+uid(), name:it.name, cat:invCat, qty:`${fmtNum(it.qty)} ${esc(it.unit)}`, status:'por acabarse', priority:false });
+      invSlugs.add(key); added++;
+    });
+  });
+  return added;
+}
 
 /* ---------- helpers de comidas ---------- */
 function cocinaDishes(){ return SEED.cocinas.flatMap(c=>c.dishes); }
@@ -1596,6 +1619,7 @@ function cloudDisconnect(){
 
 /* ---------- arranque ---------- */
 load();
+if(syncQuincenalToInventory()>0) save();
 render();
 cloudInit();
 </script>
