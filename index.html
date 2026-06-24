@@ -766,9 +766,17 @@ function shelfDaysFor(it){
   return 60;
 }
 function isPerecedero(it){ return shelfDaysFor(it)<=21 && !/(limpieza|higiene|beb[eé])/i.test(it.cat||''); }
-function daysLeft(it){ if(!it.boughtAt) return null; return shelfDaysFor(it) - Math.floor((Date.now()-it.boughtAt)/DAY_MS); }
+const pad2=(n)=>String(n).padStart(2,'0');
+function tsToInput(ts){ if(!ts) return ''; const d=new Date(ts); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function inputToTs(v){ if(!v) return null; const a=v.split('-').map(Number); if(!a[0]) return null; return new Date(a[0],(a[1]||1)-1,(a[2]||1),12,0,0).getTime(); }
+function daysLeft(it){
+  const t0=new Date(); t0.setHours(0,0,0,0);
+  if(it.expiry){ const e=new Date(it.expiry); e.setHours(0,0,0,0); return Math.round((e-t0)/DAY_MS); }   // fecha de vencimiento del empaque
+  if(it.boughtAt){ const b=new Date(it.boughtAt); b.setHours(0,0,0,0); return shelfDaysFor(it) - Math.round((t0-b)/DAY_MS); } // estimado desde la compra
+  return null;
+}
 function freshState(dl){
-  if(dl==null) return {k:'sin',bg:'#F1F4FA',color:'#586273',label:'Sin fecha de compra'};
+  if(dl==null) return {k:'sin',bg:'#F1F4FA',color:'#586273',label:'Falta fecha'};
   if(dl<0) return {k:'venc',bg:'#F4DCE6',color:'#98264C',label:'Vencido hace '+(-dl)+(dl===-1?' día':' días')};
   if(dl===0) return {k:'hoy',bg:'#F4DCE6',color:'#98264C',label:'¡Consúmelo HOY!'};
   if(dl===1) return {k:'urg',bg:'#FBE3D6',color:'#A24B1E',label:'Queda 1 día'};
@@ -776,11 +784,19 @@ function freshState(dl){
   return {k:'ok',bg:'#E1EFE9',color:'#0C5A48',label:'Quedan '+dl+' días'};
 }
 function frescuraItems(){
-  return DATA.inventory.filter(it=> isPerecedero(it) && it.status!=='agotado')
+  return DATA.inventory.filter(it=> it.status!=='agotado' && (isPerecedero(it) || it.expiry || it.boughtAt))
     .map(it=>({it, dl:daysLeft(it)}))
     .sort((a,b)=>{ if(a.dl==null) return 1; if(b.dl==null) return -1; return a.dl-b.dl; });
 }
-function consumeSoon(){ return frescuraItems().filter(x=> x.dl!=null && x.dl<=2); }
+function consumeSoon(){ return frescuraItems().filter(x=> x.dl!=null && x.dl<=3); }
+// Mapea categoría de inventario a un "tipo" para color en el menú
+const CAT_TO_TIPO = { 'Frutas':'fruta','Verduras':'veggie','Proteína':'mixto','Lácteos':'lacteo','Cereales':'legumbre','Grasas':'mixto','Condimentos':'veggie','Salsas':'veggie' };
+function addFoodToMenu(name, cat){
+  const id='cm_'+uid();
+  DATA.customMeals[id]={ id, name: name+' (usar pronto)', tipo: CAT_TO_TIPO[cat]||'fruta', ing:[], pasos:[] };
+  const key=todayKey()+'-m1'; const arr=planIds(key); arr.push(id); DATA.plan[key]=arr;
+  commit('Agregado al menú de hoy 🍽️');
+}
 function downloadShopping(){
   const list=DATA.inventory.filter(it=> it.status==='agotado'||it.status==='por acabarse'||it.priority);
   if(!list.length){ toast('No hay nada por comprar 🎉'); return; }
@@ -1152,7 +1168,14 @@ function viewComidas(){
           <button class="btn ghost sm" style="width:100%;justify-content:center;color:#2E6FB0;border-color:#BFD6F0;" data-act="pick" data-day="${d.k}" data-slot="${s.k}">＋ Agregar</button>
         </div></td>`;}).join('');
     return `<tr><td style="vertical-align:top;"><span class="pill" style="background:${d.k===today?'#0F7A63':'#E4E9F2'};color:${d.k===today?'#fff':'#4E5869'}">${d.k}</span></td>${cells}</tr>`;}).join('');
+  const soon = consumeSoon();
+  const soonCard = soon.length ? `<div class="card" style="margin-bottom:16px;border:1px solid #F0C9D7;background:#FCEFF4;">
+      <h3 class="card-title" style="color:#98264C;">🍂 Usar pronto (para no desperdiciar)</h3>
+      <div class="muted" style="font-size:12.5px;margin:4px 0 10px;">Estos alimentos se podrían dañar primero. Tócalos para agregarlos al menú de hoy.</div>
+      <div class="row" style="flex-wrap:wrap;gap:8px;">${soon.map(({it,dl})=>{const fs=freshState(dl);return `<button class="pill" style="background:${fs.bg};color:${fs.color};border:none;cursor:pointer;" data-act="fresh-to-menu" data-name="${esc(it.name)}" data-cat="${esc(it.cat)}">➕ ${esc(it.name)} · ${fs.label}</button>`;}).join('')}</div>
+    </div>` : '';
   return pageHead('Comidas de la semana', 'Menú semanal', 'Toca ＋ Agregar para sumar comidas de distintas cocinas del mundo, con su receta. Se guarda solo.')
+  + soonCard
   + `<div class="card"><div style="overflow-x:auto;"><table class="tbl menu-tbl">${head}${rows}</table></div></div>`;
 }
 
@@ -1184,29 +1207,35 @@ function viewFrescura(){
   const waste = SEED.wasteRanking.map((w,i)=>`<div class="row" style="padding:10px 0;border-bottom:${i===SEED.wasteRanking.length-1?'none':'1px solid #F2F4F9'};">
     <div class="avatar" style="width:30px;height:30px;font-size:13px;background:${i<3?'#FBF1D8':'#F1F4FA'};color:${i<3?'#9A7A1B':'#8B94A6'}">${w.rank}</div>
     <div style="flex:1"><div style="font-weight:700;font-size:14px;">${esc(w.name)}</div><div class="muted" style="font-size:12px;">${esc(w.note)}</div></div></div>`).join('');
-  // Reloj de frescura por alimento (según la fecha en que se marcó "lleno")
+  // Reloj de frescura por alimento — fecha de compra o de vencimiento del empaque
   const fi = frescuraItems();
   const clockRows = fi.map(({it,dl})=>{ const fs=freshState(dl); const cc=SEED.catColor[it.cat]||'#7C6A48';
     const vida=shelfDaysFor(it);
-    const sugerencia = (dl!=null && dl<=3) ? `<div style="font-size:12px;color:${fs.color};margin-top:3px;">💡 Inclúyelo en el menú ${dl<=0?'de hoy':'pronto'} para no desperdiciarlo. <button class="btn ghost sm" data-act="nav" data-view="comidas" style="padding:3px 9px;margin-left:4px;">Ir al menú</button></div>` : '';
-    const accion = dl==null ? `<button class="btn ghost sm" data-act="fresh-bought" data-id="${it.id}">🛒 Comprado hoy</button>`
-      : `<span class="pill" style="background:${fs.bg};color:${fs.color};">⏰ ${fs.label}</span>`;
-    return `<div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #F2F4F9;">
-      <div style="flex:1;min-width:0;">
+    const sugerencia = (dl!=null && dl<=3) ? `<div class="row" style="gap:6px;flex-wrap:wrap;margin-top:5px;">
+        <span style="font-size:12px;color:${fs.color};">💡 ${dl<0?'Ya venció — revísalo.':'Úsalo '+(dl<=0?'hoy':'pronto')+' para no desperdiciarlo.'}</span>
+        <button class="btn ghost sm" style="padding:3px 9px;" data-act="fresh-to-menu" data-name="${esc(it.name)}" data-cat="${esc(it.cat)}">➕ Agregar al menú de hoy</button></div>` : '';
+    return `<div style="padding:11px 0;border-bottom:1px solid #F2F4F9;">
+      <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px;">
         <div style="font-weight:700;font-size:14px;">${esc(it.name)} <span class="pill" style="background:${cc}22;color:${cc};font-size:11px;">${esc(it.cat)}</span></div>
-        <div class="muted" style="font-size:11px;">Dura ~${vida} días desde la compra${it.boughtAt?' · comprado el '+new Date(it.boughtAt).toLocaleDateString('es'):''}</div>
-        ${sugerencia}
+        <span class="pill" style="background:${fs.bg};color:${fs.color};flex:none;">⏰ ${fs.label}</span>
       </div>
-      <div style="flex:none;text-align:right;">${accion}</div>
-    </div>`;}).join('') || '<div class="muted" style="font-size:13px;">No hay alimentos perecederos activos. Marca tus productos como “Lleno” en el inventario al comprarlos para iniciar el reloj. ⏰</div>';
+      <div class="row" style="gap:14px;flex-wrap:wrap;margin-top:7px;">
+        <label style="font-size:11px;color:#8B94A6;font-weight:700;">Fecha de compra
+          <input type="date" class="input" style="display:block;margin-top:3px;padding:5px 8px;font-size:12px;" data-act="fresh-date" data-id="${it.id}" value="${tsToInput(it.boughtAt)}"></label>
+        <label style="font-size:11px;color:#8B94A6;font-weight:700;">Vence (del empaque)
+          <input type="date" class="input" style="display:block;margin-top:3px;padding:5px 8px;font-size:12px;" data-act="fresh-expiry" data-id="${it.id}" value="${tsToInput(it.expiry)}"></label>
+        <div style="font-size:11px;color:#AEB6C6;align-self:flex-end;">${it.expiry?'Usa la fecha del empaque':'Estimado ~'+vida+' días desde la compra'}</div>
+      </div>
+      ${sugerencia}
+    </div>`;}).join('') || '<div class="muted" style="font-size:13px;">No hay alimentos perecederos activos. Marca tus productos como “Lleno” en el inventario, o ingresa una fecha de compra o vencimiento abajo. ⏰</div>';
   const soon = consumeSoon().length;
   const clockCard = `<div class="card" style="margin-bottom:18px;">
     <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
       <h3 class="card-title">⏰ Reloj de frescura</h3>
       ${soon?`<span class="pill" style="background:#F4DCE6;color:#98264C;">${soon} por consumir pronto</span>`:'<span class="pill" style="background:#E1EFE9;color:#0C5A48;">Todo bajo control</span>'}</div>
-    <div class="muted" style="font-size:12.5px;margin-bottom:8px;line-height:1.5;">El reloj cuenta desde el día en que marcas el producto como <b>“Lleno”</b> en el inventario (cuando lo compras). Te avisa cuántos días le quedan antes de dañarse.</div>
+    <div class="muted" style="font-size:12.5px;margin-bottom:8px;line-height:1.5;">Se actualiza solo cada día. Ingresa la <b>fecha de compra</b> (alimentos frescos) o la <b>fecha de vencimiento</b> del empaque. Si no pones fecha, igual se estima y te sugiere qué consumir primero.</div>
     ${clockRows}</div>`;
-  return pageHead('Frescura y consumo', 'Orden de consumo', 'Qué usar primero para que nada se desperdicie.')
+  return pageHead('Frescura y consumo', 'Orden de consumo', 'Qué usar primero para que nada se desperdicie. Se actualiza cada día.')
   + clockCard
   + `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin-bottom:18px;">${tiers}</div>
      <div class="card"><h3 class="card-title">Se daña más rápido</h3><div class="muted" style="font-size:13px;margin-bottom:6px;">Vigila estos primero</div>${waste}</div>`;
@@ -1405,6 +1434,7 @@ document.addEventListener('click', (e)=>{
     case 'inv-cycle':{ const id=t.dataset.id; const order=['lleno','por acabarse','agotado'];
       const it=DATA.inventory.find(x=>x.id===id); if(it){ it.status=order[(order.indexOf(it.status)+1)%3]; if(it.status==='lleno') it.boughtAt=Date.now(); commit(); } break; }
     case 'fresh-bought':{ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ it.boughtAt=Date.now(); if(it.status==='agotado') it.status='lleno'; commit('Reloj de frescura iniciado ⏰'); } break; }
+    case 'fresh-to-menu': addFoodToMenu(t.dataset.name, t.dataset.cat); break;
     case 'dl-shopping': downloadShopping(); break;
     case 'inv-add': UI.invForm={id:null,name:'',cat:UI.invCat==='Todos'?'Frutas':UI.invCat,qty:'',status:'lleno',priority:false}; render(); break;
     case 'inv-edit':{ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ UI.invForm={...it}; render(); } break; }
@@ -1477,6 +1507,8 @@ document.addEventListener('change', (e)=>{
   else if(act==='weight-field'){ DATA.weights[t.dataset.id]=t.value; save(); }
   else if(act==='tipo-field'){ const id=t.dataset.id; DATA.body[id]={...(DATA.body[id]||{}),tipoCuerpo:t.value}; save(); }
   else if(act==='body-field'){ const id=t.dataset.id; DATA.body[id]={...(DATA.body[id]||{}),[t.dataset.key]:t.value}; save(); }
+  else if(act==='fresh-date'){ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ it.boughtAt=inputToTs(t.value)||null; if(it.boughtAt && it.status==='agotado') it.status='lleno'; commit(); } }
+  else if(act==='fresh-expiry'){ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ it.expiry=inputToTs(t.value)||null; if(it.expiry && it.status==='agotado') it.status='lleno'; commit(); } }
 });
 
 // importar archivo
