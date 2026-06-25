@@ -791,11 +791,15 @@ function frescuraItems(){
 function consumeSoon(){ return frescuraItems().filter(x=> x.dl!=null && x.dl<=3); }
 // Mapea categoría de inventario a un "tipo" para color en el menú
 const CAT_TO_TIPO = { 'Frutas':'fruta','Verduras':'veggie','Proteína':'mixto','Lácteos':'lacteo','Cereales':'legumbre','Grasas':'mixto','Condimentos':'veggie','Salsas':'veggie' };
-function addFoodToMenu(name, cat){
+function suggestSlot(cat){ if(/prote|verdura/i.test(cat||'')) return 'almuerzo'; return 'm1'; }
+function addFoodToMenu(name, cat, day, slot){
   const id='cm_'+uid();
   DATA.customMeals[id]={ id, name: name+' (usar pronto)', tipo: CAT_TO_TIPO[cat]||'fruta', ing:[], pasos:[] };
-  const key=todayKey()+'-m1'; const arr=planIds(key); arr.push(id); DATA.plan[key]=arr;
-  commit('Agregado al menú de hoy 🍽️');
+  const dk=day||todayKey(), sk=slot||'m1';
+  const key=dk+'-'+sk; const arr=planIds(key); arr.push(id); DATA.plan[key]=arr;
+  UI.freshAdd=null;
+  const dl=SEED.days.find(d=>d.k===dk), sl=SEED.slots.find(s=>s.k===sk);
+  commit('Agregado a '+(sl?sl.l:'')+' · '+(dl?dl.full:'')+' 🍽️');
 }
 function downloadShopping(){
   const list=DATA.inventory.filter(it=> it.status==='agotado'||it.status==='por acabarse'||it.priority);
@@ -1276,7 +1280,21 @@ function modals(){
   if(UI.picker) html += modalPicker();
   if(UI.editing) html += modalProfile();
   if(UI.cloudForm) html += modalCloud();
+  if(UI.freshAdd) html += modalFreshAdd();
   return html;
+}
+function modalFreshAdd(){
+  const f=UI.freshAdd; const today=todayKey();
+  const dayChips=SEED.days.map(d=>`<button class="chip sm ${f.day===d.k?'on':''}" data-act="fa-day" data-day="${d.k}">${d.k}${d.k===today?' · hoy':''}</button>`).join('');
+  const slotChips=SEED.slots.map(s=>`<button class="chip sm ${f.slot===s.k?'on':''}" data-act="fa-slot" data-slot="${s.k}">${esc(s.l)}</button>`).join('');
+  return `<div class="overlay" data-act="close-modal"><div class="modal" data-stop>
+    <div class="modal-head"><div><h2 class="card-title">Planificar “usar pronto”</h2><div class="muted" style="font-size:13px;">${esc(f.name)} — elige cuándo lo consumes</div></div><button class="x" data-act="close-modal">✕</button></div>
+    <div style="font-weight:800;font-size:11px;letter-spacing:.5px;color:#8B94A6;margin:2px 0 7px;">DÍA</div>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:14px;">${dayChips}</div>
+    <div style="font-weight:800;font-size:11px;letter-spacing:.5px;color:#8B94A6;margin:2px 0 7px;">TIEMPO DE COMIDA</div>
+    <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:18px;">${slotChips}</div>
+    <button class="btn" style="width:100%;" data-act="fa-confirm">➕ Agregar al menú</button>
+  </div></div>`;
 }
 function modalCloud(){
   const connected = CLOUD.status==='synced' || (CLOUD.url && CLOUD.anonKey && CLOUD.family);
@@ -1434,7 +1452,10 @@ document.addEventListener('click', (e)=>{
     case 'inv-cycle':{ const id=t.dataset.id; const order=['lleno','por acabarse','agotado'];
       const it=DATA.inventory.find(x=>x.id===id); if(it){ it.status=order[(order.indexOf(it.status)+1)%3]; if(it.status==='lleno') it.boughtAt=Date.now(); commit(); } break; }
     case 'fresh-bought':{ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ it.boughtAt=Date.now(); if(it.status==='agotado') it.status='lleno'; commit('Reloj de frescura iniciado ⏰'); } break; }
-    case 'fresh-to-menu': addFoodToMenu(t.dataset.name, t.dataset.cat); break;
+    case 'fresh-to-menu': UI.freshAdd={ name:t.dataset.name, cat:t.dataset.cat, day:todayKey(), slot:suggestSlot(t.dataset.cat) }; render(); break;
+    case 'fa-day': UI.freshAdd.day=t.dataset.day; render(); break;
+    case 'fa-slot': UI.freshAdd.slot=t.dataset.slot; render(); break;
+    case 'fa-confirm': addFoodToMenu(UI.freshAdd.name, UI.freshAdd.cat, UI.freshAdd.day, UI.freshAdd.slot); break;
     case 'dl-shopping': downloadShopping(); break;
     case 'inv-add': UI.invForm={id:null,name:'',cat:UI.invCat==='Todos'?'Frutas':UI.invCat,qty:'',status:'lleno',priority:false}; render(); break;
     case 'inv-edit':{ const it=DATA.inventory.find(x=>x.id===t.dataset.id); if(it){ UI.invForm={...it}; render(); } break; }
@@ -1449,7 +1470,7 @@ document.addEventListener('click', (e)=>{
     case 'close-modal':
       // si el clic es el fondo (overlay) solo cierra al tocar directamente el fondo, no el contenido
       if(t.classList.contains('overlay') && e.target!==t) break;
-      UI.invForm=null; UI.picker=null; UI.editing=null; UI.cloudForm=null; render(); break;
+      UI.invForm=null; UI.picker=null; UI.editing=null; UI.cloudForm=null; UI.freshAdd=null; render(); break;
     // quincenal
     case 'qq':{ const cat=t.dataset.cat, id=t.dataset.id, delta=parseFloat(t.dataset.delta);
       const it=(DATA.qqItems[cat]||[]).find(x=>x.id===id); if(it){ it.qty=Math.max(0,Math.round(((+it.qty||0)+delta)*100)/100); commit(); } break; }
